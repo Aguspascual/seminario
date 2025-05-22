@@ -1,0 +1,39 @@
+<link rel="stylesheet" href="/static/css/componentes/main/usuarioAgregar.css">
+<div class="contenedorUsuarioAgregar">
+    <div class="encabezado">
+        <div class="titulo">
+            <h2>NUEVO USUARIO</h2>
+        </div>
+    </div>
+    
+    <div class="contenedor-usuarios">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/usuario/agregar" method="post" enctype="multipart/form-data">
+            <input type="text" name="nombre" placeholder="Nombre">
+            <input type="text" name="apellido" placeholder="Apellido">
+            <input type="text" name="correo" placeholder="Correo">
+            <input type="text" name="dni" placeholder="DNI">
+            <select name="tipoUsuario">
+                <option value="" disabled selected>Seleccione un usuario</option>
+                <option value="Profesor">Profesor</option>
+                <option value="Alumno">Alumno</option>
+                <option value="Preceptor">Preceptor</option>
+                <option value="Tutor">Tutor</option>
+                <option value="Director">Director</option>
+            </select>
+            <div class="fotoPerfil">
+                <label>Foto de perfil</label>
+                <input type="file" name="fotoPerfil">
+            </div>
+            <button class="btn-agregar" type="submit">Agregar</button>
+        </form>
+    </div>
+</div>

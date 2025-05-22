@@ -1,0 +1,66 @@
+.contenedorMensajeAside {
+    width: 300px; 
+    border-right: 1px solid #ccc; 
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+}
+
+.contenedorMensajeAside h3 {
+    padding: 15px;
+    margin: 0;
+    border-bottom: 1px solid #ccc; 
+}
+
+.lista {
+    flex-grow: 1;
+    overflow-y: auto; 
+}
+
+.lista > .listaContactos {
+    display: flex;
+    padding: 10px;
+    border-bottom: 1px solid #eee; 
+}
+
+.buscador{
+    flex-grow: 1;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 78%;
+}
+
+
+.persona {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    border-bottom: 1px solid #eee; 
+}
+
+.persona:hover {
+    background-color: #e0e0e0;
+}
+
+.persona img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.persona h4 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.listaContactos p {
+    text-align: center;
+    padding: 10px;
+    color: #888;
+}
+

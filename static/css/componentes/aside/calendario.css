@@ -1,0 +1,77 @@
+.contenedorCalendarioAside {
+    height: 39vh;
+}
+
+.superior h3 {
+    width: 100%;
+    height: 8px;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.superior .box {
+    width: 100%;
+    height: 35vh;
+    background-color: #C1C7D4;
+    border-radius: 10px;
+    justify-items: center;
+    padding-top: 0px;
+    margin-bottom: 0px;
+}
+
+.superior h5 {
+    width: 100%;
+    text-align: center;
+    align-items: center;
+    background-color: #012840;
+    height: 40px;
+    margin-block-start: 0px;
+    margin-block-end: 5px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    font-size: 18px;
+    color: aliceblue;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.superior .grilla {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    height: 82%;
+    justify-items: center;
+}
+
+.superior .dia {
+    font-weight: 700;
+}
+
+.superior .numero {
+    width: 70%;
+    height: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.superior .numero:hover {
+    background-color: #012840;
+    border-radius: 80%;
+    color: aliceblue;
+    cursor: default;
+}
+
+/* Estilos para los días con eventos */
+.superior .numero.agendada {
+    background-color: #012840; 
+    border-radius: 80%;
+    color: antiquewhite; 
+    font-weight: bold;
+}
+
+.superior .numero.agendada:hover {
+    background-color: #011827; 
+    color: white;
+}

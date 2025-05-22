@@ -1,0 +1,131 @@
+<link rel="stylesheet" href="/static/css/componentes/main/materiaCrear.css">
+<div class="crearMateria">
+    <div class="inferior">
+        <h1>CREAR MATERIA</h1>
+    </div>
+    <form action="/materia/{{ curso.id }}/agregarMateria" method="post" enctype="multipart/form-data">
+        <label for="nombre">Nombre de materia:</label><br>
+        <input name="nombre" type="text" id="nombre" placeholder="Nombre de materia" required><br>
+    
+        <label for="descripcion">Descripción:</label><br>
+        <textarea name="descripcion" id="descripcion" rows="4" cols="50" required>
+            Escribe aquí una descripción sobre la materia...
+        </textarea><br>
+    
+        <label for="idProfesor">Profesor:</label><br>
+        <select name="idProfesor" id="idProfesor" required><br><br>
+            <option value="" hidden>Seleccione un docente</option> {% for profesor in profesores %}
+                <option value="{{ profesor.id }}">{{ profesor.nombre }} {{ profesor.apellido }}</option>
+            {% endfor %}
+        </select><br>
+    
+        <label for="horario">Horario:</label><br>
+        <input type="text" name="horario" id="horario" placeholder="Ej: Lunes 10:00 AM - Viernes 12:00 PM" required><br>
+    
+        <label for="requisito">Requisito:</label><br>
+        <textarea id="requisito" name="requisito" rows="4" cols="50"></textarea><br>
+        <button type="button" onclick="agregarRequisito()">Agregar</button><br>
+        <ul id="listaRequisitos"></ul>
+        <input type="hidden" id="requisitosOcultos" name="requisitos">
+    
+        <label for="objetivo">Objetivos:</label><br>
+        <textarea id="objetivo" name="objetivo" rows="4" cols="50"></textarea><br>
+        <button type="button" onclick="agregarObjetivo()">Agregar</button><br>
+        <ul id="listaObjetivos"></ul>
+        <input type="hidden" id="objetivosOcultos" name="objetivos">
+    
+        <label for="unidadNombre">Nombre de la unidad:</label><br>
+        <textarea id="unidadNombre" name="unidadNombre" rows="2" cols="50"></textarea><br>
+        <button type="button" onclick="agregarUnidad()">Agregar Unidad</button><br>
+        <ul id="listaUnidades"></ul>
+        <input type="hidden" id="unidadesOcultas" name="unidades">
+    
+        <label for="fotoMateria">Foto de la materia:</label><br>
+        <input type="file" name="fotoMateria" accept="image/*"><br>
+    
+        <input type="submit" value="Guardar Materia">
+    </form>
+</div>
+
+<script>
+    let requisitos = [];
+    let objetivos = [];
+    let unidades = [];
+    let contadorUnidades = 1;
+
+    function agregarRequisito() {
+        const requisito = document.getElementById('requisito').value;
+        if (requisito.trim() !== '') {
+            requisitos.push(requisito);
+            actualizarLista('listaRequisitos', requisitos, 'requisitosOcultos');
+            document.getElementById('requisito').value = '';
+        } else {
+            alert('Por favor, ingresa un requisito.');
+        }
+    }
+
+    function agregarObjetivo() {
+        const objetivo = document.getElementById('objetivo').value;
+        if (objetivo.trim() !== '') {
+            objetivos.push(objetivo);
+            actualizarLista('listaObjetivos', objetivos, 'objetivosOcultos');
+            document.getElementById('objetivo').value = '';
+        } else {
+            alert('Por favor, ingresa un objetivo.');
+        }
+    }
+
+    function agregarUnidad() {
+        const nombreUnidad = document.getElementById('unidadNombre').value;
+        if (nombreUnidad.trim() !== '') {
+            unidades.push(nombreUnidad); // Guardar solo el nombre de la unidad
+            actualizarLista('listaUnidades', unidades, 'unidadesOcultas');
+            document.getElementById('unidadNombre').value = '';
+            contadorUnidades++;
+        } else {
+            alert('Por favor, ingresa un nombre para la unidad.');
+        }
+    }
+
+    function actualizarLista(listaId, array, ocultoId) {
+        const lista = document.getElementById(listaId);
+        lista.innerHTML = ''; // Limpiar la lista antes de actualizar
+
+        if (array.length > 0) {
+            const titulo = document.createElement('h3');
+            titulo.textContent = `Lista de ${listaId.replace('lista', '')}:`;
+            lista.appendChild(titulo);
+
+            array.forEach((item, index) => {
+                const nuevoElemento = document.createElement('li');
+                nuevoElemento.textContent = item;
+
+                const botonEliminar = document.createElement('button');
+                botonEliminar.textContent = 'Eliminar';
+                botonEliminar.onclick = function() {
+                    array.splice(index, 1); // Eliminar el elemento del array
+                    actualizarLista(listaId, array, ocultoId); // Actualizar la lista
+                };
+
+                nuevoElemento.appendChild(botonEliminar);
+                lista.appendChild(nuevoElemento);
+            });
+        }
+
+        document.getElementById(ocultoId).value = JSON.stringify(array);
+    }
+
+    const descripcionTextarea = document.getElementById('descripcion');
+
+    descripcionTextarea.addEventListener('focus', () => {
+        if (descripcionTextarea.textContent.trim() === 'Escribe aquí una descripción sobre la materia...') {
+            descripcionTextarea.textContent = '';
+        }
+    });
+
+    descripcionTextarea.addEventListener('blur', () => {
+        if (descripcionTextarea.textContent.trim() === '') {
+            descripcionTextarea.textContent = 'Escribe aquí una descripción sobre la materia...';
+        }
+    });
+</script>

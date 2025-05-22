@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="../../static/css/componentes/home.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap" rel="stylesheet">
+{% include '/componentes/header/header.html' %}
+                <aside>
+                    <div class="superior">
+                        {% include '/componentes/aside/calendario.html' %}
+                    </div>
+                    <div class="inferior">
+                        {% include '/componentes/aside/comunicados.html' %}
+                    </div>
+                </aside>        
+                <main>
+                    {% include '/componentes/main/usuarioAgregar.html' %}
+                </main>
+        </section>
+    </body>
+</html>

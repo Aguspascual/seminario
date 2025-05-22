@@ -1,0 +1,275 @@
+.contenedorCursos {
+    width: 95%;
+    height: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/*-----ENCABEZADO-----*/
+.encabezado {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.encabezado .titulo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.encabezado .titulo h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.encabezado .titulo a { 
+    background-color: #012840;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.encabezado .titulo a:hover {
+    background-color: #0056b3;
+}
+
+.encabezado .titulo button { 
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.encabezado .titulo button:hover {
+    background-color: #c9302c;
+}
+
+.encabezado .buscador {
+    position: relative;
+    display: inline-block;
+}
+
+.encabezado .buscador input {
+    padding-right: 5px;
+    width: 250px;
+    height: 35px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.encabezado .buscador i {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: gray;
+    cursor: pointer;
+}
+
+/*----- CONTENEDOR DE CURSOS-----*/
+.contenedor-cursos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Esto ajusta las columnas automáticamente */
+    gap: 15px;
+    margin-top: 8px;
+    box-sizing: border-box;
+    height: auto;
+    max-height: 68vh;
+    overflow-y: auto;
+    padding: 10px;
+    justify-items: center;
+}
+
+.contenedor-cursos::-webkit-scrollbar {
+    width: 6px;
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.contenedor-cursos::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.contenedor-cursos .curso {
+    width: 100%;
+    min-height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contenedor-cursos .curso:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.contenedor-cursos .curso a {
+    display: block;
+    width: 98%;
+    height: 98%;
+    text-decoration: none;
+}
+
+.contenedor-cursos .curso h3 {
+    width: 120px;
+    height: 60px;
+    display: flex;
+    z-index: 2;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    top: 10px;
+    left: calc(50% - 60px);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    border-radius: 30px;
+    color: white;
+    font-size: 16px;
+}
+
+.contenedor-cursos .curso img {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    position: absolute;
+    object-fit: cover;
+}
+
+.cargarMas {
+    width: 120px;
+    height: 35px;
+    margin: 15px auto;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cargarMas:hover {
+    background-color: #0056b3;
+}
+
+/* Media query para pantallas más pequeñas */
+@media (max-width: 768px) {
+    .encabezado {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .encabezado .buscador {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .encabezado .buscador input {
+        width: 100%;
+    }
+
+    .contenedor-cursos {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+/* Estilos para el modal de eliminación */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #f8f9fa; /* Color de fondo más suave */
+    margin: 10% auto;
+    padding: 30px; /* Aumentar el padding */
+    border: 1px solid #dee2e6; /* Borde más sutil */
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente legible */
+}
+
+.close {
+    color: #6c757d; /* Color gris para el botón de cierre */
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease; /* Transición suave */
+}
+
+.close:hover,
+.close:focus {
+    color: #343a40; /* Color más oscuro al pasar el mouse */
+    text-decoration: none;
+}
+
+#listaCursosEliminar {
+    list-style: none; /* Eliminar viñetas */
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+#listaCursosEliminar li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+#listaCursosEliminar input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+#eliminarSeleccionadosBtn {
+    background-color: #dc3545; /* Color rojo para el botón de eliminar */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 16px;
+}
+
+#eliminarSeleccionadosBtn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}

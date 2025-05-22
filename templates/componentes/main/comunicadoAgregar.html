@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="/static/css/componentes/main/comunicadoAgregar.css">
+<div class="formulario-crear-comunicado">
+    <h1>Crear Comunicado</h1>
+    <form action="/comunicado/crear" method="post">
+        <label for="descripcion">Descripción:</label>
+        <textarea id="descripcion" name="descripcion" rows="4" required></textarea>
+
+        <label for="dirigido">Dirigido a:</label>
+        <select id="dirigido" name="dirigido" required>
+            <option value="" disabled selected>Dirigido a</option>
+            <option value="Todos">Todos</option>
+            <option value="Preceptores">Preceptores</option>
+            <option value="Profesores">Profesores</option>
+            <option value="Padres">Padres</option>
+            <option value="Alumnos">Alumnos</option>
+        </select>
+
+        <div id="cursos-select">
+            <label for="idCurso">Seleccionar Curso:</label>
+            <select id="idCurso" name="idCurso" required>
+                <option value="" disabled selected>Seleccionar curso</option>
+                {% if tipoUsuario == 'Admin' or tipoUsuario == 'Director' %}
+                    <option value="0">Todos</option> 
+                {% endif %}
+                {% for curso in cursos %} 
+                    <option value="{{ curso.id }}">{{ curso.año }} - {{ curso.division }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <input type="submit" value="Crear Comunicado">
+    </form>
+</div>
+
+<script>
+    const cursosSelectDiv = document.getElementById('cursos-select');
+    const idCursoHidden = document.createElement('input'); // Crear campo oculto
+    idCursoHidden.type = 'hidden';
+    idCursoHidden.name = 'idCurso';
+    document.querySelector('form').appendChild(idCursoHidden); // Añadir al formulario
+
+   
+const dirigidoSelect = document.getElementById('dirigido');
+const idCursoInput = document.getElementById('idCurso');
+
+dirigidoSelect.addEventListener('change', function() {
+    // Eliminar la lógica que oculta/muestra el select de cursos
+    idCursoInput.required = true; 
+});
+</script>

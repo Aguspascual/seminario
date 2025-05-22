@@ -1,0 +1,54 @@
+<link rel="stylesheet" href="../../../static/css/componentes/main/cursoAgregar.css">
+<form id="profesores-form" action="/cursos/agregar/docentes" method="post">
+    <div class="docentes">
+        <div class="superior">
+            <h2>Agregar Docentes</h2>
+            <input type="text" id="buscar-docente" placeholder="Buscar Docente">
+            <ul id="lista-docentes"></ul>
+        </div>
+        <div class="inferior">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-docentes">
+                </tbody>
+            </table>
+            <input type="hidden" name="curso_id" value="{{ curso_id }}">
+            <button type="submit">Cargar Profesores</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Envío del formulario (puedes adaptarlo según tu backend)
+    const profesoresForm = document.getElementById('profesores-form');
+    profesoresForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        profesoresSeleccionados.forEach(profesor => {
+            formData.append('profesores_seleccionados', profesor.id);
+        });
+        formData.append('curso_id', {{ curso_id }});
+
+        fetch('/cursos/agregar/docentes', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Profesores cargados correctamente');
+            } else {
+                console.error('Error al cargar profesores');
+            }
+        })
+        .catch(error => {
+            console.error('Error de red:', error);
+        });
+    });
+</script>

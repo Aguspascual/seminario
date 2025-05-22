@@ -1,0 +1,223 @@
+/* Estilos para el contenedor principal */
+.containerPadreComunicados {
+    width: 95%;
+    max-width: 1200px;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+.containerComunicados {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cabecera {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.cabecera h2 {
+    color: #333;
+    margin: 0;
+}
+
+.cabecera a {
+    background-color: #012840;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cabecera a:hover {
+    background-color: #0056b3;
+}
+
+.containerComunicados .body {
+    overflow-y: auto;
+    max-height: 70vh; 
+}
+
+.containerComunicados table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.containerComunicados table thead th {
+    background-color: #012840 !important;
+    color: white;
+    padding: 10px;
+    text-align: center !important;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 30px;
+}
+
+.containerComunicados table tbody tr {
+    background-color:antiquewhite;
+}
+
+.containerComunicados table tbody tr:nth-child(even) {
+    background-color: antiquewhite;
+}
+
+.containerComunicados table tbody tr:hover {
+    background-color: #ccc;
+}
+
+.containerComunicados table tbody tr td {
+    padding: 10px;
+    text-align: center !important;
+    word-break:break-all;
+}
+
+.accionTd {
+    text-align: center;
+}
+
+.accionTd i {
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.ver {
+    color: #007bff;
+}
+
+.eliminar {
+    color: red;
+    background-color: transparent; /* Agregar fondo transparente para que se vea el color rojo */
+    border: none; /* Eliminar el borde del botón */
+    padding: 5px 5px; /* Agregar padding para que el botón tenga un tamaño adecuado */
+    cursor: pointer; /* Cambiar el cursor a puntero para indicar que es un botón */
+}
+
+.eliminar:hover {
+    background-color: rgba(255, 0, 0, 0.1); /* Agregar un ligero fondo rojo al pasar el mouse */
+}
+
+.MasComunicados {
+    background-color: #012840;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+}
+
+.MasComunicados:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para el modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-contenido {
+    background-color: #fefefe;
+    margin: 2% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.cerrar {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.cerrar:hover,
+.cerrar:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#formModificarComunicado label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+#formModificarComunicado input,
+#formModificarComunicado textarea,
+#formModificarComunicado select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#formModificarComunicado button[type="submit"] {
+    background-color: #012840;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#formModificarComunicado button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para la tabla */
+#tablaComunicados {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tablaComunicados th,
+#tablaComunicados td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+#tablaComunicados th {
+    background-color: #f2f2f2;
+}
+
+#tablaComunicados tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+    .containerPadreComunicados {
+        padding: 20px;
+    }
+
+    .modal-contenido {
+        width: 90%;
+        margin: 10% auto;
+    }
+}

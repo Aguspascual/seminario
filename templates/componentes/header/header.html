@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/home.css">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <section class="container">
+        <link rel="stylesheet" href="/static/css/componentes/header/header.css">
+        <header>
+            <div class="logo">
+                <img src="/static/img/Logo.jpeg">
+            </div>
+            <div class="menu-toggle" id="menu-toggle">
+                <button class="toggle-btn">☰</button>
+            </div>
+            <div>
+                <ul class="items" id="menu-items">
+                    {% if tipoUsuario == 'Admin' or tipoUsuario == 'Director' or tipoUsuario == 'Preceptor' or tipoUsuario == 'Profesor' %}
+                        <li><a href="/cursos">Cursos</a></li>
+                    {% endif %}
+                    {% if tipoUsuario == 'Alumno' or tipoUsuario == 'Tutor' %}
+                        <li><a href="/curso/{{ idCurso }}">Curso</a></li>
+                    {% endif %}
+                    {% if tipoUsuario == 'Admin' or tipoUsuario == 'Director' or tipoUsuario == 'Preceptor' %}
+                        <li><a href="/usuarios">Usuarios</a></li>
+                    {% endif %}
+                    {% if tipoUsuario == 'Admin' or tipoUsuario == 'Director' or tipoUsuario == 'Preceptor' or tipoUsuario == 'Profesor' %}
+                        <li><a href="/comunicados">Comunicados</a></li>
+                    {% endif %}
+                    {% if tipoUsuario == 'Admin' or tipoUsuario == 'Director' or tipoUsuario == 'Preceptor' or tipoUsuario == 'Profesor' %}
+                        <li><a href="/calendario">Calendario</a></li>
+                    {% endif %}
+                    <li><a href="/mensajes">Mensajes</a></li>
+                    <li class="perfil" id="perfil-menu">
+                        <button>
+                            {% if fotoPerfil %}
+                                {{nombre}} <img class="imgPerfil" src="/static/img/perfiles/{{ fotoPerfil }}"> <i class="fas fa-caret-down"></i>
+                            {% else %}
+                                {{nombre}} <img class="imgPerfil" src="/static/img/perfiles/fotoPerfil.png"> <i class="fas fa-caret-down"></i>
+                            {% endif %}
+                            <div class="menu-perfil" id="menu-perfil">
+                                <a href="/cambiar-contrasena">Cambiar Contraseña</a>
+                                <a href="/logout">Cerrar Sesión</a>
+                            </div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </header>
+<script>
+    const menuToggle = document.getElementById('menu-toggle');
+const menuItems = document.getElementById('menu-items');
+const perfilMenu = document.getElementById('perfil-menu');
+const menuPerfil = document.getElementById('menu-perfil');
+
+menuToggle.addEventListener('click', () => {
+    menuItems.classList.toggle('show');
+});
+
+perfilMenu.addEventListener('click', (event) => {
+    event.stopPropagation();
+    menuPerfil.style.display = menuPerfil.style.display === 'block' ? 'none' : 'block';
+});
+
+document.addEventListener('click', (event) => {
+    if (!perfilMenu.contains(event.target) && event.target !== perfilMenu) {
+        menuPerfil.style.display = 'none';
+    }
+});
+</script>

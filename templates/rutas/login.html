@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <title>BEAM</title>
+</head>
+<body>
+    <div class="container">
+        <div class="foto">
+            <img src="/static/img/login.jpeg" alt="Imagen de inicio de sesión">
+        </div>
+        <div class="auth">
+            
+            <div class="info">
+                <h1>INICIO DE SESIÓN</h1>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for message in messages %}
+                                <p class="flash-message">{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                <form action="/" method="post">
+                    <span>Usuario</span>
+                    <input type="text" name="usuario" placeholder="Ingrese su usuario" required>
+                    <span>Contraseña</span>
+                    <input type="password" name="contrasena" placeholder="Contraseña" required>
+                    <a href="/recuperar-contrasena">Recuperar contraseña</a>
+                    <button type="submit">Ingresar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

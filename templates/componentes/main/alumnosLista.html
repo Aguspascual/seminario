@@ -1,0 +1,256 @@
+<link rel="stylesheet" href="/static/css/componentes/main/alumnosLista.css">
+<div class="encabezado">
+    <div class="titulo">
+        <h2>LISTA DE ALUMNOS</h2>
+        <a id="agregar-alumno-btn"><i class="fa-solid fa-plus"></i></a>
+    </div>
+    <div class="buscador">
+        <input type="text" id="buscador-alumnos-tabla" placeholder="Ingresa nombre">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+</div>
+<div class="contenedor-usuarios">
+    <table>
+        <thead>
+            <th class="nom-ape">Nombre</th>
+            <th class="nom-ape">Apellido</th>
+            <th>Ausentes</th>
+            <th class="accion">Accion</th>
+        </thead>
+        <tbody id="tabla-alumnos">
+            {% for alumno in alumnos %}
+                {% for aCurso in alumnosCurso %}
+                    {% if alumno.id == aCurso.idAlumno %}
+                        <tr>
+                            <td>{{ alumno.nombre }}</td>
+                            <td>{{ alumno.apellido }}</td>
+                            <td>{{ faltas_por_alumno[alumno.id] }}</td>
+                            <td class="accion">
+                                <button class="ver-btn"
+                                        data-nombre="{{ alumno.nombre }}"
+                                        data-apellido="{{ alumno.apellido }}"
+                                        data-correo="{{ alumno.correo }}"
+                                        data-tutor="{{ alumno.tutor }}"
+                                        data-alumno-id="{{ alumno.id }}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div id="modal-agregar-alumnos" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Agregar Alumnos</h2>
+        <input type="text" id="buscador-alumnos" placeholder="Buscar alumnos...">
+        <ul id="lista-alumnos">
+        </ul>
+        <h3>Alumnos seleccionados:</h3>
+        <ul id="lista-alumnos-seleccionados">
+        </ul>
+        <button id="confirmar-alumnos">Confirmar</button>
+    </div>
+</div>
+<div id="info-panel" class="hidden">
+    <p><strong>Nombre:</strong> <span id="info-nombre"></span></p>
+    <p><strong>apellido:</strong> <span id="info-apellido"></span></p>
+    <p><strong>Correo:</strong> <span id="info-correo"></span></p>
+    <p><strong>Tutor:</strong> <span id="info-tutor"></span></p>
+    <p><strong>Notas:</strong> <ul id="info-notas"></ul></p>
+    <p><strong>Informe:</strong> <span id="info-informe">No hay informes cargados.</span> <button id="agregar-informe-btn">+</button></p>
+    <button id="eliminar-alumno-btn" data-alumno-id="">Eliminar Alumno</button>
+    <button id="close-panel">Cerrar</button>
+    <a id="mensaje-alumno-btn" href="#" target="_blank">Mensaje</a>
+</div>
+
+<div id="confirm-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="confirm-cancel">&times;</span>
+        <h2>Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que quieres eliminar este alumno del curso?</p>
+        <input type="hidden" id="confirm-alumno-id" value="">
+        <button id="confirm-delete">Eliminar</button>
+        <button id="confirm-cancel">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    const buscadorAlumnosTabla = document.getElementById("buscador-alumnos-tabla");
+    const tablaAlumnos = document.getElementById("tabla-alumnos");
+
+    buscadorAlumnosTabla.addEventListener("input", function() {
+        const textoBusqueda = buscadorAlumnosTabla.value.toLowerCase();
+        const filas = tablaAlumnos.getElementsByTagName("tr");
+
+        for (let i = 0; i < filas.length; i++) {
+            const celdas = filas[i].getElementsByTagName("td");
+            let encontrado = false;
+
+            for (let j = 0; j < celdas.length; j++) {
+                const textoCelda = celdas[j].textContent.toLowerCase();
+                if (textoCelda.includes(textoBusqueda)) {
+                    encontrado = true;
+                    break;
+                }
+            }
+
+            if (encontrado) {
+                filas[i].style.display = "";
+            } else {
+                filas[i].style.display = "none";
+            }
+        }
+    });
+
+    // JavaScript para el modal y la lógica
+    const modal = document.getElementById("modal-agregar-alumnos");
+    const btn = document.getElementById("agregar-alumno-btn");
+    const span = document.getElementsByClassName("close")[0];
+    const listaAlumnos = document.getElementById("lista-alumnos");
+    const listaAlumnosSeleccionados = document.getElementById("lista-alumnos-seleccionados");
+    const buscadorAlumnos = document.getElementById("buscador-alumnos");
+    const confirmarAlumnos = document.getElementById("confirmar-alumnos");
+    let alumnosSeleccionados = [];
+    let alumnosDisponibles = [];
+
+    btn.onclick = function() {
+        console.log("Botón 'Agregar alumnos' clickeado");
+        modal.style.display = "block";
+        // Cargar la lista de alumnos desde el backend
+        fetch('/alumnos/obtener')
+            .then(response => response.json())
+            .then(alumnos => {
+                alumnosDisponibles = alumnos;
+                mostrarAlumnos(alumnos);
+            });
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function mostrarAlumnos(alumnos) {
+        listaAlumnos.innerHTML = "";
+        alumnos.forEach(alumno => {
+            // Verificar si el alumno ya está en el curso
+            if (!{{ alumnosCursoIds | tojson | safe }}.includes(alumno.id)) {
+                const li = document.createElement("li");
+                const botonAgregar = document.createElement("button");
+                botonAgregar.innerHTML = '<i class="fa-solid fa-user-plus"></i>';
+                botonAgregar.addEventListener("click", function() {
+                    // Verificar si el alumno ya está en la lista de seleccionados
+                    if (!alumnosSeleccionados.includes(alumno.id)) {
+                        alumnosSeleccionados.push(alumno.id);
+                        mostrarAlumnosSeleccionados();
+                    }
+                });
+                li.appendChild(botonAgregar);
+                li.appendChild(document.createTextNode(` ${alumno.nombre} ${alumno.apellido}`));
+                listaAlumnos.appendChild(li);
+            }
+        });
+    }
+
+    function mostrarAlumnosSeleccionados() {
+        listaAlumnosSeleccionados.innerHTML = "";
+        alumnosSeleccionados.forEach(alumnoId => {
+            const alumno = alumnosDisponibles.find(alumno => alumno.id === alumnoId);
+            if (alumno) {
+                const li = document.createElement("li");
+                li.textContent = `${alumno.nombre} ${alumno.apellido}`;
+                const botonEliminar = document.createElement("button");
+                botonEliminar.innerHTML = '<i class="fa-solid fa-user-minus"></i>';
+                botonEliminar.addEventListener("click", function() {
+                    alumnosSeleccionados = alumnosSeleccionados.filter(id => id !== alumnoId);
+                    mostrarAlumnosSeleccionados();
+                });
+                li.appendChild(botonEliminar);
+                listaAlumnosSeleccionados.appendChild(li);
+            }
+        });
+    }
+
+    confirmarAlumnos.onclick = function() {
+        console.log("Alumnos seleccionados:", alumnosSeleccionados);
+        const idCurso = {{ curso.id }};
+        const idMateria = {{ materia.id }};
+        window.location.href = `/curso/${idCurso}/alumnos/agregar?alumnos=${alumnosSeleccionados.join(',')}&idMateria=${idMateria}`;
+        modal.style.display = "none";
+    }
+
+    buscadorAlumnos.addEventListener("input", function() {
+        const textoBusqueda = buscadorAlumnos.value.toLowerCase();
+        const alumnosFiltrados = alumnosDisponibles.filter(alumno => {
+            return `${alumno.nombre.toLowerCase()} ${alumno.apellido.toLowerCase()}`.includes(textoBusqueda);
+        });
+        mostrarAlumnos(alumnosFiltrados);
+    });
+
+    document.querySelectorAll(".ver-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            document.getElementById("info-nombre").textContent = this.dataset.nombre;
+            document.getElementById("info-apellido").textContent = this.dataset.apellido;
+            document.getElementById("info-correo").textContent = this.dataset.correo;
+            document.getElementById("info-tutor").textContent = this.dataset.tutor;
+            document.getElementById("eliminar-alumno-btn").dataset.alumnoId = this.dataset.alumnoId;
+
+            // Obtener el ID del alumno del atributo 'data-alumno-id' del botón "ver"
+            const alumnoId = this.dataset.alumnoId;
+
+            // Actualizar el atributo 'href' del botón "Mensaje"
+            const mensajeAlumnoBtn = document.getElementById("mensaje-alumno-btn");
+            mensajeAlumnoBtn.href = `/mensajes/${alumnoId}`;
+
+            // Obtener y mostrar las notas del alumno como una lista
+            const notasAlumno = {{ notas_por_alumno | tojson | safe }}[alumnoId];
+            const listaNotas = document.getElementById("info-notas");
+            listaNotas.innerHTML = ""; 
+            if (notasAlumno) {
+                notasAlumno.forEach(nota => {
+                    const li = document.createElement("li");
+                    li.textContent = `Nota: ${nota.nota}, Descripción: ${nota.descripcion}`;
+                    listaNotas.appendChild(li);
+                });
+            } else {
+                const li = document.createElement("li");
+                li.textContent = "No hay notas disponibles.";
+                listaNotas.appendChild(li);
+            }
+
+            document.getElementById("info-panel").classList.remove("hidden");
+        });
+    });
+
+    document.getElementById("close-panel").addEventListener("click", function () {
+        document.getElementById("info-panel").classList.add("hidden");
+    });
+
+    document.getElementById("eliminar-alumno-btn").addEventListener("click", function () {
+        const alumnoId = this.dataset.alumnoId;
+        if (alumnoId) {
+            // Mostrar la ventana modal de confirmación
+            document.getElementById("confirm-modal").style.display = "block";
+            document.getElementById("confirm-alumno-id").value = alumnoId;
+        }
+    });
+
+    document.getElementById("confirm-cancel").addEventListener("click", function () {
+        // Cerrar la ventana modal de confirmación
+        document.getElementById("confirm-modal").style.display = "none";
+    });
+
+    document.getElementById("confirm-delete").addEventListener("click", function () {
+        const alumnoId = document.getElementById("confirm-alumno-id").value;
+        window.location.href = `/curso/{{ curso.id }}/eliminarAlumno/${alumnoId}`;
+    });
+</script>

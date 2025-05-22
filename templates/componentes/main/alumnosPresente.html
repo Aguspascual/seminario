@@ -1,0 +1,129 @@
+<link rel="stylesheet" href="/static/css/componentes/main/alumnosPresente.css">
+<div class="encabezado">
+    <div class="titulo">
+        <h2>PRESENTE DE ALUMNOS</h2>
+    </div>
+    <div class="buscador">
+        <input type="text" placeholder="Ingresa nombre">
+    </div>
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<div class="contenedor-usuarios">
+    <table>
+        <thead>
+            <th class="nom-ape">Nombre</th>
+            <th class="nom-ape">Apellido</th>
+            <th>Ausentes</th>
+            <th>Accion</th>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+                {% for alumno in alumnos %}
+                    {% if usuario.id == alumno.idAlumno %}
+                        <tr>
+                            <td>{{ usuario.nombre }}</td>
+                            <td>{{ usuario.apellido }}</td>
+                            <td>alumno.ausentes </td>
+                            <td class="accion">
+                                <i class="fa-solid fa-user-plus" id="accion-{{ alumno.idAlumno }}" data-alumno-id="{{ alumno.idAlumno }}"></i>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <button id="guardarPresencia">Guardar Presencia</button>
+    <input type="hidden" id="materiaId" value="{{ materia.id }}">
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscadorInput = document.querySelector('.encabezado .buscador input');
+        const filasTabla = document.querySelectorAll('.contenedor-usuarios table tbody tr');
+
+        buscadorInput.addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+
+            filasTabla.forEach(fila => {
+                const nombre = fila.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                const apellido = fila.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                if (nombre.includes(filtro) || apellido.includes(filtro)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const presenciaAlumnos = {};
+        const materiaId = document.getElementById('materiaId').value;
+
+        {% for alumno in alumnos %}
+            const accionIcon{{ alumno.idAlumno }} = document.getElementById('accion-{{ alumno.idAlumno }}');
+            if (accionIcon{{ alumno.idAlumno }}) {
+                accionIcon{{ alumno.idAlumno }}.addEventListener('click', function() {
+                    const alumnoId = this.dataset.alumnoId;
+                    if (this.classList.contains('fa-user-plus')) {
+                        this.classList.remove('fa-user-plus');
+                        this.classList.add('fa-user-minus');
+                        presenciaAlumnos[alumnoId] = true;
+                    } else {
+                        this.classList.remove('fa-user-minus');
+                        this.classList.add('fa-user-plus');
+                        presenciaAlumnos[alumnoId] = false;
+                    }
+                    console.log(presenciaAlumnos);
+                });
+            }
+        {% endfor %}
+
+        const guardarPresenciaButton = document.getElementById('guardarPresencia');
+        guardarPresenciaButton.addEventListener('click', function() {
+            const presenciaArray = [];
+            {% for alumno in alumnos %}
+                presenciaArray.push({
+                    alumnoId: "{{ alumno.idAlumno }}",
+                    presente: presenciaAlumnos["{{ alumno.idAlumno }}"] || false 
+                });
+            {% endfor %}
+
+            fetch('/presente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    presencia: presenciaArray,
+                    materiaId: materiaId
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Presencia guardada con éxito.');
+                    // Comprobar si hay redirección
+                    if (response.redirected) {
+                        window.location.href = response.url; // Redirige en JavaScript
+                    } else {
+                        // no hay redireccion
+                    }
+                } else {
+                    console.error('Error al guardar la presencia.');
+                }
+            })
+            .catch(error => {
+                console.error('Error de red:', error);
+            });
+        });
+    });
+</script>

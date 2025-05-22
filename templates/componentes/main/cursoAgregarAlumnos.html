@@ -1,0 +1,56 @@
+<link rel="stylesheet" href="/static/css/componentes/main/cursoAgregar.css">
+<form id="alumnos-form" action="/cursos/agregar/alumnos" method="post">
+    <div class="alumnos">
+        <div class="superior">
+            <h2>Agregar Alumnos</h2>
+            <input type="text" id="buscar-alumno" placeholder="Buscar Alumno">
+            <ul id="lista-alumnos"></ul>
+        </div>
+        <div class="inferior">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-alumnos">
+                </tbody>
+            </table>
+            <input type="hidden" name="curso_id" value="{{ curso_id }}">
+            <button type="submit">Cargar Alumnos</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    // ... (Tu código JavaScript existente) ...
+
+    // Envío del formulario (puedes adaptarlo según tu backend)
+    const alumnosForm = document.getElementById('alumnos-form');
+    alumnosForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        alumnosSeleccionados.forEach(alumno => {
+            formData.append('alumnos_seleccionados', alumno.id);
+        });
+        formData.append('curso_id', {{ curso_id }});
+
+        fetch('/cursos/agregar/alumnos', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Alumnos cargados correctamente');
+            } else {
+                console.error('Error al cargar alumnos');
+            }
+        })
+        .catch(error => {
+            console.error('Error de red:', error);
+        });
+    });
+</script>
