@@ -31,7 +31,7 @@ const Usuarios = () => {
             </div>
         </div>
         <div className="main">
-            <h6>Home > Planta > Gestion de Usuarios</h6>
+            <h6>Home &gt; Planta &gt; Gestion de Usuarios</h6>
             <div className="tabla">
                 <table className='tabla'>
                     <thead>

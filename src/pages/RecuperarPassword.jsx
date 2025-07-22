@@ -1,36 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import '../assets/styles/Login.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-
-
-const Login = () => {
+// Pagina para recuperar la contraseña
+const RecuperarPassword = () => {
   return (
     <div className='container'>
+      {/* Fondo y tarjeta central */}
       <div className="main">
         <img className='fondo' src={fondo} alt="Fondo Ecopolo s.a" />
         <div className="tarjeta">
           <div className="dentro">
             <img src={logo} alt="Logo Ecopolo"/>
             <div className="datos">
-              <input type="text" placeholder="Usuario" />
-              <input type="password" placeholder="Contraseña" />
-              <p><Link to='/recuperar'>Recuperar contraseña</Link></p>
-              <button><Link to='/usuarios'>Entrar</Link></button>
+              <input type="email" placeholder="Ingresa tu email" />
+              <button>Enviar</button>
+              <p><a href="/login">Volver al login</a></p>
             </div>
           </div>
         </div>
       </div>
+      {/* Footer igual al Login */}
       <div className="footer">
         <div className="superior">
           <img src={logo} alt="Logo Ecopolo"/>
           <div className="info">
             <div className="izquierda">
               <h5>Estamos en</h5>
-              <p>Ruta Provincial N17, Km 178, Añelo, Neuquen AR</p>
+              <p>Ruta Provincial N17, Km 178, Anelo, Neuquen AR</p>
             </div>
             <div className="derecha">
               <h5>Contactos</h5>
@@ -50,4 +49,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default RecuperarPassword; 
