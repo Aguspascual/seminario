@@ -1,5 +1,5 @@
 import React from 'react';
-import '../assets/styles/Home.css';
+import '../assets/styles/Login.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -8,11 +8,19 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Login = () => {
   return (
-    <div className='Container'>
+    <div className='container'>
       <div className="main">
-        <img src={fondo} alt="Fondo Ecopolo s.a" />
+        <img className='fondo' src={fondo} alt="Fondo Ecopolo s.a" />
         <div className="tarjeta">
-            <h2>Holas</h2>
+          <div className="dentro">
+            <img src={logo} alt="Logo Ecopolo"/>
+            <div className="datos">
+              <input type="text" placeholder="Usuario" />
+              <input type="password" placeholder="Contraseña" />
+              <p>Recuperar contraseña</p>
+              <button>Entrar</button>
+            </div>
+          </div>
         </div>
       </div>
       <div className="footer">
