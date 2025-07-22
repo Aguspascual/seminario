@@ -1,5 +1,5 @@
 import React from 'react';
-import '../assets/styles/Login.css';
+import '../assets/styles/RecuperarPassword.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
