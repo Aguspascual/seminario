@@ -89,6 +89,10 @@
   cursor: pointer;
   margin-top: 20px;
 }
+.datos button a {
+  color: white;
+  text-decoration: none;
+}
 
 
 /* Footer */

@@ -12,10 +12,10 @@ const Home = () => {
       <div className='header'>
         <img src={logo} alt="Logo Ecopolo" />
         <div className="item">
-          <p>Legal</p>
-          <p>Protocolo</p>
-          <p>Nosotros</p>
-          <p>Iniciar Sesion</p>
+          <a>Legal</a>
+          <a>Protocolo</a>
+          <a>Nosotros</a>
+          <a href='/login'>Iniciar Sesion</a>
         </div>
       </div>
       <div className="main">

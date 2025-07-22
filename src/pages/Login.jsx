@@ -18,7 +18,7 @@ const Login = () => {
               <input type="text" placeholder="Usuario" />
               <input type="password" placeholder="Contraseña" />
               <p>Recuperar contraseña</p>
-              <button>Entrar</button>
+              <button><a href='/usuarios'>Entrar</a></button>
             </div>
           </div>
         </div>
