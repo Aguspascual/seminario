@@ -4,9 +4,8 @@
   padding: 0;
   box-sizing: border-box;
 }
-/* Container principal */
 .container {
-  min-height: 100vh;
+  height: 100vh;
   width: 99vw;
   display: flex;
   flex-direction: column;
@@ -15,16 +14,13 @@
 }
 .main {
   position: relative;
-  height: 100vh;  
   display: flex;
-  justify-content: center;
-  align-items: center;
   background-color: #00695C;
-  display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: center;
+  height: 100%;
   justify-content: center;
+  align-items: center;
 }
 .main h6 {
     color: #F5F5F5;
@@ -40,7 +36,6 @@
     background-color: #F5F5F5;
     box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
     padding: 20px;
-    overflow-x: auto;
     color: #424242;
     margin-bottom: 15px;
 }
@@ -49,6 +44,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    background-color: #424242;
 }
 .main .tabla .superior button{
     background-color: #00695C;
@@ -77,34 +73,50 @@
     background-color: #F5F5F5;
     color: #424242;
 }
+.cabecera {
+  background-color: #424242;
+}
+.datos{
+  width: 100%;
+}
+
 .main .tabla table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
+    overflow-y: scroll;
 }
 table thead {
     background-color: #00695C;
     color: white;
     height: 50px;
 }
-table tr{
+.main .tabla table tbody {
+  max-height: 300px; 
+  overflow-y: auto;
+  width: 100%;
+}
+.main .tabla table tbody tr{
     margin-top: 50px;
     height: 40px;
 }
+
 .main .tabla table tbody tr:nth-child(odd) {
   background-color: #FFFFFF; 
+  height: 40px;
 }
 
 .main .tabla table tbody tr:nth-child(even) {
   background-color: #EEEEEE; 
+  height: 40px;
 }
 .main .tabla table tbody tr:hover {
   background-color: #D0D0D0;
   cursor: pointer;
 }
 
-
 /* ---------- RESPONSIVE ---------- */
+
 @media (max-width: 821px) {
   .main .tabla .superior h2{
     font-size: 1.5rem;
@@ -126,7 +138,7 @@ table tr{
     width: 100%;
     font-size: 0.9rem;
   }
-  .rol{
+  .numero{
     display: none;
   }
 }
@@ -138,5 +150,3 @@ table tr{
     display: none;
   }
 }
-
-
