@@ -49,10 +49,10 @@
     background-color: #00695C;
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border-radius: 10%;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.9rem;
 }
 .main .tabla .superior .subtitulo {
     display: flex;
@@ -84,6 +84,13 @@
     border-collapse: collapse;
     text-align: center;
     overflow-y: scroll;
+}
+.id, .accion{
+    width: 10%;
+}
+.tipo , .profesional, .nombre{
+    width: 26.6%;
+    text-align: center;
 }
 table thead {
     background-color: #00695C;
@@ -137,15 +144,18 @@ table thead {
     width: 100%;
     font-size: 0.9rem;
   }
-  .numero{
+  .profesional{
     display: none;
   }
 }
 @media (max-width: 600px) {
   .main h6 {
     font-size: 1rem;
+    margin-top: 60px;
   }
-  .correo{
-    display: none;
+}
+@media (max-width: 500px) {
+  .main h6 {
+    margin-top: 70px;
   }
 }

@@ -16,9 +16,10 @@ const Head = () => {
                 <div class="dropdown-content">
                     <a href="/usuarios">Usuarios</a>
                     <a href="/proveedores">Proveedores</a>
-                    <a href="/usuarios">Usuarios</a>
-                    <a href="/usuarios">Usuarios</a>
-                    <a href="/usuarios">Usuarios</a>
+                    <a href="/maquinaria">Maquinaria</a>
+                    <a href="/capacitaciones">Capacitaciones</a>
+                    <a href="/auditorias">Auditorias</a>
+                    <a href="/areas">Areas</a>
                 </div>
                 </div>
                 <div class="dropdown">

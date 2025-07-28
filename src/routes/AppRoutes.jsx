@@ -4,6 +4,10 @@ import Login from '../pages/Login';
 import Usuarios from '../pages/Usuarios';
 import RecuperarPassword from '../pages/RecuperarPassword';
 import Proveedores from '../pages/Proveedores';
+import Maquinaria from '../pages/Maquinaria'; 
+import Capacitaciones from '../pages/Capacitaciones'; 
+import Auditorias from '../pages/Auditorias';
+import Areas from '../pages/Areas'; 
 
 function AppRoutes() {
   return (
@@ -14,6 +18,10 @@ function AppRoutes() {
         <Route path="/usuarios" element={<Usuarios />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
         <Route path="/proveedores" element={<Proveedores />} />
+        <Route path="/maquinaria" element={<Maquinaria />} />
+        <Route path="/capacitaciones" element={<Capacitaciones />} />
+        <Route path="/auditorias" element={<Auditorias />} />
+        <Route path="/areas" element={<Areas />} />
       </Routes>
     </BrowserRouter>
   );
