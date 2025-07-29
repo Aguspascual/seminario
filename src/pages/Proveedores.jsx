@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '../assets/styles/Proveedores.module.css';
 import Head from '../components/Head';
 import Footer from '../components/Footer';
@@ -7,6 +7,13 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 const Proveedores = () => {
+      const [mostrarModal, setMostrarModal] = useState(false);
+      const abrirModal = () => setMostrarModal(true);
+      const cerrarModal = () => setMostrarModal(false);
+      const manejarEnvio = (e) => {
+          e.preventDefault();
+          cerrarModal();
+      };
     return (
     <div className={styles.container}>
         <Head />
@@ -16,10 +23,33 @@ const Proveedores = () => {
                 <div className={styles.superior}>
                     <div className={styles.subtitulo}>
                         <h2>Gestion de Proveedores</h2>
-                        <button className={styles.btn}><i class="fa-solid fa-user-plus"></i></button>
+                        <button className={styles.btn} onClick={abrirModal}><i class="fa-solid fa-user-plus"></i></button>
                     </div>
-                    <input type="text" placeholder='Buscar Usuario' className={styles.buscarUsuario}/>
+                    <input type="text" placeholder='Buscar Proveedor' className={styles.buscarUsuario}/>
                 </div>
+                {/* Modal */}
+                  {mostrarModal && (
+                      <div className={styles.modalFondo}>
+                          <div className={styles.modalContenido}>
+                              <h3>Agregar Proveedor</h3>
+                              <form onSubmit={manejarEnvio}>
+                                  <input type="text" placeholder="Nombre" required />
+                                  <input type="number" placeholder="Numero" required />
+                                  <select required>
+                                      <option value="" hidden>Seleccione un Maquina</option>
+                                      <option value="Maquina 1">Maquina 1</option>
+                                      <option value="Maquina 2">Maquina 2</option>
+                                      <option value="Maquina 3">Maquina 3</option>
+                                      <option value="Maquina 4">Maquina 4</option>
+                                  </select>
+                                  <div className={styles.modalBotones}>
+                                      <button type="submit" className={styles.btnConfirmar}>Agregar</button>
+                                      <button type="button" onClick={cerrarModal} className={styles.btnCancelar}>Cancelar</button>
+                                  </div>
+                              </form>
+                          </div>
+                      </div>
+                  )}
                 <table className={styles.cabecera}>
                     <thead>
                         <tr>

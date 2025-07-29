@@ -63,7 +63,7 @@
     font-size: 1.8rem;
     color: #424242;
 }
-.main .tabla .superior .buscarUsuario {
+.main .tabla .superior .buscarArea {
     padding: 10px;
     border: 1px solid #BDBDBD;
     border-radius: 5px;
@@ -139,7 +139,60 @@ table thead {
   background-color: #D0D0D0;
   cursor: pointer;
 }
+.modalFondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
+.modalContenido {
+    background: #F5F5F5;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.modalContenido input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #F5F5F5;
+    border: 1px solid #BDBDBD;
+    color: #424242;
+    font-weight: 600;
+}
+
+.modalBotones {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btnConfirmar {
+    background-color: #00695C;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.btnCancelar {
+    background-color: #f44336;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+}
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 821px) {
@@ -159,7 +212,7 @@ table thead {
   .main .tabla .superior h2{
     font-size: 1.3rem;
   }
-  .main .tabla .superior .buscarUsuario{
+  .main .tabla .superior .buscarArea{
     width: 100%;
     font-size: 0.9rem;
   }
