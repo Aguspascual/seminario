@@ -75,9 +75,7 @@
   font-size: 1rem;
   border: 1px solid #ccc;
   background-color: #D9D9D9;
-}
-.datos p {
-  color:#424242;
+  color:#000000;
   cursor: pointer;
 }
 
@@ -88,7 +86,9 @@
   color: white;
   cursor: pointer;
   margin-top: 20px;
+  width: 100%;
 }
+
 .datos button a {
   color: white;
   text-decoration: none;
