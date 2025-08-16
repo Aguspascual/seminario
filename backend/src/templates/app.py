@@ -86,5 +86,74 @@ def login():
 
 
 
+@app.route("/usuarios", methods=["GET"])
+def get_usuarios():
+    try:
+        cursor = db.database.cursor()
+        cursor.execute("SELECT * FROM Usuario")
+        usuarios = cursor.fetchall()
+        cursor.close()
+        
+        # Convertir los resultados a formato JSON
+        usuarios_list = []
+        for usuario in usuarios:
+            nroArea = usuario[8]
+            cursor = db.database.cursor()
+            cursor.execute("SELECT nombre FROM area WHERE idArea = %s", (nroArea,))
+            nombreArea = cursor.fetchone()
+            cursor.close()
+
+            usuarios_list.append({
+                "id": usuario[0],
+                "nombre": usuario[9],
+                "telefono": usuario[6],
+                "email": usuario[1],
+                "rol": usuario[3],
+                "area": nombreArea[0]
+            })
+        
+        return jsonify(usuarios_list), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener usuarios: {str(e)}"}), 500
+
+
+@app.route("/usuarios", methods=["POST"])
+def create_usuario():
+    try:
+        data = request.get_json()
+        
+        # Validar campos requeridos
+        if not data or not all(k in data for k in ('nombre', 'telefono', 'email', 'rol', 'area')):
+            return jsonify({"error": "Todos los campos son requeridos"}), 400
+        
+        nombre = data['nombre']
+        telefono = data['telefono']
+        email = data['email']
+        rol = data['rol']
+        area = data['area']
+        
+        cursor = db.database.cursor()
+        
+        # Verificar si el email ya existe
+        cursor.execute("SELECT * FROM Usuario WHERE email = %s", (email,))
+        if cursor.fetchone():
+            cursor.close()
+            return jsonify({"error": "El email ya está registrado"}), 409
+        
+        # Insertar nuevo usuario (ajusta la query según tu estructura de tabla)
+        cursor.execute(
+            "INSERT INTO Usuario (nombre, telefono, email, rol, area) VALUES (%s, %s, %s, %s, %s)", 
+            (nombre, telefono, email, rol, area)
+        )
+        db.database.commit()
+        cursor.close()
+        
+        return jsonify({"message": "Usuario creado exitosamente"}), 201
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
