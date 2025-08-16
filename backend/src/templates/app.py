@@ -133,18 +133,32 @@ def create_usuario():
         rol = data['rol']
         area = data['area']
         
+        # Mapear área a ID
+        area_map = {
+            "RRHH": 1,
+            "Finanzas": 2, 
+            "Operaciones": 3
+        }
+        area_id = area_map.get(area, 1)  # Default a 1 si no encuentra
+        
         cursor = db.database.cursor()
         
         # Verificar si el email ya existe
-        cursor.execute("SELECT * FROM Usuario WHERE email = %s", (email,))
+        cursor.execute("SELECT * FROM Usuario WHERE Email = %s", (email,))
         if cursor.fetchone():
             cursor.close()
             return jsonify({"error": "El email ya está registrado"}), 409
         
-        # Insertar nuevo usuario (ajusta la query según tu estructura de tabla)
+        # Insertar nuevo usuario según la estructura real de tu tabla
+        # Primero vamos a debuggear qué datos estamos recibiendo
+        print(f"Datos recibidos: nombre={nombre}, email={email}, telefono={telefono}, rol={rol}, area={area}, area_id={area_id}")
+        
+        # Usar una contraseña por defecto para usuarios creados desde admin
+        contrasena_default = "123456"  # O genera una aleatoria
+        
         cursor.execute(
-            "INSERT INTO Usuario (nombre, telefono, email, rol, area) VALUES (%s, %s, %s, %s, %s)", 
-            (nombre, telefono, email, rol, area)
+            "INSERT INTO Usuario (Email, contrasena, Rol, Telefono, Estado, Area_idArea, nombre) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
+            (email, contrasena_default, rol, telefono, 1, area_id, nombre)
         )
         db.database.commit()
         cursor.close()
