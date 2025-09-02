@@ -4,11 +4,19 @@ from routes.usuarios import usuarios
 from routes.login import login_bp
 from routes.proveedores import proveedores
 from flask_cors import CORS
+import os
+
+# Carga variables de entorno desde .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 CORS(app)
 # Configuración de la base de datos
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:3103@localhost/ecopolo"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Inicializa la base de datos
 db.init_app(app)
