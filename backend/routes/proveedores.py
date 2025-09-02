@@ -9,17 +9,33 @@ proveedores = Blueprint("proveedores", __name__)
 def get_proveedores():
     try:
         listaProveedores = Proveedor.query.all()
+        print(f"Proveedores encontrados: {len(listaProveedores)}")  # Debug
         
         # Convertir objetos SQLAlchemy a diccionarios para serialización JSON
         proveedores_list = []
         for proveedor in listaProveedores:
+            # Obtener el nombre del tipo de proveedor
+            tipo_nombre = "Sin tipo"
             if proveedor.idTipo:
-                tipo = tipo.query.get(proveedor.idTipo)
-            proveedores_list.append(proveedor.to_dict())
+                tipo = TipoProveedor.query.get(proveedor.idTipo)
+                if tipo:
+                    tipo_nombre = tipo.nombreTipo
+            
+            proveedores_list.append({
+                "idProveedor": proveedor.idProveedor,
+                "Nombre": proveedor.Nombre,
+                "Estado": proveedor.Estado,
+                "Numero": proveedor.Numero,
+                "Email": proveedor.Email,
+                "idTipo": proveedor.idTipo,
+                "tipo_proveedor": tipo_nombre
+            })
         
+        print(f"Lista de proveedores preparada: {len(proveedores_list)}")  # Debug
         return jsonify(proveedores_list), 200
         
     except Exception as e:
+        print(f"Error detallado en get_proveedores: {str(e)}")  # Debug
         return jsonify({"error": f"Error al obtener proveedores: {str(e)}"}), 500
 
 @proveedores.route("/proveedores", methods=["POST"])

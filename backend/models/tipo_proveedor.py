@@ -14,5 +14,5 @@ class TipoProveedor(db.Model):
         """Convierte el objeto a diccionario para serialización JSON"""
         return {
             "idTipo": self.idTipo,
-            "nombreTipo": self.nombreTipo
+            "Nombre": self.nombreTipo  # Frontend espera "Nombre"
         }
