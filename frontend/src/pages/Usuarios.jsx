@@ -50,20 +50,24 @@ const Usuarios = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
+    const datosEnvio = {
+      nombre: formData.get("nombre"),
+      contrasena: formData.get("contrasena"),
+      telefono: formData.get("telefono"),
+      email: formData.get("email"),
+      rol: formData.get("rol"),
+      area_id: formData.get("area_id"),
+    };
+    
+    console.log("Datos que se envían:", datosEnvio); // Debug
+
     try {
       const response = await fetch("http://localhost:5000/usuarios", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          nombre: formData.get("nombre"),
-          contrasena: formData.get("contrasena"),
-          telefono: formData.get("telefono"),
-          email: formData.get("email"),
-          rol: formData.get("rol"),
-          area: formData.get("area"),
-        }),
+        body: JSON.stringify(datosEnvio),
       });
 
       if (response.ok) {
@@ -149,9 +153,10 @@ const Usuarios = () => {
                     <option value="" hidden>
                       Seleccione un área
                     </option>
-                    <option value="1">RRHH</option>
-                    <option value="2">Finanzas</option>
-                    <option value="3">Operaciones</option>
+                    <option value="1">Ceo</option>
+                    <option value="2">RRHH</option>
+                    <option value="3">Finanzas</option>
+                    <option value="4">Operaciones</option>
                   </select>
                   <div className="modal-botones">
                     <button type="submit" className="btn-confirmar">

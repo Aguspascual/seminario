@@ -75,19 +75,22 @@ def get_usuarios():
 def create_usuario():
     try:
         data = request.get_json()
+        print(f"Datos recibidos: {data}")  # Debug
 
         # Validar campos requeridos
         if not data or not all(
             k in data for k in ("nombre", "contrasena", "telefono", "email", "rol", "area_id")
         ):
+            print(f"Campos faltantes. Datos: {data}")  # Debug
             return jsonify({"error": "Todos los campos son requeridos"}), 400
 
         nombre = data["nombre"]
-        telefono = data["telefono"]
+        # Limpia el telefono (quitar guiones, espacios) pero mantén como string
+        telefono = str(data["telefono"]).replace("-", "").replace(" ", "").replace("(", "").replace(")", "")
         contrasena = data["contrasena"]
         email = data["email"]
         rol = data["rol"]
-        area_id = data["area_id"]
+        area_id = int(data["area_id"])  # Convertir a entero
 
         area_map = Area.obtenerAreas()
         print(area_map)
@@ -95,7 +98,7 @@ def create_usuario():
         # area_map = {"RRHH": 1, "Finanzas": 2, "Operaciones": 3}
         # area_nombre = area_map.get(area_id, 1)  # Default a 1 si no encuentra
 
-        usuario = Usuario(area_id, nombre, contrasena, email, telefono, rol)
+        usuario = Usuario(Area_idArea=area_id, nombre=nombre, contrasena=contrasena, Email=email, Telefono=telefono, Rol=rol)
         db.session.add(usuario)
         db.session.commit()
         return jsonify({"message": "Usuario creado exitosamente"}), 201
@@ -128,5 +131,8 @@ def create_usuario():
 
         # return jsonify({"message": "Usuario creado exitosamente"}), 201
 
+    except ValueError as e:
+        return jsonify({"error": f"Error de formato de datos: {str(e)}"}), 400
     except Exception as e:
+        print(f"Error detallado: {str(e)}")  # Para debug
         return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 500

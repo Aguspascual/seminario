@@ -9,7 +9,7 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(25), nullable=True)
     contrasena = db.Column(db.String(45), nullable=False)
     Email = db.Column(db.String(45), nullable=False)
-    Telefono = db.Column(db.Integer, nullable=False)
+    Telefono = db.Column(db.String(20), nullable=False)
     Rol = db.Column(db.String(45), nullable=False, default=1)
     Estado = db.Column(db.Boolean, nullable=False, default=1)
     FechaCreacion = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
@@ -22,6 +22,7 @@ class Usuario(db.Model):
         self.Email = Email
         self.Telefono = Telefono
         self.Rol = Rol
+        #Legajo se autoincrementa
     
 
 
