@@ -18,6 +18,7 @@
 .dropdown {
   position: relative;
   display: inline-block;
+  margin-right: 30px;
 }
 .dropdownContent {
   display: none;
@@ -25,6 +26,7 @@
   background-color: white;
   border-radius: 10px;
   margin-top: 5px;
+  margin-right: 50px;
   min-width: 160px;
   box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
   z-index: 1;

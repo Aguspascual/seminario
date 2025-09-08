@@ -8,6 +8,7 @@ import Maquinaria from '../pages/Maquinaria';
 import Capacitaciones from '../pages/Capacitaciones'; 
 import Auditorias from '../pages/Auditorias';
 import Areas from '../pages/Areas'; 
+import CambiarContraseña from '../pages/CambiarContraseña';
 
 function AppRoutes() {
   return (
@@ -22,6 +23,7 @@ function AppRoutes() {
         <Route path="/capacitaciones" element={<Capacitaciones />} />
         <Route path="/auditorias" element={<Auditorias />} />
         <Route path="/areas" element={<Areas />} />
+        <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
       </Routes>
     </BrowserRouter>
   );

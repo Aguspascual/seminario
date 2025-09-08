@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../assets/styles/Head.module.css'; // ✅ Import correcto
+import styles from '../assets/styles/Head.module.css'; 
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -30,8 +30,8 @@ const Head = () => {
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Mi Perfil</button>
                     <div className={styles.dropdownContent}>
                         <a href="/usuarios">Mensajes</a>
-                        <a href="/usuarios">Cambiar contraseña</a>
-                        <a href="/usuarios">Cerrar sesion</a>
+                        <a href="/cambiarContraseña">Cambiar contraseña</a>
+                        <a href="/">Cerrar sesion</a>
                     </div>
                 </div>
             </div>
