@@ -10,6 +10,7 @@ import Auditorias from '../pages/Auditorias';
 import Areas from '../pages/Areas';
 import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
+import MiPerfil from '../pages/MiPerfil';
 
 function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ function AppRoutes() {
         <Route path="/areas" element={<Areas />} />
         <Route path="/reportes" element={<Reportes />} />
         <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
+        <Route path="/mi-perfil" element={<MiPerfil />} />
       </Routes>
     </BrowserRouter>
   );
