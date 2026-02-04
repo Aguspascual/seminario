@@ -35,7 +35,8 @@ const Login = () => {
       if (response.ok) {
         // Login exitoso
         console.log('Login exitoso:', data);
-        // Aquí puedes guardar el token o datos del usuario en localStorage si es necesario
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('usuario', JSON.stringify(data.user));
         navigate('/usuarios'); // Redirigir a la página de usuarios
       } else {
         // Error en el login
@@ -90,7 +91,7 @@ const Login = () => {
           <div className="info">
             <div className="izquierda">
               <h5>Estamos en</h5>
-              <p>Ruta Provincial N17, Km 178, Añelo, Neuquen AR</p>
+              <p>Ruta Provincial N17, Km 178, Añelo, Neuquen AR</p>
             </div>
             <div className="derecha">
               <h5>Contactos</h5>
