@@ -33,7 +33,16 @@ const Head = () => {
                         <a href="/mi-perfil">Ver Perfil</a>
                         <a href="/usuarios">Mensajes</a>
                         <a href="/cambiarContraseña">Cambiar contraseña</a>
-                        <a href="/">Cerrar sesion</a>
+                        <button
+                            className={styles.logoutBtn}
+                            onClick={() => {
+                                localStorage.removeItem('token');
+                                localStorage.removeItem('usuario');
+                                window.location.href = '/login';
+                            }}
+                        >
+                            Cerrar sesion
+                        </button>
                     </div>
                 </div>
             </div>

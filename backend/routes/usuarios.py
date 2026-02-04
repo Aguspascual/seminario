@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from utils.database import db
 from models.usuario import Usuario
 from models.area import Area
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from schemas.usuario_schema import UsuarioSchema
 from services.usuario_service import UsuarioService
@@ -130,6 +130,36 @@ def get_perfil():
          return jsonify({"error": f"Error al obtener perfil: {str(e)}"}), 500
 
 
+
+@usuarios.route("/usuarios/cambiar_contrasena", methods=["PUT"])
+@jwt_required()
+def cambiar_contrasena():
+    try:
+        current_user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        contrasena_actual = data.get("contrasena_actual")
+        nueva_contrasena = data.get("nueva_contrasena")
+        
+        if not contrasena_actual or not nueva_contrasena:
+            return jsonify({"error": "Faltan datos (contraseña actual o nueva)"}), 400
+            
+        usuario = Usuario.query.get(current_user_id)
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+            
+        # Verificar contraseña actual
+        if not check_password_hash(usuario.contrasena, contrasena_actual):
+            return jsonify({"error": "La contraseña actual es incorrecta"}), 401
+            
+        # Actualizar contraseña
+        usuario.contrasena = generate_password_hash(nueva_contrasena)
+        db.session.commit()
+        
+        return jsonify({"message": "Contraseña actualizada exitosamente"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al cambiar contraseña: {str(e)}"}), 500
 
 @usuarios.route("/usuarios", methods=["POST"])
 def create_usuario():
