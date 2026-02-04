@@ -21,9 +21,10 @@ const Head = () => {
                     </div>
                 </div>
                 <div className={styles.dropdown}>
-                    <button className={`${styles.dropbtn} ${styles.navbtn}`}>Mantenimiento</button>
+                    <button className={`${styles.dropbtn} ${styles.navbtn}`}>Maquinaria</button>
                     <div className={styles.dropdownContent}>
                         <a href="/usuarios">Maquinas</a>
+                        <a href="/reportes">Reportes</a>
                     </div>
                 </div>
                 <div className={styles.dropdown}>
