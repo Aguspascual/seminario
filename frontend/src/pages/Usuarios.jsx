@@ -7,6 +7,8 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Usuarios = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,6 +16,18 @@ const Usuarios = () => {
 
   const abrirModal = () => setMostrarModal(true);
   const cerrarModal = () => setMostrarModal(false);
+
+  const abrirModalDetalles = (usuario) => {
+    setUsuarioSeleccionado(usuario);
+    setMostrarModalDetalles(true);
+  };
+
+  const cerrarModalDetalles = () => {
+    setUsuarioSeleccionado(null);
+    setMostrarModalDetalles(false);
+  };
+
+  const [areas, setAreas] = useState([]);
 
   // Función para obtener usuarios de la API
   const obtenerUsuarios = async () => {
@@ -40,9 +54,22 @@ const Usuarios = () => {
     }
   };
 
+  const obtenerAreas = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/areas");
+      if (response.ok) {
+        const data = await response.json();
+        setAreas(data);
+      }
+    } catch (error) {
+      console.error("Error obteniendo areas:", error);
+    }
+  };
+
   // Cargar usuarios al montar el componente
   useEffect(() => {
     obtenerUsuarios();
+    obtenerAreas();
   }, []);
 
   // Función para agregar usuario
@@ -52,13 +79,14 @@ const Usuarios = () => {
 
     const datosEnvio = {
       nombre: formData.get("nombre"),
+      apellido: formData.get("apellido"),
       contrasena: formData.get("contrasena"),
       telefono: formData.get("telefono"),
       email: formData.get("email"),
       rol: formData.get("rol"),
       area_id: formData.get("area_id"),
     };
-    
+
     console.log("Datos que se envían:", datosEnvio); // Debug
 
     try {
@@ -121,8 +149,20 @@ const Usuarios = () => {
                     placeholder="Nombre"
                     required
                   />
-                  <input 
+                  <input
                     type="text"
+                    name="apellido"
+                    placeholder="Apellido"
+                    required
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Correo"
+                    required
+                  />
+                  <input
+                    type="password"
                     name="contrasena"
                     placeholder="Contraseña"
                     required
@@ -131,12 +171,6 @@ const Usuarios = () => {
                     type="tel"
                     name="telefono"
                     placeholder="Teléfono"
-                    required
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Correo"
                     required
                   />
                   <select name="rol" required>
@@ -153,10 +187,11 @@ const Usuarios = () => {
                     <option value="" hidden>
                       Seleccione un área
                     </option>
-                    <option value="1">Ceo</option>
-                    <option value="2">RRHH</option>
-                    <option value="3">Finanzas</option>
-                    <option value="4">Operaciones</option>
+                    {areas.map((area) => (
+                      <option key={area.id} value={area.id}>
+                        {area.nombre}
+                      </option>
+                    ))}
                   </select>
                   <div className="modal-botones">
                     <button type="submit" className="btn-confirmar">
@@ -226,13 +261,44 @@ const Usuarios = () => {
                     <td className="rol">{usuario.rol}</td>
                     <td className="area">{usuario.area}</td>
                     <td>
-                      <i className="fa-solid fa-eye"></i>
+                      <i
+                        className="fa-solid fa-eye"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => abrirModalDetalles(usuario)}
+                      ></i>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+
+          {/* Modal Detalles */}
+          {mostrarModalDetalles && usuarioSeleccionado && (
+            <div className="modal-fondo">
+              <div className="modal-contenido">
+                <h3>Detalles del Usuario</h3>
+                <div className="detalles-usuario" style={{ textAlign: "left" }}>
+
+                  <p><strong>Nombre:</strong> {usuarioSeleccionado.nombre}</p>
+                  <p><strong>Email:</strong> {usuarioSeleccionado.email}</p>
+                  <p><strong>Teléfono:</strong> {usuarioSeleccionado.telefono}</p>
+                  <p><strong>Rol:</strong> {usuarioSeleccionado.rol}</p>
+                  <p><strong>Área:</strong> {usuarioSeleccionado.area}</p>
+                  <p><strong>Estado:</strong> {usuarioSeleccionado.estado ? "Activo" : "Inactivo"}</p>
+                </div>
+                <div className="modal-botones" style={{ marginTop: "20px" }}>
+                  <button
+                    type="button"
+                    onClick={cerrarModalDetalles}
+                    className="btn-cancelar"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
