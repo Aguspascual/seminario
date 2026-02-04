@@ -12,22 +12,29 @@ import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
 import MiPerfil from '../pages/MiPerfil';
 
+import PrivateRoute from '../components/PrivateRoute';
+
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        {/* Rutas Públicas */}
         <Route path="/login" element={<Login />} />
-        <Route path="/usuarios" element={<Usuarios />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
-        <Route path="/proveedores" element={<Proveedores />} />
-        <Route path="/maquinaria" element={<Maquinaria />} />
-        <Route path="/capacitaciones" element={<Capacitaciones />} />
-        <Route path="/auditorias" element={<Auditorias />} />
-        <Route path="/areas" element={<Areas />} />
-        <Route path="/reportes" element={<Reportes />} />
-        <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
-        <Route path="/mi-perfil" element={<MiPerfil />} />
+
+        {/* Rutas Privadas */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/proveedores" element={<Proveedores />} />
+          <Route path="/maquinaria" element={<Maquinaria />} />
+          <Route path="/capacitaciones" element={<Capacitaciones />} />
+          <Route path="/auditorias" element={<Auditorias />} />
+          <Route path="/areas" element={<Areas />} />
+          <Route path="/reportes" element={<Reportes />} />
+          <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
+          <Route path="/mi-perfil" element={<MiPerfil />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
