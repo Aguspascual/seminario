@@ -4,6 +4,7 @@ from routes.usuarios import usuarios
 from routes.login import login_bp
 from routes.proveedores import proveedores
 from routes.areas import areas_bp
+from routes.reportes import reportes_bp
 from flask_cors import CORS
 import os
 
@@ -22,11 +23,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Inicializa la base de datos
 db.init_app(app)
 
+# Force reload for blueprint registration
+
 # Registra los blueprints
 app.register_blueprint(usuarios)
 app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
 app.register_blueprint(areas_bp)
+app.register_blueprint(reportes_bp)
 
 @app.route("/", methods=["GET"])
 def index():

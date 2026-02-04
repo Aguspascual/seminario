@@ -4,10 +4,11 @@ import Login from '../pages/Login';
 import Usuarios from '../pages/Usuarios';
 import RecuperarPassword from '../pages/RecuperarPassword';
 import Proveedores from '../pages/Proveedores';
-import Maquinaria from '../pages/Maquinaria'; 
-import Capacitaciones from '../pages/Capacitaciones'; 
+import Maquinaria from '../pages/Maquinaria';
+import Capacitaciones from '../pages/Capacitaciones';
 import Auditorias from '../pages/Auditorias';
-import Areas from '../pages/Areas'; 
+import Areas from '../pages/Areas';
+import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
 
 function AppRoutes() {
@@ -23,6 +24,7 @@ function AppRoutes() {
         <Route path="/capacitaciones" element={<Capacitaciones />} />
         <Route path="/auditorias" element={<Auditorias />} />
         <Route path="/areas" element={<Areas />} />
+        <Route path="/reportes" element={<Reportes />} />
         <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
       </Routes>
     </BrowserRouter>
