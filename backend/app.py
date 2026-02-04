@@ -7,6 +7,7 @@ from routes.areas import areas_bp
 from routes.reportes import reportes_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flasgger import Swagger
 import os
 
 # Carga variables de entorno desde .env
@@ -26,6 +27,7 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key") #
 # Inicializa la base de datos
 db.init_app(app)
 jwt = JWTManager(app)
+swagger = Swagger(app)
 
 # Force reload for blueprint registration
 

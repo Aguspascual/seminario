@@ -1,63 +1,80 @@
 from flask import Blueprint, request, jsonify
-from utils.database import db
-from models.usuario import Usuario
-from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
-import datetime
-import os
+from schemas.login_schema import LoginSchema
+from services.auth_service import AuthService
+from marshmallow import ValidationError
 
 login_bp = Blueprint("login", __name__)
 
 @login_bp.route("/login", methods=["POST"])
 def loginpost():
+    """
+    Login de usuario y generación de token JWT.
+    ---
+    tags:
+      - Autenticación
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+            - contrasena
+          properties:
+            email:
+              type: string
+              example: test@example.com
+            contrasena:
+              type: string
+              example: password123
+    responses:
+      200:
+        description: Login exitoso
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Login successful
+            access_token:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                email:
+                  type: string
+                rol:
+                  type: string
+      400:
+        description: Datos faltantes o inválidos
+      401:
+        description: Credenciales inválidas
+    """
     try:
         data = request.get_json()
-
-        # Validar que los campos requeridos estén presentes
-        if not data or "email" not in data or "contrasena" not in data:
-            return jsonify(
-                {"error": "Los campos 'email' y 'contrasena' son requeridos"}
-            ), 400
-
-        email = data["email"].strip().lower() # Normalizar email
-        contrasena = data["contrasena"].strip() # Normalizar contraseña (quitar espacios extra)
-
-        # Validar que los campos no estén vacíos
-        if not email or not contrasena:
-             return jsonify({"error": "Los campos no pueden estar vacíos"}), 400
-
-        usuario = Usuario.query.filter_by(Email=email).first()
         
-        if usuario:
-            if check_password_hash(usuario.contrasena, contrasena):
-                # Crear token con expiración desde .env (default 365 días)
-                expiration_days = int(os.getenv("JWT_EXPIRATION_DAYS", 365))
-                expires = datetime.timedelta(days=expiration_days)
-                # Incluir información extra en la identidad o claims si es necesario
-                identity = str(usuario.Legajo) # Usar ID o Legajo como identidad
-                additional_claims = {
-                    "rol": usuario.Rol, 
-                    "nombre": usuario.nombre,
-                    "email": usuario.Email
-                }
-                
-                access_token = create_access_token(identity=identity, additional_claims=additional_claims, expires_delta=expires)
-                
-                return jsonify({
-                    "message": "Login successful", 
-                    "user": {
-                        "id": usuario.Legajo,
-                        "nombre": usuario.nombre,
-                        "email": usuario.Email,
-                        "rol": usuario.Rol
-                    },
-                    "access_token": access_token
-                }), 200
-            else:
-                return jsonify({"error": "Email o contraseña inválidos"}), 401
-        else:
-            return jsonify({"error": "Email o contraseña inválidos"}), 401
+        # 1. Validar inputs
+        schema = LoginSchema()
+        validated_data = schema.load(data)
+        
+        # 2. Autenticar
+        user_data, access_token = AuthService.login(validated_data) # Retorna tuple o raise ValueError
+        
+        return jsonify({
+            "message": "Login successful", 
+            "user": user_data,
+            "access_token": access_token
+        }), 200
 
+    except ValidationError as err:
+         return jsonify({"error": "Datos inválidos", "detalles": err.messages}), 400
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 401
     except Exception as e:
         print(e)
         return jsonify({"error": f"Error interno del servidor: {str(e)}"}), 500
