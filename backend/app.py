@@ -3,6 +3,7 @@ from utils.database import db
 from routes.usuarios import usuarios
 from routes.login import login_bp
 from routes.proveedores import proveedores
+from routes.areas import areas_bp
 from flask_cors import CORS
 import os
 
@@ -25,6 +26,7 @@ db.init_app(app)
 app.register_blueprint(usuarios)
 app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
+app.register_blueprint(areas_bp)
 
 @app.route("/", methods=["GET"])
 def index():
