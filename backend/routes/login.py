@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from utils.database import db
 from models.usuario import Usuario
 from werkzeug.security import check_password_hash
+from flask_jwt_extended import create_access_token
+import datetime
+import os
 
 login_bp = Blueprint("login", __name__)
 
@@ -27,11 +30,34 @@ def loginpost():
         
         if usuario:
             if check_password_hash(usuario.contrasena, contrasena):
-                return jsonify({"message": "Login successful", "user": usuario.nombre}), 200
+                # Crear token con expiración desde .env (default 365 días)
+                expiration_days = int(os.getenv("JWT_EXPIRATION_DAYS", 365))
+                expires = datetime.timedelta(days=expiration_days)
+                # Incluir información extra en la identidad o claims si es necesario
+                identity = str(usuario.Legajo) # Usar ID o Legajo como identidad
+                additional_claims = {
+                    "rol": usuario.Rol, 
+                    "nombre": usuario.nombre,
+                    "email": usuario.Email
+                }
+                
+                access_token = create_access_token(identity=identity, additional_claims=additional_claims, expires_delta=expires)
+                
+                return jsonify({
+                    "message": "Login successful", 
+                    "user": {
+                        "id": usuario.Legajo,
+                        "nombre": usuario.nombre,
+                        "email": usuario.Email,
+                        "rol": usuario.Rol
+                    },
+                    "access_token": access_token
+                }), 200
             else:
                 return jsonify({"error": "Email o contraseña inválidos"}), 401
         else:
             return jsonify({"error": "Email o contraseña inválidos"}), 401
 
     except Exception as e:
+        print(e)
         return jsonify({"error": f"Error interno del servidor: {str(e)}"}), 500

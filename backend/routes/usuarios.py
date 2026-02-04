@@ -3,6 +3,7 @@ from utils.database import db
 from models.usuario import Usuario
 from models.area import Area
 from werkzeug.security import generate_password_hash
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 usuarios = Blueprint("usuarios", __name__)
 
@@ -38,6 +39,33 @@ def get_usuarios():
         return jsonify({"error": f"Error al obtener usuarios: {str(e)}"}), 500
 
 
+@usuarios.route("/usuarios/perfil", methods=["GET"])
+@jwt_required()
+def get_perfil():
+    try:
+        current_user_id = get_jwt_identity() # Obtiene el ID del token
+        usuario = Usuario.query.get(current_user_id)
+        
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+            
+        area_nombre = "Sin área"
+        if usuario.Area_idArea:
+            area = Area.query.get(usuario.Area_idArea)
+            if area:
+                area_nombre = area.nombre
+                
+        return jsonify({
+            "id": usuario.Legajo,
+            "nombre": usuario.nombre,
+            "email": usuario.Email,
+            "telefono": usuario.Telefono,
+            "rol": usuario.Rol,
+            "area": area_nombre
+        }), 200
+    except Exception as e:
+         return jsonify({"error": f"Error al obtener perfil: {str(e)}"}), 500
+
 @usuarios.route("/usuarios", methods=["POST"])
 def create_usuario():
     try:
@@ -69,34 +97,6 @@ def create_usuario():
         db.session.add(usuario)
         db.session.commit()
         return jsonify({"message": "Usuario creado exitosamente"}), 201
-
-        # cursor = db.database.cursor()
-
-        # # Verificar si el email ya existe
-        # cursor.execute("SELECT * FROM Usuario WHERE Email = :email", {"email": email})
-        # if cursor.fetchone():
-        #     cursor.close()
-        #     return jsonify({"error": "El email ya está registrado"}), 409
-
-        # Usar una contraseña por defecto para usuarios creados desde admin
-
-        # cursor.execute(
-        #     """INSERT INTO Usuario (Email, contrasena, Rol, Telefono, Estado, Area_idArea, nombre) 
-        #        VALUES (:email, :contrasena, :rol, :telefono, :estado, :area_id, :nombre)""",
-        #     {
-        #         "email": email,
-        #         "contrasena": contrasena_default,
-        #         "rol": rol,
-        #         "telefono": telefono,
-        #         "estado": 1,
-        #         "area_id": area_id,
-        #         "nombre": nombre,
-        #     },
-        # )
-        # db.database.commit()
-        # cursor.close()
-
-        # return jsonify({"message": "Usuario creado exitosamente"}), 201
 
     except ValueError as e:
         return jsonify({"error": f"Error de formato de datos: {str(e)}"}), 400

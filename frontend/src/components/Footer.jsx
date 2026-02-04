@@ -13,7 +13,7 @@ const Footer = () => {
             <div className="info">
             <div className="izquierda">
                 <h5>Estamos en</h5>
-                <p>Ruta Provincial N17, Km 178, Añelo, Neuquen AR</p>
+                <p>Ruta Provincial N17, Km 178, Añelo, Neuquen AR</p>
             </div>
             <div className="derecha">
                 <h5>Contactos</h5>

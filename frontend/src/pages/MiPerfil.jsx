@@ -1,133 +1,134 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "../assets/styles/MiPerfil.module.css";
 import Head from "../components/Head";
 import Footer from "../components/Footer";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import { perfilSchema } from "../validations/main";
 
 const MiPerfil = () => {
-  const [usuario, setUsuario] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-    rol: "",
-    area: "",
-  });
-  const [usuarioOriginal, setUsuarioOriginal] = useState({});
   const [editando, setEditando] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
+  const queryClient = useQueryClient();
 
-  // Obtener datos del usuario al cargar
-  useEffect(() => {
-    obtenerPerfil();
-  }, []);
+  // Configuración de React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(perfilSchema),
+  });
 
-  const obtenerPerfil = async () => {
-    try {
-      setLoading(true);
-      // Obtener el ID del usuario del localStorage (asumiendo que se guarda al hacer login)
-      const usuarioGuardado = localStorage.getItem("usuario");
-      
-      if (usuarioGuardado) {
-        const datosUsuario = JSON.parse(usuarioGuardado);
-        setUsuario(datosUsuario);
-        setUsuarioOriginal(datosUsuario);
-      } else {
-        // Si no hay datos en localStorage, intentar obtener de la API
-        const response = await fetch("http://localhost:5000/usuarios/perfil", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+  // Obtener token
+  const getToken = () => localStorage.getItem("token");
 
-        if (response.ok) {
-          const data = await response.json();
-          setUsuario(data);
-          setUsuarioOriginal(data);
-        }
+  // React Query: Obtener perfil
+  const {
+    data: usuario,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["perfil"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:5000/usuarios/perfil", {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Error al obtener el perfil");
       }
-    } catch (error) {
-      console.error("Error al obtener perfil:", error);
-      setMensaje({ texto: "Error al cargar el perfil", tipo: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.json();
+    },
+    // Al obtener los datos, reseteamos el formulario con los valores actuales
+    onSuccess: (data) => {
+      reset(data);
+    },
+  });
 
-  const habilitarEdicion = () => {
-    setEditando(true);
-    setMensaje({ texto: "", tipo: "" });
-  };
-
-  const cancelarEdicion = () => {
-    setEditando(false);
-    setUsuario(usuarioOriginal);
-    setMensaje({ texto: "", tipo: "" });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUsuario((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const guardarCambios = async (e) => {
-    e.preventDefault();
-    try {
+  // React Query: Actualizar perfil
+  const mutation = useMutation({
+    mutationFn: async (datosActualizados) => {
       const response = await fetch(
         `http://localhost:5000/usuarios/${usuario.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${getToken()}`,
           },
-          body: JSON.stringify({
-            nombre: usuario.nombre,
-            email: usuario.email,
-            telefono: usuario.telefono,
-          }),
+          body: JSON.stringify(datosActualizados),
         }
       );
-
-      if (response.ok) {
-        const datosActualizados = await response.json();
-        setUsuario(datosActualizados);
-        setUsuarioOriginal(datosActualizados);
-        localStorage.setItem("usuario", JSON.stringify(datosActualizados));
-        setEditando(false);
-        setMensaje({ texto: "Perfil actualizado correctamente", tipo: "exito" });
-      } else {
-        setMensaje({ texto: "Error al actualizar el perfil", tipo: "error" });
+      if (!response.ok) {
+        throw new Error("Error al actualizar el perfil");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      setMensaje({ texto: "Error de conexión con el servidor", tipo: "error" });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["perfil"]);
+      setMensaje({ texto: "Perfil actualizado correctamente", tipo: "exito" });
+      setEditando(false);
+      reset(data);
+    },
+    onError: (error) => {
+      setMensaje({ texto: error.message, tipo: "error" });
+    },
+  });
+
+  // Efecto para resetear el formulario cuando llegan los datos (por si onSuccess no basta)
+  React.useEffect(() => {
+    if (usuario) {
+      reset(usuario);
     }
+  }, [usuario, reset]);
+
+  const onSubmit = (data) => {
+    mutation.mutate({
+        nombre: data.nombre,
+        email: data.email,
+        telefono: data.telefono
+    });
   };
 
-  // Obtener iniciales para el avatar
-  const obtenerIniciales = (nombre) => {
+  const handleCancelar = () => {
+    setEditando(false);
+    reset(usuario);
+    setMensaje({ texto: "", tipo: "" });
+  };
+
+  const getIniciales = (nombre) => {
     if (!nombre) return "?";
-    const palabras = nombre.split(" ");
-    if (palabras.length >= 2) {
-      return (palabras[0][0] + palabras[1][0]).toUpperCase();
-    }
-    return nombre.substring(0, 2).toUpperCase();
+    return nombre
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={styles.container}>
         <Head />
         <div className={styles.main}>
-          <p style={{ color: "white", textAlign: "center", padding: "50px" }}>
-            Cargando perfil...
-          </p>
+          <div className={styles.loading}>Cargando perfil...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.container}>
+        <Head />
+        <div className={styles.main}>
+          <div className={styles.error}>Error al cargar el perfil. Por favor inicie sesión nuevamente.</div>
         </div>
         <Footer />
       </div>
@@ -148,9 +149,7 @@ const MiPerfil = () => {
             {mensaje.texto && (
               <div
                 className={`${styles.mensaje} ${
-                  mensaje.tipo === "exito"
-                    ? styles.mensajeExito
-                    : styles.mensajeError
+                  mensaje.tipo === "exito" ? styles.mensajeExito : styles.mensajeError
                 }`}
               >
                 {mensaje.texto}
@@ -159,23 +158,29 @@ const MiPerfil = () => {
 
             <div className={styles.avatarSection}>
               <div className={styles.avatar}>
-                {obtenerIniciales(usuario.nombre)}
+                {getIniciales(usuario?.nombre)}
               </div>
-              <span className={styles.userName}>{usuario.nombre}</span>
-              <span className={styles.userRole}>{usuario.rol}</span>
+              <span className={styles.userName}>{usuario?.nombre}</span>
+              <span className={styles.userRole}>{usuario?.rol}</span>
             </div>
 
-            <form className={styles.formSection} onSubmit={guardarCambios}>
+            <form
+              className={styles.formSection}
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <div className={styles.formGroup}>
                 <label htmlFor="nombre">Nombre Completo</label>
                 <input
                   type="text"
                   id="nombre"
-                  name="nombre"
-                  value={usuario.nombre}
-                  onChange={handleChange}
+                  {...register("nombre")}
                   disabled={!editando}
                 />
+                {errors.nombre && (
+                  <span style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.nombre.message}
+                  </span>
+                )}
               </div>
 
               <div className={styles.formRow}>
@@ -184,22 +189,28 @@ const MiPerfil = () => {
                   <input
                     type="email"
                     id="email"
-                    name="email"
-                    value={usuario.email}
-                    onChange={handleChange}
+                    {...register("email")}
                     disabled={!editando}
                   />
+                  {errors.email && (
+                    <span style={{ color: "red", fontSize: "0.8rem" }}>
+                      {errors.email.message}
+                    </span>
+                  )}
                 </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="telefono">Teléfono</label>
                   <input
                     type="tel"
                     id="telefono"
-                    name="telefono"
-                    value={usuario.telefono}
-                    onChange={handleChange}
+                    {...register("telefono")}
                     disabled={!editando}
                   />
+                  {errors.telefono && (
+                    <span style={{ color: "red", fontSize: "0.8rem" }}>
+                      {errors.telefono.message}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -209,8 +220,7 @@ const MiPerfil = () => {
                   <input
                     type="text"
                     id="rol"
-                    name="rol"
-                    value={usuario.rol}
+                    value={usuario?.rol || ""}
                     disabled
                   />
                 </div>
@@ -219,8 +229,7 @@ const MiPerfil = () => {
                   <input
                     type="text"
                     id="area"
-                    name="area"
-                    value={usuario.area}
+                    value={usuario?.area || ""}
                     disabled
                   />
                 </div>
@@ -231,20 +240,20 @@ const MiPerfil = () => {
                   <button
                     type="button"
                     className={styles.btnEditar}
-                    onClick={habilitarEdicion}
+                    onClick={() => setEditando(true)}
                   >
                     <i className="fa-solid fa-pen-to-square"></i>
                     Editar Perfil
                   </button>
                 ) : (
                   <>
-                    <button type="submit" className={styles.btnGuardar}>
-                      Guardar Cambios
+                    <button type="submit" className={styles.btnGuardar} disabled={mutation.isPending}>
+                      {mutation.isPending ? "Guardando..." : "Guardar Cambios"}
                     </button>
                     <button
                       type="button"
                       className={styles.btnCancelar}
-                      onClick={cancelarEdicion}
+                      onClick={handleCancelar}
                     >
                       Cancelar
                     </button>
