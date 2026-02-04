@@ -7,7 +7,7 @@ class Usuario(db.Model):
     Legajo = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Area_idArea = db.Column(db.Integer, db.ForeignKey("area.idArea"), nullable=False)
     nombre = db.Column(db.String(25), nullable=True)
-    contrasena = db.Column(db.String(45), nullable=False)
+    contrasena = db.Column(db.String(255), nullable=False)
     Email = db.Column(db.String(45), nullable=False)
     Telefono = db.Column(db.String(20), nullable=False)
     Rol = db.Column(db.String(45), nullable=False, default=1)
