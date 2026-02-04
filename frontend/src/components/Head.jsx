@@ -29,6 +29,7 @@ const Head = () => {
                 <div className={styles.dropdown}>
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Mi Perfil</button>
                     <div className={styles.dropdownContent}>
+                        <a href="/mi-perfil">Ver Perfil</a>
                         <a href="/usuarios">Mensajes</a>
                         <a href="/cambiarContraseña">Cambiar contraseña</a>
                         <a href="/">Cerrar sesion</a>
