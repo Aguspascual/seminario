@@ -1,0 +1,7 @@
+.agent/skills/vercel-react-best-practices
+node_modules
+dist
+.env
+__pycache__
+venv
+*.pyc

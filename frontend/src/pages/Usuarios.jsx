@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import "../assets/styles/Usuarios.css";
 import Head from "../components/Head";
 import Footer from "../components/Footer";
-import logo from "../assets/avg/LogoEcopolo.ico";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Usuarios = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [usuarios, setUsuarios] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [formError, setFormError] = useState("");
+  
+  const queryClient = useQueryClient();
 
-  const abrirModal = () => setMostrarModal(true);
+  const abrirModal = () => {
+      setFormError("");
+      setMostrarModal(true);
+  };
   const cerrarModal = () => setMostrarModal(false);
 
   const abrirModalDetalles = (usuario) => {
@@ -27,53 +30,52 @@ const Usuarios = () => {
     setMostrarModalDetalles(false);
   };
 
-  const [areas, setAreas] = useState([]);
-
-  // Función para obtener usuarios de la API
-  const obtenerUsuarios = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("http://localhost:5000/usuarios", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUsuarios(data);
-      } else {
-        setError("Error al cargar los usuarios");
+  // 1. Fetching Usuarios
+  const { data: usuarios = [], isLoading: loadingUsuarios, isError: errorUsuarios } = useQuery({
+      queryKey: ['usuarios'],
+      queryFn: async () => {
+          const response = await fetch("http://localhost:5000/usuarios");
+          if (!response.ok) throw new Error("Error al cargar usuarios");
+          return response.json();
       }
-    } catch (error) {
-      setError("Error de conexión con el servidor");
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  });
 
-  const obtenerAreas = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/areas");
-      if (response.ok) {
-        const data = await response.json();
-        setAreas(data);
+  // 2. Fetching Areas (Se comparte caché con la página de Areas)
+  const { data: areas = [] } = useQuery({
+      queryKey: ['areas'],
+      queryFn: async () => {
+          const response = await fetch("http://localhost:5000/areas");
+          if (!response.ok) throw new Error("Error al cargar áreas");
+          return response.json();
       }
-    } catch (error) {
-      console.error("Error obteniendo areas:", error);
-    }
-  };
+  });
 
-  // Cargar usuarios al montar el componente
-  useEffect(() => {
-    obtenerUsuarios();
-    obtenerAreas();
-  }, []);
+  // 3. Mutation para Crear Usuario
+  const createMutation = useMutation({
+      mutationFn: async (datosEnvio) => {
+          const response = await fetch("http://localhost:5000/usuarios", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(datosEnvio),
+          });
+
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Error al agregar el usuario");
+          }
+          return response.json();
+      },
+      onSuccess: () => {
+          queryClient.invalidateQueries(['usuarios']);
+          cerrarModal();
+      },
+      onError: (err) => {
+          setFormError(err.message);
+      }
+  });
 
   // Función para agregar usuario
-  const manejarEnvio = async (e) => {
+  const manejarEnvio = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
@@ -87,27 +89,7 @@ const Usuarios = () => {
       area_id: formData.get("area_id"),
     };
 
-    console.log("Datos que se envían:", datosEnvio); // Debug
-
-    try {
-      const response = await fetch("http://localhost:5000/usuarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(datosEnvio),
-      });
-
-      if (response.ok) {
-        cerrarModal();
-        obtenerUsuarios(); // Recargar la lista
-      } else {
-        setError("Error al agregar el usuario");
-      }
-    } catch (error) {
-      setError("Error de conexión con el servidor");
-      console.error("Error:", error);
-    }
+    createMutation.mutate(datosEnvio);
   };
 
   // Filtrar usuarios por búsqueda
@@ -116,6 +98,7 @@ const Usuarios = () => {
       usuario.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       usuario.email?.toLowerCase().includes(busqueda.toLowerCase())
   );
+
   return (
     <div className="container">
       <Head />
@@ -177,11 +160,9 @@ const Usuarios = () => {
                     <option value="" hidden>
                       Seleccione un rol
                     </option>
-                    {/* Traer lista de roles desde la API */}
                     <option value="Administrador">Administrador</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
+                    <option value="Operario">Operario</option>
+                    <option value="Supervisor">Supervisor</option>
                   </select>
                   <select name="area_id" required>
                     <option value="" hidden>
@@ -193,14 +174,19 @@ const Usuarios = () => {
                       </option>
                     ))}
                   </select>
+                  
+                  {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
+                  {createMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{createMutation.error.message}</p>}
+
                   <div className="modal-botones">
-                    <button type="submit" className="btn-confirmar">
-                      Agregar
+                    <button type="submit" className="btn-confirmar" disabled={createMutation.isPending}>
+                      {createMutation.isPending ? 'Guardando...' : 'Agregar'}
                     </button>
                     <button
                       type="button"
                       onClick={cerrarModal}
                       className="btn-cancelar"
+                      disabled={createMutation.isPending}
                     >
                       Cancelar
                     </button>
@@ -221,7 +207,7 @@ const Usuarios = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loadingUsuarios ? (
                 <tr>
                   <td
                     colSpan="6"
@@ -230,7 +216,7 @@ const Usuarios = () => {
                     Cargando usuarios...
                   </td>
                 </tr>
-              ) : error ? (
+              ) : errorUsuarios ? (
                 <tr>
                   <td
                     colSpan="6"
@@ -240,7 +226,7 @@ const Usuarios = () => {
                       color: "red",
                     }}
                   >
-                    {error}
+                    Error al cargar usuarios
                   </td>
                 </tr>
               ) : usuariosFiltrados.length === 0 ? (

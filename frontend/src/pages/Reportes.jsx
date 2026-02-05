@@ -1,110 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import '../assets/styles/Usuarios.css'; // Reusing some styles or create new ones
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import '../assets/styles/Usuarios.css';
 import Head from '../components/Head';
 import Footer from '../components/Footer';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Reportes = () => {
-    const [reportes, setReportes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
     const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
-    const [usuarioActual, setUsuarioActual] = useState(null); // Simulado o decoded from token
+    const [formError, setFormError] = useState("");
+    
+    const queryClient = useQueryClient();
 
-    // Simular usuario logueado obteniendo el primero de la BD por ahora
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await fetch("http://localhost:5000/usuarios");
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.length > 0) {
-                        setUsuarioActual(data[0]); // Usar el primer usuario real
-                        console.log("Usuario simulado:", data[0]);
-                    } else {
-                        console.warn("No hay usuarios en la BD para simular login");
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching users for simulation:", error);
-            }
-        };
-        fetchUser();
-    }, []);
+    // 1. Obtener Usuario Actual (Simulado por ahora, idealmente vendría de AuthContext)
+    const { data: usuarioActual } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: async () => {
+             const response = await fetch("http://localhost:5000/usuarios");
+             if (!response.ok) return null;
+             const data = await response.json();
+             return data.length > 0 ? data[0] : null; // Simula login con el primer usuario
+        },
+        staleTime: Infinity 
+    });
 
-    const obtenerReportes = async () => {
-        try {
-            setLoading(true);
+    // 2. Obtener Reportes
+    const { data: reportes = [], isLoading: loadingReportes, isError: errorReportes } = useQuery({
+        queryKey: ['reportes'],
+        queryFn: async () => {
             const response = await fetch("http://localhost:5000/reportes");
-            if (response.ok) {
-                const data = await response.json();
-                setReportes(data);
-            } else {
-                setError("Error al cargar reportes");
-            }
-        } catch (error) {
-            console.error(error);
-            setError("Error de conexión");
-        } finally {
-            setLoading(false);
+            if (!response.ok) throw new Error("Error al cargar reportes");
+            return response.json();
         }
-    };
+    });
 
-    useEffect(() => {
-        obtenerReportes();
-    }, []);
-
-    const handleCrear = async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        // Agregar ID usuario emisor
-        formData.append('idUsuarioEmisor', usuarioActual ? usuarioActual.id : 1);
-
-        try {
+    // 3. Crear Reporte Mutation
+    const crearReporteMutation = useMutation({
+        mutationFn: async (formData) => {
             const response = await fetch("http://localhost:5000/reportes", {
                 method: "POST",
-                body: formData // No setear Content-Type, fetch lo pone con boundary
+                body: formData 
             });
 
-            if (response.ok) {
-                setMostrarModalCrear(false);
-                obtenerReportes();
-            } else {
+            if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Error al crear reporte: ${errorData.error || 'Desconocido'}`);
+                throw new Error(errorData.error || "Error al crear reporte");
             }
-        } catch (error) {
-            console.error(error);
-            alert("Error de conexión");
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['reportes']);
+            setMostrarModalCrear(false);
+        },
+        onError: (err) => {
+            setFormError(err.message);
         }
-    };
+    });
 
-    const handleResponder = async (e) => {
-        e.preventDefault();
-        const respuesta = e.target.respuesta.value;
-
-        try {
-            const response = await fetch(`http://localhost:5000/reportes/${reporteSeleccionado.id}/responder`, {
+    // 4. Responder Reporte Mutation
+    const responderReporteMutation = useMutation({
+        mutationFn: async ({ id, respuesta, idUsuarioReceptor }) => {
+            const response = await fetch(`http://localhost:5000/reportes/${id}/responder`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    respuesta: respuesta,
-                    idUsuarioReceptor: usuarioActual ? usuarioActual.id : 2 // Simular receptor ID 2
+                    respuesta,
+                    idUsuarioReceptor
                 })
             });
 
-            if (response.ok) {
-                setMostrarModalDetalles(false);
-                obtenerReportes();
-            } else {
-                alert("Error al guardar respuesta");
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error de conexión");
+            if (!response.ok) throw new Error("Error al guardar respuesta");
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['reportes']);
+            setMostrarModalDetalles(false);
+        },
+        onError: (err) => {
+            alert(err.message);
         }
+    });
+
+    const handleCrear = (e) => {
+        e.preventDefault();
+        setFormError("");
+        const formData = new FormData(e.target);
+        formData.append('idUsuarioEmisor', usuarioActual ? usuarioActual.id : 1);
+        crearReporteMutation.mutate(formData);
+    };
+
+    const handleResponder = (e) => {
+        e.preventDefault();
+        const respuesta = e.target.respuesta.value;
+        responderReporteMutation.mutate({
+            id: reporteSeleccionado.id,
+            respuesta,
+            idUsuarioReceptor: usuarioActual ? usuarioActual.id : 2
+        });
     };
 
     return (
@@ -131,9 +124,17 @@ const Reportes = () => {
                                     <input type="text" name="asunto" placeholder="Asunto" required />
                                     <textarea name="descripcion" placeholder="Descripción" required rows="4" style={{ width: '100%', marginBottom: '10px' }}></textarea>
                                     <input type="file" name="archivo" />
+                                    
+                                    {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
+                                    {crearReporteMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{crearReporteMutation.error.message}</p>}
+
                                     <div className="modal-botones">
-                                        <button type="submit" className="btn-confirmar">Enviar</button>
-                                        <button type="button" onClick={() => setMostrarModalCrear(false)} className="btn-cancelar">Cancelar</button>
+                                        <button type="submit" className="btn-confirmar" disabled={crearReporteMutation.isPending}>
+                                            {crearReporteMutation.isPending ? 'Enviando...' : 'Enviar'}
+                                        </button>
+                                        <button type="button" onClick={() => setMostrarModalCrear(false)} className="btn-cancelar" disabled={crearReporteMutation.isPending}>
+                                            Cancelar
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -166,7 +167,9 @@ const Reportes = () => {
                                             <form onSubmit={handleResponder}>
                                                 <textarea name="respuesta" placeholder="Escribe tu respuesta..." required rows="3" style={{ width: '100%' }}></textarea>
                                                 <div className="modal-botones">
-                                                    <button type="submit" className="btn-confirmar">Responder</button>
+                                                    <button type="submit" className="btn-confirmar" disabled={responderReporteMutation.isPending}>
+                                                        {responderReporteMutation.isPending ? 'Enviando...' : 'Responder'}
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -190,7 +193,11 @@ const Reportes = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {reportes.map((reporte) => (
+                            {loadingReportes ? (
+                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>Cargando reportes...</td></tr>
+                            ) : errorReportes ? (
+                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px", color: "red" }}>Error al cargar reportes</td></tr>
+                            ) : reportes.map((reporte) => (
                                 <tr key={reporte.id}>
                                     <td>{new Date(reporte.fechaCreacion).toLocaleDateString()}</td>
                                     <td>{reporte.asunto}</td>
@@ -208,8 +215,8 @@ const Reportes = () => {
                                     </td>
                                 </tr>
                             ))}
-                            {reportes.length === 0 && (
-                                <tr><td colSpan="5">No hay reportes.</td></tr>
+                            {!loadingReportes && reportes.length === 0 && (
+                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>No hay reportes.</td></tr>
                             )}
                         </tbody>
                     </table>
