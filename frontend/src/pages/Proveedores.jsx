@@ -131,7 +131,7 @@ const Proveedores = () => {
                                         <option value="" hidden>Seleccione un tipo</option>
                                         {tiposProveedor.map((tipo) => (
                                             <option key={tipo.idTipo} value={tipo.idTipo}>
-                                                {tipo.Nombre}
+                                                {tipo.nombreTipo}
                                             </option>
                                         ))}
                                     </select>
@@ -157,8 +157,7 @@ const Proveedores = () => {
                         </div>
                     )}
 
-                    {/* Tabla de proveedores */}
-                    <table className={styles.cabecera}>
+                    <table className={styles.tablaDatos}>
                         <thead>
                             <tr>
                                 <th>Empresa</th>
@@ -169,45 +168,43 @@ const Proveedores = () => {
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                    </table>
-                    
-                    <table className={styles.datos}>
                         <tbody>
                             {loadingProveedores ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                                    <td colSpan="6" className={styles.loading}>
                                         Cargando proveedores...
                                     </td>
                                 </tr>
                             ) : errorProveedores ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "red" }}>
+                                    <td colSpan="6" className={styles.error}>
                                         Error al cargar datos
                                     </td>
                                 </tr>
                             ) : proveedoresFiltrados.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                                    <td colSpan="6" className={styles.empty}>
                                         No se encontraron proveedores
                                     </td>
                                 </tr>
                             ) : (
                                 proveedoresFiltrados.map((proveedor, index) => (
                                     <tr key={proveedor.idProveedor || index}>
-                                        <td>{proveedor.Nombre}</td>
-                                        <td>{proveedor.tipo_proveedor || "Sin tipo"}</td>
+                                        <td className={styles.empresa}>{proveedor.Nombre}</td>
+                                        <td className={styles.celdaTipo}>
+                                            <span className={styles.badgeTipo}>{proveedor.tipo_proveedor || "Sin tipo"}</span>
+                                        </td>
                                         <td className={styles.numero}>{proveedor.Numero}</td>
                                         <td className={styles.correo}>{proveedor.Email}</td>
                                         <td>
-                                            <span style={{ 
-                                                color: proveedor.Estado ? "green" : "red",
-                                                fontWeight: "bold"
-                                            }}>
+                                            <span className={proveedor.Estado ? styles.badgeActivo : styles.badgeInactivo}>
                                                 {proveedor.Estado ? "Activo" : "Inactivo"}
                                             </span>
                                         </td>
-                                        <td>
-                                            <i className="fa-solid fa-eye" style={{ cursor: "pointer" }}></i>
+                                        <td className={styles.acciones}>
+                                            <button className={styles.btnAction} title="Ver detalles">
+                                                <i className="fa-solid fa-eye"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

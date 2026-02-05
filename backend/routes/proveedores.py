@@ -110,7 +110,7 @@ def get_tipos_proveedor():
         description: Lista de tipos de proveedor
     """
     try:
-        tipos = ProveedorService.get_types()
+        tipos = ProveedorService.get_tipos()
         tipos_list = [tipo.to_dict() for tipo in tipos]
         return jsonify(tipos_list), 200
     except Exception as e:

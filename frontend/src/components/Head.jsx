@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../assets/styles/Head.module.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -8,31 +9,32 @@ const Head = () => {
         <div className={styles.header}>
             <img src={logo} alt="Logo Ecopolo" />
             <div className={styles.item}>
-                <a className={styles.navbtn} href='/'>Home</a>
+                <Link className={styles.navbtn} to='/'>Home</Link>
                 <div className={styles.dropdown}>
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Planta</button>
                     <div className={styles.dropdownContent}>
-                        <a href="/usuarios">Usuarios</a>
-                        <a href="/proveedores">Proveedores</a>
-                        <a href="/maquinaria">Maquinaria</a>
+                        <Link to="/usuarios">Usuarios</Link>
+                        <Link to="/proveedores">Proveedores</Link>
+                        <Link to="/maquinaria">Maquinaria</Link>
 
-                        <a href="/auditorias">Auditorias</a>
-                        <a href="/areas">Areas</a>
+                        <Link to="/auditorias">Auditorias</Link>
+                        <Link to="/capacitaciones">Capacitaciones</Link>
+                        <Link to="/areas">Areas</Link>
                     </div>
                 </div>
                 <div className={styles.dropdown}>
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Maquinaria</button>
                     <div className={styles.dropdownContent}>
-                        <a href="/usuarios">Maquinas</a>
-                        <a href="/reportes">Reportes</a>
+                        <Link to="/usuarios">Maquinas</Link>
+                        <Link to="/reportes">Reportes</Link>
                     </div>
                 </div>
                 <div className={styles.dropdown}>
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Mi Perfil</button>
                     <div className={styles.dropdownContent}>
-                        <a href="/mi-perfil">Ver Perfil</a>
-                        <a href="/usuarios">Mensajes</a>
-                        <a href="/cambiarContraseña">Cambiar contraseña</a>
+                        <Link to="/mi-perfil">Ver Perfil</Link>
+                        <Link to="/usuarios">Mensajes</Link>
+                        <Link to="/cambiarContraseña">Cambiar contraseña</Link>
                         <button
                             className={styles.logoutBtn}
                             onClick={() => {

@@ -1,4 +1,4 @@
-.agent/skills/vercel-react-best-practices
+.agent/skills/
 node_modules
 dist
 .env

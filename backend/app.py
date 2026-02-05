@@ -5,6 +5,9 @@ from routes.login import login_bp
 from routes.proveedores import proveedores
 from routes.areas import areas_bp
 from routes.reportes import reportes_bp
+from routes.maquinaria import maquinaria_bp
+from routes.auditorias import auditorias_bp
+from routes.capacitaciones import capacitaciones_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -37,6 +40,9 @@ app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
 app.register_blueprint(areas_bp)
 app.register_blueprint(reportes_bp)
+app.register_blueprint(maquinaria_bp)
+app.register_blueprint(auditorias_bp)
+app.register_blueprint(capacitaciones_bp)
 
 @app.route("/", methods=["GET"])
 def index():
