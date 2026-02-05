@@ -16,7 +16,6 @@ const Head = () => {
                         <Link to="/usuarios">Usuarios</Link>
                         <Link to="/proveedores">Proveedores</Link>
                         <Link to="/maquinaria">Maquinaria</Link>
-
                         <Link to="/auditorias">Auditorias</Link>
                         <Link to="/areas">Areas</Link>
                     </div>
