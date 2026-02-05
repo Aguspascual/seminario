@@ -18,7 +18,6 @@ const Head = () => {
                         <Link to="/maquinaria">Maquinaria</Link>
 
                         <Link to="/auditorias">Auditorias</Link>
-                        <Link to="/capacitaciones">Capacitaciones</Link>
                         <Link to="/areas">Areas</Link>
                     </div>
                 </div>
