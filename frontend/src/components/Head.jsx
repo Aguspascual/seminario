@@ -23,7 +23,7 @@ const Head = () => {
                 <div className={styles.dropdown}>
                     <button className={`${styles.dropbtn} ${styles.navbtn}`}>Maquinaria</button>
                     <div className={styles.dropdownContent}>
-                        <a href="/usuarios">Maquinas</a>
+                        <a href="/maquinaria">Maquinas</a>
                         <a href="/reportes">Reportes</a>
                     </div>
                 </div>
