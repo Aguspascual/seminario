@@ -11,7 +11,7 @@ const Home = () => {
   return (
     <div className='Container'>
       <div className='header'>
-        <img src={logo} alt="Logo Ecopolo" />
+        <img src={logo} alt="Logo Ecopolo" width="100" height="100" />
         <div className="item">
           <a>Legal</a>
           <a>Protocolo</a>
@@ -20,7 +20,7 @@ const Home = () => {
         </div>
       </div>
       <div className="main">
-        <img src={fondo} alt="Fondo Ecopolo s.a" />
+        <img src={fondo} alt="Fondo Ecopolo s.a" width="1920" height="1080" fetchPriority="high" />
         <div className="text-container">
           <div className="subtitle1">Ecopolo Argentina S.A.</div>
           <div className="subtitle2">Servicios Medioambientales</div>

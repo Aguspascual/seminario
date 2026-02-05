@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import styles from '../assets/styles/Proveedores.module.css';
 import Head from '../components/Head';
 import Footer from '../components/Footer';
@@ -6,99 +7,74 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Proveedores = () => {
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [proveedores, setProveedores] = useState([]);
-    const [tiposProveedor, setTiposProveedor] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [busqueda, setBusqueda] = useState("");
+    const [formError, setFormError] = useState("");
+    
+    const queryClient = useQueryClient();
 
-    const abrirModal = () => setMostrarModal(true);
-    const cerrarModal = () => setMostrarModal(false);
-
-    // Función para obtener proveedores de la API
-    const obtenerProveedores = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch("http://localhost:5000/proveedores", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setProveedores(data);
-            } else {
-                setError("Error al cargar los proveedores");
-            }
-        } catch (error) {
-            setError("Error de conexión con el servidor");
-            console.error("Error:", error);
-        } finally {
-            setLoading(false);
+    // 1. Fetching Proveedores
+    const { data: proveedores = [], isLoading: loadingProveedores, isError: errorProveedores } = useQuery({
+        queryKey: ['proveedores'],
+        queryFn: async () => {
+            const response = await fetch("http://localhost:5000/proveedores");
+            if (!response.ok) throw new Error("Error al cargar proveedores");
+            return response.json();
         }
-    };
+    });
 
-    // Función para obtener tipos de proveedor
-    const obtenerTiposProveedor = async () => {
-        try {
-            const response = await fetch("http://localhost:5000/tipos-proveedor", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setTiposProveedor(data);
-            }
-        } catch (error) {
-            console.error("Error al obtener tipos:", error);
+    // 2. Fetching Tipos de Proveedor
+    const { data: tiposProveedor = [] } = useQuery({
+        queryKey: ['tiposProveedor'],
+        queryFn: async () => {
+            const response = await fetch("http://localhost:5000/tipos-proveedor");
+            if (!response.ok) throw new Error("Error al cargar tipos");
+            return response.json();
         }
-    };
+    });
 
-    // Cargar datos al montar el componente
-    useEffect(() => {
-        obtenerProveedores();
-        obtenerTiposProveedor();
-    }, []);
-
-    // Función para agregar proveedor
-    const manejarEnvio = async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-
-        try {
+    // 3. Mutation para Crear
+    const createMutation = useMutation({
+        mutationFn: async (nuevoProveedor) => {
             const response = await fetch("http://localhost:5000/proveedores", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    Nombre: formData.get("nombre"),
-                    Numero: parseInt(formData.get("numero")),
-                    Email: formData.get("email"),
-                    idTipo: parseInt(formData.get("tipo"))
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(nuevoProveedor),
             });
 
-            if (response.ok) {
-                cerrarModal();
-                obtenerProveedores(); // Recargar la lista
-                e.target.reset(); // Limpiar el formulario
-            } else {
+            if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error || "Error al agregar el proveedor");
+                throw new Error(errorData.error || "Error al agregar el proveedor");
             }
-        } catch (error) {
-            setError("Error de conexión con el servidor");
-            console.error("Error:", error);
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['proveedores']);
+            cerrarModal();
+        },
+        onError: (err) => {
+            setFormError(err.message);
         }
+    });
+
+    const abrirModal = () => {
+        setFormError("");
+        setMostrarModal(true);
+    };
+    
+    const cerrarModal = () => setMostrarModal(false);
+
+    const manejarEnvio = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        createMutation.mutate({
+            Nombre: formData.get("nombre"),
+            Numero: parseInt(formData.get("numero")),
+            Email: formData.get("email"),
+            idTipo: parseInt(formData.get("tipo"))
+        });
     };
 
-    // Filtrar proveedores por búsqueda
     const proveedoresFiltrados = proveedores.filter(
         (proveedor) =>
             proveedor.Nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -155,18 +131,23 @@ const Proveedores = () => {
                                         <option value="" hidden>Seleccione un tipo</option>
                                         {tiposProveedor.map((tipo) => (
                                             <option key={tipo.idTipo} value={tipo.idTipo}>
-                                                {tipo.Nombre}
+                                                {tipo.nombreTipo}
                                             </option>
                                         ))}
                                     </select>
+                                    
+                                    {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
+                                    {createMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{createMutation.error.message}</p>}
+
                                     <div className={styles.modalBotones}>
-                                        <button type="submit" className={styles.btnConfirmar}>
-                                            Agregar
+                                        <button type="submit" className={styles.btnConfirmar} disabled={createMutation.isPending}>
+                                            {createMutation.isPending ? 'Guardando...' : 'Agregar'}
                                         </button>
                                         <button 
                                             type="button" 
                                             onClick={cerrarModal} 
                                             className={styles.btnCancelar}
+                                            disabled={createMutation.isPending}
                                         >
                                             Cancelar
                                         </button>
@@ -176,8 +157,7 @@ const Proveedores = () => {
                         </div>
                     )}
 
-                    {/* Tabla de proveedores */}
-                    <table className={styles.cabecera}>
+                    <table className={styles.tablaDatos}>
                         <thead>
                             <tr>
                                 <th>Empresa</th>
@@ -188,45 +168,43 @@ const Proveedores = () => {
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                    </table>
-                    
-                    <table className={styles.datos}>
                         <tbody>
-                            {loading ? (
+                            {loadingProveedores ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                                    <td colSpan="6" className={styles.loading}>
                                         Cargando proveedores...
                                     </td>
                                 </tr>
-                            ) : error ? (
+                            ) : errorProveedores ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "red" }}>
-                                        {error}
+                                    <td colSpan="6" className={styles.error}>
+                                        Error al cargar datos
                                     </td>
                                 </tr>
                             ) : proveedoresFiltrados.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                                    <td colSpan="6" className={styles.empty}>
                                         No se encontraron proveedores
                                     </td>
                                 </tr>
                             ) : (
                                 proveedoresFiltrados.map((proveedor, index) => (
                                     <tr key={proveedor.idProveedor || index}>
-                                        <td>{proveedor.Nombre}</td>
-                                        <td>{proveedor.tipo_proveedor || "Sin tipo"}</td>
+                                        <td className={styles.empresa}>{proveedor.Nombre}</td>
+                                        <td className={styles.celdaTipo}>
+                                            <span className={styles.badgeTipo}>{proveedor.tipo_proveedor || "Sin tipo"}</span>
+                                        </td>
                                         <td className={styles.numero}>{proveedor.Numero}</td>
                                         <td className={styles.correo}>{proveedor.Email}</td>
                                         <td>
-                                            <span style={{ 
-                                                color: proveedor.Estado ? "green" : "red",
-                                                fontWeight: "bold"
-                                            }}>
+                                            <span className={proveedor.Estado ? styles.badgeActivo : styles.badgeInactivo}>
                                                 {proveedor.Estado ? "Activo" : "Inactivo"}
                                             </span>
                                         </td>
-                                        <td>
-                                            <i className="fa-solid fa-eye" style={{ cursor: "pointer" }}></i>
+                                        <td className={styles.acciones}>
+                                            <button className={styles.btnAction} title="Ver detalles">
+                                                <i className="fa-solid fa-eye"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

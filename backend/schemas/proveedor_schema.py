@@ -7,4 +7,4 @@ class ProveedorSchema(Schema):
     Email = fields.Email(required=True)
     idTipo = fields.Int(required=True)
     Estado = fields.Bool(dump_only=True)
-    tipo_proveedor = fields.Str(dump_only=True) # Vendrá de la relación
+    tipo_proveedor = fields.Function(lambda obj: obj.tipo_proveedor.nombreTipo if obj.tipo_proveedor else None)
