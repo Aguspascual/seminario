@@ -29,7 +29,7 @@ const Head = ({ user }) => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        window.location.href = '/';
+        window.location.href = '/login';
     };
 
     const irACambiarPass = () => {
@@ -86,7 +86,7 @@ const Head = ({ user }) => {
                             Maquinaria <i className="fas fa-caret-down"></i>
                         </button>
                         <div className={s.dropdownContent}>
-                            <Link to="/maquinas">Máquinas</Link>
+                            <Link to="/maquinaria">Máquinas</Link>
                             <Link to="/mantenimiento">Mantenimiento</Link>
                             <Link to="/reportes">Reportes</Link>
                         </div>
@@ -99,6 +99,7 @@ const Head = ({ user }) => {
                             {user?.nombre || "Perfil"}
                         </button>
                         <div className={s.dropdownContent}>
+                            <Link to="/mensajes">Mensajes</Link>
                             <Link to="/mi-perfil">Mi Perfil</Link>
 
                             <button onClick={irACambiarPass} className={s.dropdownButton}>

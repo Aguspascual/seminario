@@ -42,8 +42,8 @@ const Login = () => {
         console.log('Login exitoso:', data);
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('usuario', JSON.stringify(data.user));
-        navigate('/home'); // Redirigir a la página de home
-        //window.location.href = '/home';
+        // Usamos window.location para recargar la app y que App.jsx lea el usuario
+        window.location.href = '/home';
       } else {
         // Error en el login
         setError(data.error || 'Credencial incorrecta');
