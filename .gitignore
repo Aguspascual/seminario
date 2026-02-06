@@ -1,5 +1,4 @@
 .agents/skills/
-.agent/skills/
 node_modules
 dist
 .env
