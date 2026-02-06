@@ -34,7 +34,7 @@ function AppRoutes({ user }) {
                 </Route>
 
                 {/* --- 3. Rutas para Planta (Solo admin y Rol B) --- */}
-                <Route element={<ProtectedRoute user={user} allowedRoles={['admin', 'B']} />}>
+                <Route element={<ProtectedRoute user={user} allowedRoles={['Admin', 'Supervisor']} />}>
                     <Route path="/legal" element={<Legal />} />
                     <Route path="/proveedores" element={<Proveedores />} />
                     <Route path="/auditorias" element={<Auditorias />} />
@@ -42,7 +42,7 @@ function AppRoutes({ user }) {
                     <Route path="/capacitaciones" element={<Capacitaciones />} />
                 </Route>
 
-                <Route element={<ProtectedRoute user={user} allowedRoles={['admin']} />}>
+                <Route element={<ProtectedRoute user={user} allowedRoles={['Admin']} />}>
                     <Route path="/usuarios" element={<Usuarios />} />
                 </Route>
 
