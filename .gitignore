@@ -1,0 +1,8 @@
+.agents/skills/
+.agent/skills/
+node_modules
+dist
+.env
+__pycache__
+venv
+*.pyc

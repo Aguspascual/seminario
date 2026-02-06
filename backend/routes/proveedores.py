@@ -1,67 +1,124 @@
 from flask import Blueprint, request, jsonify
-from utils.database import db
-from models.proveedor import Proveedor
-from models.tipo_proveedor import TipoProveedor
+from schemas.proveedor_schema import ProveedorSchema
+from services.proveedor_service import ProveedorService
+from marshmallow import ValidationError
 
 proveedores = Blueprint("proveedores", __name__)
 
 @proveedores.route("/proveedores", methods=["GET"])
 def get_proveedores():
+    """
+    Obtener lista de proveedores
+    ---
+    tags:
+      - Proveedores
+    responses:
+      200:
+        description: Lista de proveedores
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              nombre:
+                type: string
+              numero:
+                type: string
+              email:
+                type: string
+              tipo:
+                type: string
+      500:
+        description: Error interno
+    """
     try:
-        listaProveedores = Proveedor.query.all()
-        
-        # Convertir objetos SQLAlchemy a diccionarios para serialización JSON
-        proveedores_list = []
-        for proveedor in listaProveedores:
-            if proveedor.idTipo:
-                tipo = tipo.query.get(proveedor.idTipo)
-            proveedores_list.append(proveedor.to_dict())
-        
-        return jsonify(proveedores_list), 200
-        
+        lista = ProveedorService.get_all()
+        # Puedes crear un schema para lista pero por ahora to_dict() del modelo es ok
+        # O mejor, usar el schema:
+        schema = ProveedorSchema(many=True)
+        return jsonify(schema.dump(lista)), 200
     except Exception as e:
         return jsonify({"error": f"Error al obtener proveedores: {str(e)}"}), 500
 
 @proveedores.route("/proveedores", methods=["POST"])
 def create_proveedor():
+    """
+    Crear un nuevo proveedor
+    ---
+    tags:
+      - Proveedores
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - Nombre
+            - Numero
+            - Email
+            - idTipo
+          properties:
+            Nombre:
+              type: string
+            Numero:
+              type: string
+            Email:
+              type: string
+            idTipo:
+              type: integer
+    responses:
+      201:
+        description: Proveedor creado
+      400:
+        description: Datos faltantes
+      409:
+        description: Email ya existe
+      500:
+        description: Error interno
+    """
     try:
         data = request.get_json()
         
-        # Validar campos requeridos
-        if not data or not all(
-            k in data for k in ("Nombre", "Numero", "Email", "idTipo")
-        ):
-            return jsonify({"error": "Los campos Nombre, Numero, Email e idTipo son requeridos"}), 400
+        # Validar
+        schema = ProveedorSchema()
+        validated_data = schema.load(data)
         
-        # Verificar si el email ya existe
-        proveedor_existente = Proveedor.query.filter_by(Email=data["Email"]).first()
-        if proveedor_existente:
-            return jsonify({"error": "El email ya está registrado"}), 409
-        
-        # Crear nuevo proveedor
-        nuevo_proveedor = Proveedor(
-            Nombre=data["Nombre"],
-            Numero=data["Numero"],
-            Email=data["Email"],
-            idTipo=data["idTipo"]
-        )
-        
-        db.session.add(nuevo_proveedor)
-        db.session.commit()
+        # Crear servicio
+        ProveedorService.create_proveedor(validated_data)
         
         return jsonify({"message": "Proveedor creado exitosamente"}), 201
         
+    except ValidationError as err:
+         return jsonify({"error": "Error de validación", "detalles": err.messages}), 400
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 409
     except Exception as e:
-        db.session.rollback()
         return jsonify({"error": f"Error al crear proveedor: {str(e)}"}), 500
-
 
 @proveedores.route("/tipos-proveedor", methods=["GET"])
 def get_tipos_proveedor():
+    """
+    Obtener tipos de proveedor
+    ---
+    tags:
+      - Proveedores
+    responses:
+      200:
+        description: Lista de tipos de proveedor
+    """
     try:
-        tipos = TipoProveedor.query.all()
+        tipos = ProveedorService.get_tipos()
         tipos_list = [tipo.to_dict() for tipo in tipos]
         return jsonify(tipos_list), 200
-        
     except Exception as e:
-        return jsonify({"error": f"Error al obtener tipos de proveedor: {str(e)}"}), 500
+        # Fallback a to_dict si el service falló (typo en nombre metodo)
+        try:
+             # Este bloque es por si cometi error en service name arriba
+             from models.tipo_proveedor import TipoProveedor
+             tipos = TipoProveedor.query.all()
+             return jsonify([tipo.to_dict() for tipo in tipos]), 200
+        except:
+             return jsonify({"error": f"Error al obtener tipos de proveedor: {str(e)}"}), 500
