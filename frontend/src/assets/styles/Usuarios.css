@@ -28,22 +28,38 @@
 
 /* Main Content Wrapper */
 .main {
-  padding: 30px 40px;
+  padding: 15px 30px;
   width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* Alineación a la izquierda */
-  gap: 20px;
+  gap: 10px;
 }
 
-/* Breadcrums o Título Superior */
-.main h6 {
-  color: #64748b;
+/* Breadcrumbs */
+.breadcrumbs {
   font-size: 0.9rem;
-  margin: 0;
+  color: #64748b;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.breadcrumbs a {
+  text-decoration: none;
+  color: #2E4F6E;
   font-weight: 500;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbs .current {
+  color: #64748b;
+  cursor: default;
 }
 
 /* Header de la sección (Título + Botón) */
@@ -52,15 +68,14 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border-bottom: 1px solid #d1d5db;
-  padding-bottom: 15px;
+  padding-bottom: 10px;
 }
 
 .header-section h2 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: #1F3A52;
-  /* Azul corporativo */
   margin: 0;
 }
 
@@ -70,8 +85,7 @@
   justify-content: space-between;
   width: 100%;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  height: 50px;
 }
 
 .search-input {
@@ -103,6 +117,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: auto;
+  white-space: nowrap;
 }
 
 .btn-add:hover {
@@ -122,6 +138,43 @@
 
 .action-btn:hover {
   color: #4F6F8F;
+}
+
+/* PAGINATION */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 15px 0;
+}
+
+.pagination-btn {
+  background-color: #2E4F6E;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #4F6F8F;
+}
+
+.pagination-btn:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pagination-info {
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 /* MODAL STYLES (Mantenemos estructura pero mejoramos estética) */
@@ -157,15 +210,25 @@
   margin-bottom: 20px;
 }
 
+.detalles-usuario {
+  color: #1f2937;
+}
+
+.detalles-usuario p {
+  color: #1f2937;
+  margin: 8px 0;
+}
+
 .modal-contenido input,
 .modal-contenido select {
   width: 100%;
   padding: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 3px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.95rem;
   background-color: #f9fafb;
+  color: #1f2937;
 }
 
 .modal-contenido input:focus,
@@ -177,9 +240,9 @@
 
 .modal-botones {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .btn-confirmar {
