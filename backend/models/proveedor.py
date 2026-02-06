@@ -7,7 +7,7 @@ class Proveedor(db.Model):
     idProveedor = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
     Nombre = db.Column(db.String(100), nullable=False)
     Estado = db.Column(db.Boolean, nullable=False, default=1)
-    Numero = db.Column(db.Integer, nullable=False)
+    Numero = db.Column(db.String(20), nullable=False)
     Email = db.Column(db.String(100), nullable=False)
     idTipo = db.Column(db.Integer, db.ForeignKey("tipoproveedor.idTipo"), nullable=False)
     
