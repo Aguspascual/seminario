@@ -1,0 +1,258 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    overflow: hidden;
+    /* Importante para que el chat scrollee internamente */
+}
+
+.mensajeriaContainer {
+    display: flex;
+    flex: 1;
+    background-color: white;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: calc(100vh - 150px);
+    /* Ajustar según header/footer */
+}
+
+/* Panel Izquierdo */
+.listaChats {
+    width: 30%;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+}
+
+.buscador {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 10px;
+}
+
+.buscador input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.btnNuevo {
+    background: #00695C;
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.listaConversaciones,
+.listaUsuarios {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.conversacionItem,
+.usuarioItem {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.conversacionItem:hover,
+.usuarioItem:hover {
+    background-color: #f5f5f5;
+}
+
+.conversacionItem.activo {
+    background-color: #e0f2f1;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #00695C;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.topInfo {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.nombre {
+    font-weight: 600;
+    color: #333;
+}
+
+.fecha {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.bottomInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview {
+    color: #666;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+}
+
+.badge {
+    background-color: #d32f2f;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Panel Derecho */
+.areaChat {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+}
+
+.chatHeader {
+    padding: 15px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+}
+
+.chatHeader h3 {
+    margin: 0;
+    color: #333;
+}
+
+.mensajesBody {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mensaje {
+    display: flex;
+    max-width: 70%;
+}
+
+.mensaje.mio {
+    align-self: flex-end;
+}
+
+.mensaje.otro {
+    align-self: flex-start;
+}
+
+.burbuja {
+    padding: 10px 15px;
+    border-radius: 15px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.mensaje.mio .burbuja {
+    background-color: #00695C;
+    color: white;
+    border-bottom-right-radius: 2px;
+}
+
+.mensaje.otro .burbuja {
+    background-color: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 2px;
+}
+
+.hora {
+    font-size: 0.7rem;
+    margin-left: 10px;
+    opacity: 0.7;
+}
+
+.chatFooter {
+    padding: 15px;
+    background-color: white;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 10px;
+}
+
+.chatFooter input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chatFooter button {
+    background: #00695C;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chatFooter button:hover {
+    background: #004d40;
+}
+
+.chatVacio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+}
+
+.chatVacio i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
