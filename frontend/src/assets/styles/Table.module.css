@@ -20,7 +20,7 @@
 }
 
 .table th {
-    padding: 1rem;
+    padding: 0.5rem;
     font-weight: 600;
     color: #374151;
     text-transform: uppercase;
@@ -42,7 +42,7 @@
 }
 
 .table td {
-    padding: 1rem;
+    padding: 0.5rem;
     color: #4b5563;
     vertical-align: middle;
 }

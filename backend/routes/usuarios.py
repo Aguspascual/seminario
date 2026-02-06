@@ -43,7 +43,12 @@ def get_usuarios():
         description: Error interno del servidor
     """
     try:
-        listaUsuarios = Usuario.query.all()  #es como un select * from
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('limit', 10, type=int)
+        
+        # Paginación con SQLAlchemy
+        pagination = Usuario.query.paginate(page=page, per_page=per_page, error_out=False)
+        listaUsuarios = pagination.items
         
         # Convertir objetos SQLAlchemy a diccionarios para serialización JSON
         usuarios_list = []
@@ -62,10 +67,16 @@ def get_usuarios():
                 "email": usuario.Email,
                 "rol": usuario.Rol,
                 "area": area_nombre,
+                "area_id": usuario.Area_idArea,
                 "estado": usuario.Estado
             })
-        area_map = Area.obtenerAreas()
-        return jsonify(usuarios_list), 200
+            
+        return jsonify({
+            "usuarios": usuarios_list,
+            "total_pages": pagination.pages,
+            "current_page": page,
+            "total_items": pagination.total
+        }), 200
 
 
     except Exception as e:
@@ -228,3 +239,41 @@ def create_usuario():
     except Exception as e:
         print(f"Error detallado: {str(e)}")
         return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 500
+
+
+@usuarios.route("/usuarios/<int:id>", methods=["PUT"])
+def update_usuario(id):
+    """
+    Actualizar un usuario existente
+    """
+    try:
+        usuario = Usuario.query.get(id)
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        data = request.get_json()
+        
+        # Actualizar campos si están presentes
+        if 'nombre' in data:
+            usuario.nombre = data['nombre']
+        if 'email' in data:
+            # Verificar que el email no esté en uso por otro usuario
+            if data['email'] != usuario.Email:
+                existing = Usuario.query.filter_by(Email=data['email']).first()
+                if existing and existing.Legajo != id:
+                    return jsonify({"error": "El email ya está en uso"}), 400
+            usuario.Email = data['email']
+        if 'telefono' in data:
+            usuario.Telefono = data['telefono']
+        if 'rol' in data:
+            usuario.Rol = data['rol']
+        if 'area_id' in data:
+            usuario.Area_idArea = data['area_id']
+        
+        db.session.commit()
+        
+        return jsonify({"message": "Usuario actualizado exitosamente"}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error al actualizar usuario: {str(e)}"}), 500
