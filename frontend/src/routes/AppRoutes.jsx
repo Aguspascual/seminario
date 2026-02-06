@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute'; //proteccion de rutas
 import HomePage from '../pages/Home';
 import Login from '../pages/Login';
 import Usuarios from '../pages/Usuarios';
@@ -11,10 +12,11 @@ import Areas from '../pages/Areas';
 import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
 import MiPerfil from '../pages/MiPerfil';
+import Legal from '../pages/Legal';
 
-import PrivateRoute from '../components/PrivateRoute';
 
-function AppRoutes() {
+
+function AppRoutes({user}) {
   return (
     <BrowserRouter>
       <Routes>
@@ -22,19 +24,28 @@ function AppRoutes() {
         <Route path="/" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
 
-        {/* Rutas Privadas */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/usuarios" element={<Usuarios />} />
-          <Route path="/proveedores" element={<Proveedores />} />
+        {/* Rutas Privadas para los logueados*/}
+        <Route element={<ProtectedRoute user={user} />}>
+          <Route path="/home" element={<HomePage user={user} />} />
           <Route path="/maquinaria" element={<Maquinaria />} />
-          <Route path="/capacitaciones" element={<Capacitaciones />} />
+          <Route path="/reportes" element={<Reportes />} />
+          <Route path="/mi-perfil" element={<MiPerfil />} />
+          <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
+        </Route>
+
+        {/* --- 3. Rutas para Planta (Solo admin y Rol B) --- */}
+        <Route element={<ProtectedRoute user={user} allowedRoles={['admin', 'B']} />}>
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/proveedores" element={<Proveedores />} />
           <Route path="/auditorias" element={<Auditorias />} />
           <Route path="/areas" element={<Areas />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
-          <Route path="/mi-perfil" element={<MiPerfil />} />
+          <Route path="/capacitaciones" element={<Capacitaciones />} />
         </Route>
+
+        <Route element={<ProtectedRoute user={user} allowedRoles={['admin']} />}>
+          <Route path="/usuarios" element={<Usuarios />} />
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

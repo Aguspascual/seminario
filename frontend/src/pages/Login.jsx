@@ -43,6 +43,7 @@ const Login = () => {
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('usuario', JSON.stringify(data.user));
         navigate('/home'); // Redirigir a la página de home
+        //window.location.href = '/home';
       } else {
         // Error en el login
         setError(data.error || 'Credencial incorrecta');

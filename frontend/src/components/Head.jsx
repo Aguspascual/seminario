@@ -1,65 +1,113 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import  '../assets/styles/Head.module.css';
+import styles from '../assets/styles/Head.module.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const Head = () => {
+const PERMISOS = {
+    "Admin": { 
+        planta: ["usuarios", "proveedores", "area", "auditoria"], // Corregido 'usuario' a 'usuarios'
+        maquinaria: ["maquinas", "mantenimiento", "reporte"],
+        legal: ["documento"],
+    },
+    "Supervisor": { 
+        planta: ["proveedores", "area", "auditoria"],
+        maquinaria: ["maquinas", "mantenimientos", "reportes"],
+        legal: ["documento"],
+    },
+    "Trabajador": { 
+        maquinaria: ["maquinas", "mantenimiento", "reportes"],
+    }
+};
+
+const Head = ({ user }) => {
     const navigate = useNavigate();
+    
+    // Normalizamos el rol para evitar errores (si viene null)
+    const rol = user?.rol || user?.Rol || ""; 
 
     const handleLogout = () => {
-        // Limpiamos todo el rastro del usuario
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        navigate('/'); // Redirige al Login sin recargar la página
+        window.location.href = '/'; 
     };
 
+    const irACambiarPass = () => {
+        navigate('/cambiarContraseña');
+    };
+
+    const tienePermiso = (seccion, subMenu) => {
+        return PERMISOS[rol]?.[seccion]?.includes(subMenu);
+    };
+
+    // Objeto styles seguro (por si el CSS falla al cargar)
+    const s = styles || {};
+
     return (
-        <nav className="navbar">
-            <div className="navbar-container">
+        <nav className={s.navbar}>
+            <div className={s.navbarContainer}>
                 
-                {/* --- LOGO (Izquierda) --- */}
-                <Link to="/home" className="navbar-logo">
-                    <img src={logo} alt="Logo Ecopolo" style={{height: '45px', marginRight: '10px'}} />
-                    <span className="brand-name">ECOPOLO</span>
+                {/* --- LOGO --- */}
+                <Link to="/home" className={s.navbarLogo}>
+                    <img src={logo} alt="Logo Ecopolo" style={{height: '45px'}} />
+                    <span className={s.brandName}>ECOPOLO</span>
                 </Link>
 
-                {/* --- MENÚ (Derecha) --- */}
-                <div className="nav-menu">
+                {/* --- MENÚ --- */}
+                <div className={s.navMenu}>
                     
-                    {/* Botón Home */}
-
-                    {/* Botón Legal */}
-                    <Link to="/legal" className="nav-links">Legal</Link>
-
-                    {/* Dropdown PLANTA */}
-                    <div className="dropdown">
-                        <button className="nav-links dropbtn">Planta ▾</button>
-                        <div className="dropdown-content">
-                            <Link to="/planta">Usuario</Link>
-                            <Link to="/planta">Proveedores</Link>
-                            <Link to="/areas">Áreas</Link>
-                            <Link to="/auditorias">Auditorías</Link>
+                    {/* --- LEGAL (Solo Admin y Supervisor) --- */}
+                    {(rol === "Admin" || rol === "Supervisor") && (
+                        <div className={s.navItem}>
+                            <Link to="/legal" className={s.navLink}>
+                                <i className="fas fa-balance-scale"></i> Legal
+                            </Link>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Dropdown MAQUINARIA */}
-                    <div className="dropdown">
-                        <button className="nav-links dropbtn">Maquinaria ▾</button>
-                        <div className="dropdown-content">
-                            <Link to="/maquinaria">Maquina</Link>
-                            <Link to="/reportes"><Mantenimiento></Mantenimiento></Link>
+                    {/* --- PLANTA (Solo Admin y Supervisor) --- */}
+                    {(rol === "Admin" || rol === "Supervisor") && (
+                        <div className={s.dropdown}>
+                            <button className={s.dropbtn}>
+                                Planta <i className="fas fa-caret-down"></i>
+                            </button>
+                            <div className={s.dropdownContent}>
+                                {tienePermiso("planta", "usuarios") && <Link to='/usuarios'>Usuarios</Link>}
+                                {tienePermiso("planta", "proveedores") && <Link to="/proveedores">Proveedores</Link>}
+                                {tienePermiso("planta", "area") && <Link to="/areas">Áreas</Link>}
+                                {tienePermiso("planta", "auditoria") && <Link to="/auditorias">Auditorías</Link>}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- MAQUINARIA (Todos) --- */}
+                    <div className={s.dropdown}>
+                        <button className={s.dropbtn}>
+                            Maquinaria <i className="fas fa-caret-down"></i>
+                        </button>
+                        <div className={s.dropdownContent}>
+                            <Link to="/maquinas">Máquinas</Link>
+                            <Link to="/mantenimiento">Mantenimiento</Link>
                             <Link to="/reportes">Reportes</Link>
                         </div>
                     </div>
+                    
+                    {/* --- PERFIL --- */}
+                    <div className={s.dropdown}>
+                        <button className={s.dropbtn}>
+                            <i className="fas fa-user-circle"></i>
+                            {user?.nombre || "Perfil"}
+                        </button>
+                        <div className={s.dropdownContent}>
+                            <Link to="/perfil">Mi Perfil</Link>
+                            
+                            <button onClick={irACambiarPass} className={s.dropdownButton}>
+                                Cambiar Contraseña
+                            </button>
 
-                    {/* Dropdown PERFIL */}
-                    <div className="dropdown">
-                        <button className="nav-links dropbtn profile-link">Mi Perfil ▾</button>
-                        <div className="dropdown-content dropdown-right">
-                            <Link to="/mi-perfil">Ver Perfil</Link>
-                            <Link to="/cambiar-password">Cambiar Contraseña</Link>
-                            <button onClick={handleLogout} className="logout-btn">
+                            <hr className={s.separator} />
+                            
+                            <button onClick={handleLogout} className={`${s.dropdownButton} ${s.logoutBtn}`}>
                                 Cerrar Sesión
                             </button>
                         </div>
