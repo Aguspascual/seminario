@@ -1,4 +1,7 @@
-.agent/skills/
+.agent/
+.agents/
+.vite/
+frontend/.vite/
 node_modules
 dist
 .env
