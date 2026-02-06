@@ -1,31 +1,97 @@
-import React from 'react';
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom';
 import '../assets/styles/RecuperarPassword.css';
-import Footer from '../components/Footer';
+import '../assets/styles/Login.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Pagina para recuperar la contraseña
 const RecuperarPassword = () => {
+  const [email, setEmail] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setMensaje('');
+    setLoading(true);
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      // Corrección: El endpoint en el backend es /recuperar-password (con guion), no /recuperar_contrasena
+      const response = await fetch(`${apiUrl}/recuperar-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMensaje('¡Listo! Revisa tu correo para las instrucciones.');
+        setEmail('');
+      } else {
+        setError(data.error || 'No encontramos ese email en el sistema.');
+      }
+    } catch (error) {
+      setError('Error de conexión. Inténtalo más tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className='container'>
-      {/* Fondo y tarjeta central */}
-      <div className="main">
-        <img className='fondo' src={fondo} alt="Fondo Ecopolo s.a" />
-        <div className="tarjeta">
-          <div className="dentro">
-            <img src={logo} alt="Logo Ecopolo"/>
-            <div className="datos">
-              <input type="email" placeholder="Ingresa tu email" />
-              <button>Enviar</button>
-              <p><a href="/login">Volver al login</a></p>
-            </div>
+    <>
+      {/* Fondo Pantalla Completa */}
+      <img className='fondo-imagen' src={fondo} alt="Fondo Ecopolo" />
+
+      <div className='login-container'>
+        <div className="main-card"> {/* Usamos main-card de Login.css para consistencia */}
+
+          <img src={logo} alt="Logo Ecopolo" className='logo-img' />
+
+          <div>
+            <h2 className='login-title'>Recuperar Contraseña</h2>
+            <p className='login-subtitulo'>Ingresa tu email para restablecerla</p>
           </div>
+
+          {/* Mensajes de feedback */}
+          {error && <div className="error-msg">{error}</div>}
+          {mensaje && <div className="success-msg" style={{ color: 'green', backgroundColor: '#e6fffa', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}>{mensaje}</div>}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className='input-group'>
+              <label className='login-email'>Email:</label>
+              <input
+                className="custom-input"
+                type="email"
+                placeholder="ejemplo@ecopolo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn-login" disabled={loading}>
+              {loading ? 'Enviando...' : 'Enviar instrucciones'}
+            </button>
+
+            {/* Link para volver */}
+            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <Link to="/login" className="forgot-link">
+                ← Volver al inicio de sesión
+              </Link>
+            </div>
+          </form>
+
         </div>
       </div>
-      <Footer />
-    </div>
+    </>
   );
 };
 
-export default RecuperarPassword; 
+export default RecuperarPassword;

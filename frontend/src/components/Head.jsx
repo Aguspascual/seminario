@@ -1,96 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from '../assets/styles/Head.module.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const Head = () => {
-    const [unreadCount, setUnreadCount] = useState(0);
+const PERMISOS = {
+    "Admin": {
+        planta: ["usuarios", "proveedores", "area", "auditoria"],
+        maquinaria: ["maquinas", "mantenimiento", "reporte"],
+        legal: ["documento"],
+    },
+    "Supervisor": {
+        planta: ["proveedores", "area", "auditoria"],
+        maquinaria: ["maquinas", "mantenimientos", "reportes"],
+        legal: ["documento"],
+    },
+    "Trabajador": {
+        maquinaria: ["maquinas", "mantenimiento", "reportes"],
+    }
+};
 
-    const checkUnread = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+const Head = ({ user }) => {
+    const navigate = useNavigate();
 
-        try {
-            const response = await fetch('http://localhost:5000/mensajes/no-leidos', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setUnreadCount(data.cantidad);
-            }
-        } catch (error) {
-            console.error(error);
-        }
+    // Normalizamos el rol para evitar errores (si viene null)
+    const rol = user?.rol || user?.Rol || "";
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        window.location.href = '/';
     };
 
-    useEffect(() => {
-        checkUnread();
-        const interval = setInterval(checkUnread, 10000); // Poll every 10s
-        return () => clearInterval(interval);
-    }, []);
+    const irACambiarPass = () => {
+        navigate('/cambiarContraseña'); // Asegúrate que esta ruta exista en AppRoutes
+    };
+
+    const tienePermiso = (seccion, subMenu) => {
+        return PERMISOS[rol]?.[seccion]?.includes(subMenu);
+    };
+
+    // Objeto styles seguro (por si el CSS falla al cargar)
+    const s = styles || {};
+
     return (
-        <div className={styles.header}>
-            <img src={logo} alt="Logo Ecopolo" />
-            <div className={styles.item}>
-                <Link className={styles.navbtn} to='/'>Home</Link>
-                <div className={styles.dropdown}>
-                    <button className={`${styles.dropbtn} ${styles.navbtn}`}>Planta</button>
-                    <div className={styles.dropdownContent}>
-                        <Link to="/usuarios">Usuarios</Link>
-                        <Link to="/proveedores">Proveedores</Link>
-                        <Link to="/maquinaria">Maquinaria</Link>
-                        <Link to="/auditorias">Auditorias</Link>
-                        <Link to="/areas">Areas</Link>
-                    </div>
-                </div>
-                <div className={styles.dropdown}>
-                    <button className={`${styles.dropbtn} ${styles.navbtn}`}>Maquinaria</button>
-                    <div className={styles.dropdownContent}>
-                        <Link to="/usuarios">Maquinas</Link>
-                        <Link to="/reportes">Reportes</Link>
-                    </div>
-                </div>
-                <div className={styles.dropdown}>
-                    <button className={`${styles.dropbtn} ${styles.navbtn}`}>
-                        Mi Perfil
-                        {unreadCount > 0 && <span style={{
-                            backgroundColor: 'red',
-                            borderRadius: '50%',
-                            width: '10px',
-                            height: '10px',
-                            display: 'inline-block',
-                            marginLeft: '5px'
-                        }}></span>}
-                    </button>
-                    <div className={styles.dropdownContent}>
-                        <Link to="/mi-perfil">Ver Perfil</Link>
-                        <Link to="/mensajes">
-                            Mensajes
-                            {unreadCount > 0 && <span style={{
-                                backgroundColor: 'red',
-                                color: 'white',
-                                borderRadius: '50%',
-                                padding: '2px 6px',
-                                fontSize: '10px',
-                                marginLeft: '5px'
-                            }}>{unreadCount}</span>}
-                        </Link>
-                        <Link to="/cambiarContraseña">Cambiar contraseña</Link>
-                        <button
-                            className={styles.logoutBtn}
-                            onClick={() => {
-                                localStorage.removeItem('token');
-                                localStorage.removeItem('usuario');
-                                window.location.href = '/login';
-                            }}
-                        >
-                            Cerrar sesion
+        <nav className={s.navbar}>
+            <div className={s.navbarContainer}>
+
+                {/* --- LOGO --- */}
+                <Link to="/home" className={s.navbarLogo}>
+                    <img src={logo} alt="Logo Ecopolo" style={{ height: '45px' }} />
+                    <span className={s.brandName}>ECOPOLO</span>
+                </Link>
+
+                {/* --- MENÚ --- */}
+                <div className={s.navMenu}>
+
+                    {/* --- LEGAL (Solo Admin y Supervisor) --- */}
+                    {(rol === "Admin" || rol === "Supervisor") && (
+                        <div className={s.navItem}>
+                            <Link to="/legal" className={s.navLink}>
+                                <i className="fas fa-balance-scale"></i> Legal
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* --- PLANTA (Solo Admin y Supervisor) --- */}
+                    {(rol === "Admin" || rol === "Supervisor") && (
+                        <div className={s.dropdown}>
+                            <button className={s.dropbtn}>
+                                Planta <i className="fas fa-caret-down"></i>
+                            </button>
+                            <div className={s.dropdownContent}>
+                                {tienePermiso("planta", "usuarios") && <Link to='/usuarios'>Usuarios</Link>}
+                                {tienePermiso("planta", "proveedores") && <Link to="/proveedores">Proveedores</Link>}
+                                {tienePermiso("planta", "area") && <Link to="/areas">Áreas</Link>}
+                                {tienePermiso("planta", "auditoria") && <Link to="/auditorias">Auditorías</Link>}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- MAQUINARIA (Todos) --- */}
+                    <div className={s.dropdown}>
+                        <button className={s.dropbtn}>
+                            Maquinaria <i className="fas fa-caret-down"></i>
                         </button>
+                        <div className={s.dropdownContent}>
+                            <Link to="/maquinas">Máquinas</Link>
+                            <Link to="/mantenimiento">Mantenimiento</Link>
+                            <Link to="/reportes">Reportes</Link>
+                        </div>
+                    </div>
+
+                    {/* --- PERFIL --- */}
+                    <div className={s.dropdown}>
+                        <button className={s.dropbtn}>
+                            <i className="fas fa-user-circle"></i>
+                            {user?.nombre || "Perfil"}
+                        </button>
+                        <div className={s.dropdownContent}>
+                            <Link to="/mi-perfil">Mi Perfil</Link>
+
+                            <button onClick={irACambiarPass} className={s.dropdownButton}>
+                                Cambiar Contraseña
+                            </button>
+
+                            <hr className={s.separator} />
+
+                            <button onClick={handleLogout} className={`${s.dropdownButton} ${s.logoutBtn}`}>
+                                Cerrar Sesión
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </nav>
     );
 };
 
