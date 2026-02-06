@@ -25,12 +25,9 @@ a:hover {
 
 body {
   margin: 0;
-<<<<<<< HEAD
-  min-width: 320px;
-=======
   padding: 0;
   width: 100%;
->>>>>>> origin/master
+  min-width: 320px;
   min-height: 100vh;
   background-color: #f8f9fa;
 }
