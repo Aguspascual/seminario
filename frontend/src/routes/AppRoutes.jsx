@@ -9,13 +9,13 @@ const Login = lazy(() => import('../pages/Login'));
 const Usuarios = lazy(() => import('../pages/Usuarios'));
 const RecuperarPassword = lazy(() => import('../pages/RecuperarPassword'));
 const Proveedores = lazy(() => import('../pages/Proveedores'));
-const Maquinaria = lazy(() => import('../pages/Maquinaria'));
-const Capacitaciones = lazy(() => import('../pages/Capacitaciones'));
+const Maquinarias = lazy(() => import('../pages/Maquinarias'));
 const Auditorias = lazy(() => import('../pages/Auditorias'));
 const Areas = lazy(() => import('../pages/Areas'));
 const Reportes = lazy(() => import('../pages/Reportes'));
 const CambiarContraseña = lazy(() => import('../pages/CambiarContraseña'));
 const MiPerfil = lazy(() => import('../pages/MiPerfil'));
+const Mensajes = lazy(() => import('../pages/Mensajes'));
 
 function AppRoutes() {
   return (
@@ -31,11 +31,11 @@ function AppRoutes() {
             <Route path="/" element={<HomePage />} />
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/proveedores" element={<Proveedores />} />
-            <Route path="/maquinaria" element={<Maquinaria />} />
-            <Route path="/capacitaciones" element={<Capacitaciones />} />
+            <Route path="/maquinaria" element={<Maquinarias />} />
             <Route path="/auditorias" element={<Auditorias />} />
             <Route path="/areas" element={<Areas />} />
             <Route path="/reportes" element={<Reportes />} />
+            <Route path="/mensajes" element={<Mensajes />} />
             <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
             <Route path="/mi-perfil" element={<MiPerfil />} />
           </Route>

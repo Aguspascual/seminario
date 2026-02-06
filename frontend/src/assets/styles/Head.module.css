@@ -1,184 +1,164 @@
-.header {
-  background-color: #F5F5F5;
+/* src/assets/styles/Head.module.css */
+
+/* Variables locales */
+.navbar {
+  --nav-bg: #1F3A52;
+  /* Azul Header */
+  --btn-main: #2E4F6E;
+  /* Botón principal */
+  --btn-hover: #4F6F8F;
+  /* Hover botón */
+  --bg-app: #F4F6F8;
+  /* Fondo general */
+  --eco-detail: #6F9E8C;
+  /* Detalles eco */
+  --text-white: #FFFFFF;
+
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  background-color: var(--text-white);
+  border-bottom: 3px solid var(--nav-bg);
+  height: 80px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
-.header img{
-  width: 100px;
-  height: auto;
-  margin-left: 30px;
-}
-.header .item{
+
+.navbarContainer {
   display: flex;
   width: 100%;
-  justify-content:flex-end;
+  justify-content: space-between;
   align-items: center;
-  gap: 5px;
 }
 
-.navbtn, .dropbtn {
-  background-color: #F5F5F5;
-  color: #00695C;
-  padding: 10px 20px;
-  font-size: 22px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
+/* Logo y Marca */
+.navbarLogo {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 50px;
-  width: 160px; 
-}
-.navbtn:hover, .dropbtn:hover{
-  color: #f0f0f0;
-  background-color: #00695C;
+  text-decoration: none;
+  cursor: pointer;
 }
 
+.brandName {
+  color: var(--nav-bg);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  margin-left: 10px;
+}
+
+/* Menú Principal */
+.navMenu {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+}
+
+/* Enlaces normales */
+.navLink {
+  text-decoration: none;
+  color: #555;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 8px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navLink:hover {
+  background-color: #f0f4f7;
+  color: var(--nav-bg);
+}
+
+/* --- DROPDOWNS --- */
 .dropdown {
   position: relative;
+  display: inline-block;
 }
+
+.dropbtn {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 8px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.dropbtn:hover {
+  background-color: #f0f4f7;
+  color: var(--nav-bg);
+}
+
+/* Contenido del menú desplegable */
 .dropdownContent {
   display: none;
   position: absolute;
-  top: 100%;
-  margin-left: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 8px 0;
-  width: 160px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  z-index: 1000;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.2s ease-in-out;
+  right: 0;
+  background-color: var(--text-white);
+  min-width: 180px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  margin-top: 5px;
 }
 
+/* Mostrar al hacer hover en el padre (.dropdown) */
 .dropdown:hover .dropdownContent {
   display: block;
-  opacity: 1;
-  transform: translateY(0);
 }
 
-.dropdownContent a {
-  display: block;
-  padding: 12px 16px;
+.dropdownContent a,
+.dropdownButton {
   color: #333;
-  font-size: 15px;
+  padding: 12px 16px;
   text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease;
+  display: block;
+  font-size: 0.9rem;
+  text-align: left;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
 }
 
-/* ... existing code ... */
-
-.dropdownContent a:hover {
-  background-color: #f0f0f0;
-  color: #00695C;   
-  font-weight: 500;
-  border-radius: 4px;
+.dropdownContent a:hover,
+.dropdownButton:hover {
+  background-color: var(--bg-app);
+  color: var(--nav-bg);
 }
 
+/* Línea divisoria */
+.separator {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 0;
+}
+
+/* Botón especial cerrar sesión */
 .logoutBtn {
-    display: block;
-    padding: 12px 16px;
-    color: #333;
-    font-size: 15px;
-    text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    font-family: inherit;
+  color: #d32f2f !important;
 }
 
 .logoutBtn:hover {
-    background-color: #f0f0f0;
-    color: #00695C;   
-    font-weight: 500;
-    border-radius: 4px;
-}
-
-/*
-.dropdownContent {
-  display: none;
-  position: absolute;
-  background-color: white;
-  border-radius: 10px;
-  margin-top: 5px;
-  margin-right: 50px;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-.dropdownContent a {
-  color: black;
-  padding: 10px;
-  text-decoration: none;
-  display: block;
-  font-size: 15px;
-}
-.dropdownContent a:hover {
-  background-color: #f1f1f1;
-}
-
-.dropdown:hover .dropdownContent {
-  display: block;
-}
-.dropdownContent a{
-  color:black;
-  text-align: left;
-  font-weight: 400;
-}
-
-*/
-@media (max-width: 1000px) {
-  .header {
-    flex-direction: column;
-    align-items: center;
-  }
-  .header .item{
-    display: flex;
-    flex-direction: row;
-    gap: 0;
-    margin: 0;
-    width: 70%;
-    justify-content: space-around;
-  }
-  .dropdown, .navbtn{
-    margin: 0;
-    padding: 10px 0;
-  }
-  
-  
-}
-@media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .dropdownContent {
-    min-width: 100%;
-  }
-  .navbtn{
-    font-size: 1rem;
-  }
-}
-@media (max-width: 500px) {
-  img{
-    width: 60px;
-    height: auto;
-  }
-  
-  .item {
-    justify-content: center;
-    align-items: center;
-  }
-  .navbtn{
-    font-size: 0.8rem;
-  }
+  background-color: #fff5f5 !important;
 }
