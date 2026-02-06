@@ -8,12 +8,10 @@ from routes.reportes import reportes_bp
 from routes.mensajes import mensajes_bp
 from routes.maquinarias import maquinarias_bp
 
-# Módulos solicitados pero no encontrados en el directorio 'routes'
-# Descomentar una vez que los archivos existan para evitar errores de importación
-# from routes.legal import legal_bp
-# from routes.bitacora import bitacora_bp
-# from routes.recuperar_contrasena import bp_recuperar
-# from routes.home import home_bp
+from routes.legal import legal_bp
+from routes.bitacora import bitacora_bp
+from routes.recuperar_contrasena import bp_recuperar
+from routes.home import home_bp
 
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -55,11 +53,11 @@ app.register_blueprint(reportes_bp)
 app.register_blueprint(mensajes_bp)
 app.register_blueprint(maquinarias_bp)
 
-# Registra los nuevos blueprints (Descomentar cuando existan los archivos)
-# app.register_blueprint(legal_bp)
-# app.register_blueprint(bitacora_bp)
-# app.register_blueprint(bp_recuperar)
-# app.register_blueprint(home_bp, url_prefix='/api')
+# Registra los nuevos blueprints
+app.register_blueprint(legal_bp)
+app.register_blueprint(bitacora_bp)
+app.register_blueprint(bp_recuperar)
+app.register_blueprint(home_bp, url_prefix='/api')
 
 @app.route("/", methods=["GET"])
 def index():
