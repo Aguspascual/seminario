@@ -5,6 +5,10 @@ from routes.login import login_bp
 from routes.proveedores import proveedores
 from routes.areas import areas_bp
 from routes.reportes import reportes_bp
+from routes.legal import legal_bp
+from routes.bitacora import bitacora_bp
+from routes.recuperar_contrasena import bp_recuperar
+from routes.home import home_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -19,6 +23,12 @@ except ImportError:
 
 app = Flask(__name__)
 CORS(app)
+
+uri = os.getenv("DATABASE_URL")
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
 # Configuración de la base de datos
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -37,6 +47,11 @@ app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
 app.register_blueprint(areas_bp)
 app.register_blueprint(reportes_bp)
+app.register_blueprint(legal_bp)
+app.register_blueprint(bitacora_bp)
+app.register_blueprint(bp_recuperar)
+app.register_blueprint(home_bp, url_prefix='/api')
+
 
 @app.route("/", methods=["GET"])
 def index():

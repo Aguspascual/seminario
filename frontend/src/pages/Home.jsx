@@ -1,34 +1,26 @@
 import React from 'react';
-import '../assets/styles/Home.css';
-import Footer from '../components/Footer';
-import logo from '../assets/avg/LogoEcopolo.ico';
-import fondo from '../assets/images/Fondo.jpeg';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import { Link } from 'react-router-dom';
 
-
-
-const Home = () => {
+const Head = () => {
   return (
-    <div className='Container'>
-      <div className='header'>
-        <img src={logo} alt="Logo Ecopolo" />
-        <div className="item">
-          <a>Legal</a>
-          <a>Protocolo</a>
-          <a>Nosotros</a>
-          <a href='/login'>Iniciar Sesion</a>
-        </div>
-      </div>
-      <div className="main">
-        <img src={fondo} alt="Fondo Ecopolo s.a" />
-        <div className="text-container">
-          <div className="subtitle1">Ecopolo Argentina S.A.</div>
-          <div className="subtitle2">Servicios Medioambientales</div>
-        </div>
-      </div>
-      <Footer />
-    </div>
+    <header style={{ 
+      backgroundColor: '#003459', 
+      color: 'white', 
+      padding: '10px 20px', 
+      display: 'flex', 
+      justifyContent: 'space-between',
+      alignItems: 'center' 
+    }}>
+      <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>ECOPOLO</div>
+      <nav style={{ display: 'flex', gap: '15px' }}>
+        <Link to="/home" style={{ color: 'white', textDecoration: 'none' }}>Inicio</Link>
+        <Link to="/legal" style={{ color: 'white', textDecoration: 'none' }}>Legal</Link>
+        <button style={{ background: '#3a7d44', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
+          Cerrar Sesión
+        </button>
+      </nav>
+    </header>
   );
 };
 
-export default Home;
+export default Head;

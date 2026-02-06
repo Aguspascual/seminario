@@ -19,12 +19,12 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
         {/* Rutas Públicas */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
 
         {/* Rutas Privadas */}
         <Route element={<PrivateRoute />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/proveedores" element={<Proveedores />} />
           <Route path="/maquinaria" element={<Maquinaria />} />

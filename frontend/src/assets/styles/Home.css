@@ -1,146 +1,126 @@
-/* estilos base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.home-wrapper {
+  background-color: #666;
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 20px;
 }
 
-
-/* Container principal */
-.Container {
-  min-height: 100vh;
-  width: 99vw;
+.home-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  margin: 0;
-  padding: 0;
+  gap: 30px;
 }
 
 /* Header */
-.header {
-  background: #F5F5F5;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 0 2rem;
+.layout-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
-  z-index: 10;
+  width: 100%;
 }
 
-.header img {
-  height: 100px;
-  width: auto;
+.welcome-box h1 { 
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin: 0;
 }
 
-.item {
-  display: flex;
-  gap: 2rem;
+.fecha-actual { 
+  color: #666; 
+  text-transform: capitalize; 
+  margin-top: 5px; 
 }
 
-.item a {
-  color: #00695C;
-  font-weight: 700;
-  font-size: 1.4rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.item a:hover {
-  color: #00352f;
-}
-
-/* Main */
-.main {
-  flex: 1;
-  position: relative;
-  height: 70vh;
-  min-height: 500px;
+.btn-primary-action {
+  background-color: #3a7d44 !important;
+  color: white !important;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: bold;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
-.main img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
+/* KPIs */
+.layout-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
-.main .text-container {
+
+.kpi-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb
+}
+
+.card-icon { font-size: 1.5rem; color: #003459; margin-bottom: 10px; }
+
+/* Semáforo Legal */
+.legal-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  width: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.legal-header {
+  background: #f9fafb;
+  padding: 15px 25px;
   display: flex;
-}
-.main .text-container .subtitle1 {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  color: #00695C;
-  font-size: 5rem;
-  font-weight: 700;
-  text-align: center;
-  text-shadow: 5px 5px 4px #444444;
-}
-.main .text-container .subtitle2 {
-  position: absolute;
-  top: 58%;
-  left: calc( 45vh + 35%);
-  transform: translate(-30%, -50%);
-  z-index: 3;
-  color: #00695C;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
 }
 
+.legal-header h3 { margin: 0; font-size: 1.1rem; color: #003459; }
+.legal-header a { text-decoration: none; color: #003459; font-weight: 600; font-size: 0.9rem; }
 
+.legal-list { padding: 10px 20px; }
 
-/* ---------- RESPONSIVE ---------- */
-@media (max-width: 821px) {
-  .header{
-    display: flex;
-    flex-direction: column;
-  }
-  .header .item{
-    display: flex;
-    flex-direction: row;
-  }
-  .main .text-container .subtitle1 {
-    font-size: 3rem;
-  }
-
-  .main .text-container .subtitle2 {
-    font-size: 1.2rem;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .item {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1rem;
-  }
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 8px;
 }
 
-@media (max-width: 600px) {
+.success { background: #f0fdf4; border-left: 5px solid #22c55e; }
+.warning { background: #fffbeb; border-left: 5px solid #f59e0b; }
 
-  .item p {
-    font-size: 15px;
-  }
-  .main .text-container .subtitle1 {
-    font-size: 1.7rem;
-  }
-  .main .text-container .subtitle2 {
-    font-size: 0.9rem;
-    
-  }
+.btn-renew {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+/* Actividad */
+.activity-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
 
+.activity-item {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
 
+.time { font-weight: bold; color: #003459; min-width: 80px; }
