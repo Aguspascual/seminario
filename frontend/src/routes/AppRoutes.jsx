@@ -11,6 +11,7 @@ import Areas from '../pages/Areas';
 import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
 import MiPerfil from '../pages/MiPerfil';
+import Mensajes from '../pages/Mensajes';
 
 import PrivateRoute from '../components/PrivateRoute';
 
@@ -32,6 +33,7 @@ function AppRoutes() {
           <Route path="/auditorias" element={<Auditorias />} />
           <Route path="/areas" element={<Areas />} />
           <Route path="/reportes" element={<Reportes />} />
+          <Route path="/mensajes" element={<Mensajes />} />
           <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
           <Route path="/mi-perfil" element={<MiPerfil />} />
         </Route>
