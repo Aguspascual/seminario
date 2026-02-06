@@ -7,6 +7,14 @@ from routes.areas import areas_bp
 from routes.reportes import reportes_bp
 from routes.mensajes import mensajes_bp
 from routes.maquinarias import maquinarias_bp
+
+# Módulos solicitados pero no encontrados en el directorio 'routes'
+# Descomentar una vez que los archivos existan para evitar errores de importación
+# from routes.legal import legal_bp
+# from routes.bitacora import bitacora_bp
+# from routes.recuperar_contrasena import bp_recuperar
+# from routes.home import home_bp
+
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -21,8 +29,13 @@ except ImportError:
 
 app = Flask(__name__)
 CORS(app)
+
 # Configuración de la base de datos
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+uri = os.getenv("DATABASE_URL")
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key") # Cambiar en producción
 
@@ -33,7 +46,7 @@ swagger = Swagger(app)
 
 # Force reload for blueprint registration
 
-# Registra los blueprints
+# Registra los blueprints existentes
 app.register_blueprint(usuarios)
 app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
@@ -41,6 +54,12 @@ app.register_blueprint(areas_bp)
 app.register_blueprint(reportes_bp)
 app.register_blueprint(mensajes_bp)
 app.register_blueprint(maquinarias_bp)
+
+# Registra los nuevos blueprints (Descomentar cuando existan los archivos)
+# app.register_blueprint(legal_bp)
+# app.register_blueprint(bitacora_bp)
+# app.register_blueprint(bp_recuperar)
+# app.register_blueprint(home_bp, url_prefix='/api')
 
 @app.route("/", methods=["GET"])
 def index():
