@@ -5,6 +5,34 @@ from marshmallow import ValidationError
 
 proveedores = Blueprint("proveedores", __name__)
 
+@proveedores.route("/proveedores/<int:id>", methods=["DELETE"])
+def delete_proveedor(id):
+    """
+    Eliminar un proveedor (Soft Delete)
+    ---
+    tags:
+      - Proveedores
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Proveedor eliminado
+      404:
+        description: Proveedor no encontrado
+      500:
+        description: Error interno
+    """
+    try:
+        ProveedorService.delete_proveedor(id)
+        return jsonify({"message": "Proveedor eliminado exitosamente"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": f"Error al eliminar proveedor: {str(e)}"}), 500
+
 @proveedores.route("/proveedores", methods=["GET"])
 def get_proveedores():
     """
@@ -41,6 +69,52 @@ def get_proveedores():
         return jsonify(schema.dump(lista)), 200
     except Exception as e:
         return jsonify({"error": f"Error al obtener proveedores: {str(e)}"}), 500
+
+@proveedores.route("/proveedores/<int:id>", methods=["PUT"])
+def update_proveedor(id):
+    """
+    Actualizar un proveedor
+    ---
+    tags:
+      - Proveedores
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            Nombre:
+              type: string
+            Numero:
+              type: string
+            Email:
+              type: string
+            idTipo:
+              type: integer
+    responses:
+      200:
+        description: Proveedor actualizado
+      400:
+        description: Error de validación
+      404:
+        description: Proveedor no encontrado
+      500:
+        description: Error interno
+    """
+    try:
+        data = request.get_json()
+        proveedor = ProveedorService.update_proveedor(id, data)
+        # Podríamos devolver el objeto actualizado usando schema.dump(proveedor)
+        return jsonify({"message": "Proveedor actualizado exitosamente"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error al actualizar proveedor: {str(e)}"}), 500
 
 @proveedores.route("/proveedores", methods=["POST"])
 def create_proveedor():
