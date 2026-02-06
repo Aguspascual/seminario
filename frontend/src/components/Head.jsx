@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
-=======
-import React from 'react';
 import { Link } from 'react-router-dom';
->>>>>>> origin/master
 import styles from '../assets/styles/Head.module.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -68,9 +64,8 @@ const Head = () => {
                         }}></span>}
                     </button>
                     <div className={styles.dropdownContent}>
-<<<<<<< HEAD
-                        <a href="/mi-perfil">Ver Perfil</a>
-                        <a href="/mensajes">
+                        <Link to="/mi-perfil">Ver Perfil</Link>
+                        <Link to="/mensajes">
                             Mensajes
                             {unreadCount > 0 && <span style={{
                                 backgroundColor: 'red',
@@ -80,13 +75,8 @@ const Head = () => {
                                 fontSize: '10px',
                                 marginLeft: '5px'
                             }}>{unreadCount}</span>}
-                        </a>
-                        <a href="/cambiarContraseña">Cambiar contraseña</a>
-=======
-                        <Link to="/mi-perfil">Ver Perfil</Link>
-                        <Link to="/usuarios">Mensajes</Link>
+                        </Link>
                         <Link to="/cambiarContraseña">Cambiar contraseña</Link>
->>>>>>> origin/master
                         <button
                             className={styles.logoutBtn}
                             onClick={() => {
