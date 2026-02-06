@@ -49,8 +49,7 @@ const Head = ({ user }) => {
 
                 {/* --- LOGO --- */}
                 <Link to="/home" className={s.navbarLogo}>
-                    <img src={logo} alt="Logo Ecopolo" style={{ height: '45px' }} />
-                    <span className={s.brandName}>ECOPOLO</span>
+                    <img src={logo} alt="Logo Ecopolo" style={{ height: '65px' }} />
                 </Link>
 
                 {/* --- MENÚ --- */}

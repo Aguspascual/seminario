@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import "../assets/styles/Usuarios.css";
 import Head from "../components/Head";
-import Footer from "../components/Footer";
 import Table from "../components/Table";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -13,6 +12,19 @@ const Usuarios = () => {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [formError, setFormError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [datosEdicion, setDatosEdicion] = useState({});
+  const itemsPerPage = 10;
+
+  // Leer usuario de localStorage para el Header
+  const [user] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('usuario')) || {};
+    } catch {
+      return {};
+    }
+  });
 
   const queryClient = useQueryClient();
 
@@ -23,24 +35,43 @@ const Usuarios = () => {
   const cerrarModal = () => setMostrarModal(false);
 
   const abrirModalDetalles = (usuario) => {
+    console.log('Usuario seleccionado:', usuario);
     setUsuarioSeleccionado(usuario);
+    setDatosEdicion(usuario);
+    setModoEdicion(false);
     setMostrarModalDetalles(true);
   };
 
   const cerrarModalDetalles = () => {
     setUsuarioSeleccionado(null);
+    setModoEdicion(false);
+    setDatosEdicion({});
     setMostrarModalDetalles(false);
   };
 
-  // 1. Fetching Usuarios
-  const { data: usuarios = [], isLoading: loadingUsuarios, isError: errorUsuarios } = useQuery({
-    queryKey: ['usuarios'],
+  const activarModoEdicion = () => {
+    setDatosEdicion({ ...usuarioSeleccionado });
+    setModoEdicion(true);
+  };
+
+  const cancelarEdicion = () => {
+    setDatosEdicion({ ...usuarioSeleccionado });
+    setModoEdicion(false);
+  };
+
+  // 1. Fetching Usuarios (Paginado desde Back)
+  const { data: dataUsuarios, isLoading: loadingUsuarios, isError: errorUsuarios } = useQuery({
+    queryKey: ['usuarios', currentPage, itemsPerPage],
     queryFn: async () => {
-      const response = await fetch("http://localhost:5000/usuarios");
+      const response = await fetch(`http://localhost:5000/usuarios?page=${currentPage}&limit=${itemsPerPage}`);
       if (!response.ok) throw new Error("Error al cargar usuarios");
       return response.json();
-    }
+    },
+    keepPreviousData: true
   });
+
+  const usuarios = dataUsuarios?.usuarios || [];
+  const totalPages = dataUsuarios?.total_pages || 1;
 
   // 2. Fetching Areas (Se comparte caché con la página de Areas)
   const { data: areas = [] } = useQuery({
@@ -76,6 +107,31 @@ const Usuarios = () => {
     }
   });
 
+  // 4. Mutation para Actualizar Usuario
+  const updateMutation = useMutation({
+    mutationFn: async (datosActualizados) => {
+      const response = await fetch(`http://localhost:5000/usuarios/${datosActualizados.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosActualizados),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al actualizar el usuario");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['usuarios']);
+      setModoEdicion(false);
+      cerrarModalDetalles();
+    },
+    onError: (err) => {
+      alert(err.message);
+    }
+  });
+
   // Función para agregar usuario
   const manejarEnvio = (e) => {
     e.preventDefault();
@@ -94,18 +150,44 @@ const Usuarios = () => {
     createMutation.mutate(datosEnvio);
   };
 
-  // Filtrar usuarios por búsqueda
-  const usuariosFiltrados = usuarios.filter(
-    (usuario) =>
+  // Función para actualizar usuario
+  const manejarActualizacion = (e) => {
+    e.preventDefault();
+    updateMutation.mutate(datosEdicion);
+  };
+
+  // Filtrar usuarios por búsqueda y EXCLUIR Admin
+  // Filtrar usuarios por búsqueda y EXCLUIR Admin
+  // NOTA: Con paginación en backend, el filtrado visual aplica a la página actual.
+  const usuariosFiltrados = usuarios.filter((usuario) => {
+    const cumpleBusqueda =
       usuario.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      usuario.email?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      usuario.email?.toLowerCase().includes(busqueda.toLowerCase());
+
+    // Excluir usuarios Admin o Administrador
+    const esAdmin = usuario.rol === 'Admin' || usuario.rol === 'Administrador';
+
+    return cumpleBusqueda && !esAdmin;
+  });
+
+  // Rellenar con filas vacías para mantener altura constante (10 registros)
+  // ELIMINADO: Usuario solicitó que no se muestren filas vacías.
+
+  // Resetear a página 1 cuando cambia la búsqueda
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [busqueda]);
 
   return (
     <div className="container">
-      <Head />
+      <Head user={user} />
       <div className="main">
-        <h6>Home &gt; Planta &gt; Gestion de Usuarios</h6>
+        {/* Breadcrumbs clickeables */}
+        <div className="breadcrumbs">
+          <Link to="/home">Home</Link> <span>&gt;</span>
+          <Link to="/home">Planta</Link> <span>&gt;</span>
+          <span className="current">Gestión de Usuarios</span>
+        </div>
         <div className="header-section">
           <h2>Gestión de Usuarios</h2>
         </div>
@@ -163,6 +245,7 @@ const Usuarios = () => {
         )}
 
         {/* Tabla Reutilizable */}
+        {/* Tabla Reutilizable */}
         <Table
           isLoading={loadingUsuarios}
           data={usuariosFiltrados}
@@ -183,34 +266,117 @@ const Usuarios = () => {
           ]}
         />
 
+        {/* Paginación */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Anterior
+          </button>
+          <span className="pagination-info">
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Siguiente
+          </button>
+        </div>
+
         {/* Modal Detalles */}
         {mostrarModalDetalles && usuarioSeleccionado && (
-          <div className="modal-fondo">
-            <div className="modal-contenido">
-              <h3>Detalles del Usuario</h3>
-              <div className="detalles-usuario" style={{ textAlign: "left" }}>
+          <div className="modal-fondo" onClick={cerrarModalDetalles}>
+            <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
+              <h3>{modoEdicion ? 'Editar Usuario' : 'Detalles del Usuario'}</h3>
 
-                <p><strong>Nombre:</strong> {usuarioSeleccionado.nombre}</p>
-                <p><strong>Email:</strong> {usuarioSeleccionado.email}</p>
-                <p><strong>Teléfono:</strong> {usuarioSeleccionado.telefono}</p>
-                <p><strong>Rol:</strong> {usuarioSeleccionado.rol}</p>
-                <p><strong>Área:</strong> {usuarioSeleccionado.area}</p>
-                <p><strong>Estado:</strong> {usuarioSeleccionado.estado ? "Activo" : "Inactivo"}</p>
-              </div>
+              {!modoEdicion ? (
+                <div className="detalles-usuario">
+                  <p><strong>Nombre:</strong> {usuarioSeleccionado?.nombre || 'N/A'}</p>
+                  <p><strong>Email:</strong> {usuarioSeleccionado?.email || 'N/A'}</p>
+                  <p><strong>Teléfono:</strong> {usuarioSeleccionado?.telefono || 'N/A'}</p>
+                  <p><strong>Rol:</strong> {usuarioSeleccionado?.rol || 'N/A'}</p>
+                  <p><strong>Área:</strong> {usuarioSeleccionado?.area || 'N/A'}</p>
+                </div>
+              ) : (
+                <form onSubmit={manejarActualizacion}>
+                  <input
+                    type="text"
+                    value={datosEdicion.nombre || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, nombre: e.target.value })}
+                    placeholder="Nombre Completo"
+                    required
+                  />
+                  <input
+                    type="email"
+                    value={datosEdicion.email || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, email: e.target.value })}
+                    placeholder="Email"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    value={datosEdicion.telefono || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, telefono: e.target.value })}
+                    placeholder="Teléfono"
+                    required
+                  />
+                  <select
+                    value={datosEdicion.rol || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, rol: e.target.value })}
+                    required
+                  >
+                    <option value="">Seleccionar Rol</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Operario">Operario</option>
+                    <option value="Supervisor">Supervisor</option>
+                  </select>
+                  <select
+                    value={datosEdicion.area_id || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, area_id: e.target.value })}
+                    required
+                  >
+                    <option value="">Seleccionar Área</option>
+                    {areas.map((area) => (
+                      <option key={area.id} value={area.id}>{area.nombre}</option>
+                    ))}
+                  </select>
+                </form>
+              )}
+
               <div className="modal-botones" style={{ marginTop: "20px" }}>
-                <button
-                  type="button"
-                  onClick={cerrarModalDetalles}
-                  className="btn-cancelar"
-                >
-                  Cerrar
-                </button>
+                {!modoEdicion ? (
+                  <>
+                    <button type="button" onClick={cerrarModalDetalles} className="btn-cancelar">
+                      Cerrar
+                    </button>
+                    <button type="button" onClick={activarModoEdicion} className="btn-confirmar">
+                      Editar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" onClick={cancelarEdicion} className="btn-cancelar">
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={manejarActualizacion}
+                      className="btn-confirmar"
+                      disabled={updateMutation.isPending}
+                    >
+                      {updateMutation.isPending ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 };
