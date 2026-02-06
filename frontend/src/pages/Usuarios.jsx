@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import "../assets/styles/Usuarios.css";
 import Head from "../components/Head";
@@ -110,108 +111,107 @@ const Usuarios = () => {
         </div>
 
         <div className="controls-section">
-            <input
-              type="text"
-              placeholder="Buscar usuario..."
-              className="search-input"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <button className="btn-add" onClick={abrirModal}>
-              <i className="fa-solid fa-plus"></i> Agregar Usuario
-            </button>
+          <input
+            type="text"
+            placeholder="Buscar usuario..."
+            className="search-input"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+          <button className="btn-add" onClick={abrirModal}>
+            <i className="fa-solid fa-plus"></i> Agregar Usuario
+          </button>
         </div>
 
         {/* Modal creación */}
         {mostrarModal && (
-            <div className="modal-fondo">
-              <div className="modal-contenido">
-                <h3>Agregar Usuario</h3>
-                <form onSubmit={manejarEnvio}>
-                  <input type="text" name="nombre" placeholder="Nombre" required />
-                  <input type="text" name="apellido" placeholder="Apellido" required />
-                  <input type="email" name="email" placeholder="Correo Electrónico" required />
-                  <input type="password" name="contrasena" placeholder="Contraseña" required />
-                  <input type="tel" name="telefono" placeholder="Teléfono" required />
-                  
-                  <select name="rol" required>
-                    <option value="" hidden>Rol</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Operario">Operario</option>
-                    <option value="Supervisor">Supervisor</option>
-                  </select>
-                  
-                  <select name="area_id" required>
-                    <option value="" hidden>Área</option>
-                    {areas.map((area) => (
-                      <option key={area.id} value={area.id}>{area.nombre}</option>
-                    ))}
-                  </select>
-                  
-                  {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
-                  
-                  <div className="modal-botones">
-                    <button type="button" onClick={cerrarModal} className="btn-cancelar">Cancelar</button>
-                    <button type="submit" className="btn-confirmar" disabled={createMutation.isPending}>
-                       {createMutation.isPending ? 'Guardando...' : 'Crear Usuario'}
-                    </button>
-                  </div>
-                </form>
-              </div>
+          <div className="modal-fondo">
+            <div className="modal-contenido">
+              <h3>Agregar Usuario</h3>
+              <form onSubmit={manejarEnvio}>
+                <input type="text" name="nombre" placeholder="Nombre" required />
+                <input type="text" name="apellido" placeholder="Apellido" required />
+                <input type="email" name="email" placeholder="Correo Electrónico" required />
+                <input type="password" name="contrasena" placeholder="Contraseña" required />
+                <input type="tel" name="telefono" placeholder="Teléfono" required />
+
+                <select name="rol" required>
+                  <option value="" hidden>Rol</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Operario">Operario</option>
+                  <option value="Supervisor">Supervisor</option>
+                </select>
+
+                <select name="area_id" required>
+                  <option value="" hidden>Área</option>
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>{area.nombre}</option>
+                  ))}
+                </select>
+
+                {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
+
+                <div className="modal-botones">
+                  <button type="button" onClick={cerrarModal} className="btn-cancelar">Cancelar</button>
+                  <button type="submit" className="btn-confirmar" disabled={createMutation.isPending}>
+                    {createMutation.isPending ? 'Guardando...' : 'Crear Usuario'}
+                  </button>
+                </div>
+              </form>
             </div>
+          </div>
         )}
 
         {/* Tabla Reutilizable */}
-        <Table 
-            isLoading={loadingUsuarios}
-            data={usuariosFiltrados}
-            columns={[
-                { header: "Nombre", accessor: "nombre" },
-                { header: "Teléfono", accessor: "telefono" },
-                { header: "Correo", accessor: "email" },
-                { header: "Rol", accessor: "rol" },
-                { header: "Área", accessor: "area" },
-                { 
-                  header: "Acciones", 
-                  render: (user) => (
-                    <button className="action-btn" onClick={() => abrirModalDetalles(user)}>
-                        <i className="fa-solid fa-eye"></i>
-                    </button>
-                  ) 
-                }
-            ]}
+        <Table
+          isLoading={loadingUsuarios}
+          data={usuariosFiltrados}
+          columns={[
+            { header: "Nombre", accessor: "nombre" },
+            { header: "Teléfono", accessor: "telefono" },
+            { header: "Correo", accessor: "email" },
+            { header: "Rol", accessor: "rol" },
+            { header: "Área", accessor: "area" },
+            {
+              header: "Acciones",
+              render: (user) => (
+                <button className="action-btn" onClick={() => abrirModalDetalles(user)}>
+                  <i className="fa-solid fa-eye"></i>
+                </button>
+              )
+            }
+          ]}
         />
 
-          {/* Modal Detalles */}
-          {mostrarModalDetalles && usuarioSeleccionado && (
-            <div className="modal-fondo">
-              <div className="modal-contenido">
-                <h3>Detalles del Usuario</h3>
-                <div className="detalles-usuario" style={{ textAlign: "left" }}>
+        {/* Modal Detalles */}
+        {mostrarModalDetalles && usuarioSeleccionado && (
+          <div className="modal-fondo">
+            <div className="modal-contenido">
+              <h3>Detalles del Usuario</h3>
+              <div className="detalles-usuario" style={{ textAlign: "left" }}>
 
-                  <p><strong>Nombre:</strong> {usuarioSeleccionado.nombre}</p>
-                  <p><strong>Email:</strong> {usuarioSeleccionado.email}</p>
-                  <p><strong>Teléfono:</strong> {usuarioSeleccionado.telefono}</p>
-                  <p><strong>Rol:</strong> {usuarioSeleccionado.rol}</p>
-                  <p><strong>Área:</strong> {usuarioSeleccionado.area}</p>
-                  <p><strong>Estado:</strong> {usuarioSeleccionado.estado ? "Activo" : "Inactivo"}</p>
-                </div>
-                <div className="modal-botones" style={{ marginTop: "20px" }}>
-                  <button
-                    type="button"
-                    onClick={cerrarModalDetalles}
-                    className="btn-cancelar"
-                  >
-                    Cerrar
-                  </button>
-                </div>
+                <p><strong>Nombre:</strong> {usuarioSeleccionado.nombre}</p>
+                <p><strong>Email:</strong> {usuarioSeleccionado.email}</p>
+                <p><strong>Teléfono:</strong> {usuarioSeleccionado.telefono}</p>
+                <p><strong>Rol:</strong> {usuarioSeleccionado.rol}</p>
+                <p><strong>Área:</strong> {usuarioSeleccionado.area}</p>
+                <p><strong>Estado:</strong> {usuarioSeleccionado.estado ? "Activo" : "Inactivo"}</p>
+              </div>
+              <div className="modal-botones" style={{ marginTop: "20px" }}>
+                <button
+                  type="button"
+                  onClick={cerrarModalDetalles}
+                  className="btn-cancelar"
+                >
+                  Cerrar
+                </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <Footer />
-    </div >
+    </div>
   );
 };
 
