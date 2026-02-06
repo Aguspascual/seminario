@@ -33,7 +33,7 @@ const Usuarios = () => {
   };
 
   // 1. Fetching Usuarios
-  const { data: usuarios = [], isLoading: loadingUsuarios, isError: errorUsuarios } = useQuery({
+  const { data: usuarios = [], isLoading: loadingUsuarios } = useQuery({
     queryKey: ['usuarios'],
     queryFn: async () => {
       const response = await fetch("http://localhost:5000/usuarios");

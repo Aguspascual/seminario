@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Head from '../components/Head'; // Importamos la Navbar
 import styles from '../assets/styles/Home.module.css'; // Usamos CSS Modules
 
@@ -9,7 +9,6 @@ const Home = ({ user }) => {
   const [actividad, setActividad] = useState([]);
   const [personalConteo, setPersonalConteo] = useState({ personal_activo: 0, detalle: "Cargando..." });
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   // Obtenemos la URL de la variable de entorno
   const apiUrl = import.meta.env.VITE_API_URL;
