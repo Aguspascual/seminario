@@ -67,8 +67,7 @@ const Login = () => {
         <div className="main-card">
           <img src={logo} alt='Logo Ecopolo' className='logo-img' />
 
-          <h2 className='login-title'>Bienvenido</h2>
-          <p className='login-subtitulo'>Iniciar sesión en el sistema de gestión</p>
+          <p className='login-subtitulo'>Ingresa sus credenciales</p>
 
           {error && <div className="error-msg">{error}</div>}
 

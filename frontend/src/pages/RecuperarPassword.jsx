@@ -55,8 +55,7 @@ const RecuperarPassword = () => {
           <img src={logo} alt="Logo Ecopolo" className='logo-img' />
 
           <div>
-            <h2 className='login-title'>Recuperar Contraseña</h2>
-            <p className='login-subtitulo'>Ingresa tu email para restablecerla</p>
+            <p className='recovery-subtitle'>Ingresa tu email para restablecerla</p>
           </div>
 
           {/* Mensajes de feedback */}

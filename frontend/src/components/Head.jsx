@@ -99,8 +99,8 @@ const Head = ({ user }) => {
                             {user?.nombre || "Perfil"}
                         </button>
                         <div className={s.dropdownContent}>
-                            <Link to="/mensajes">Mensajes</Link>
                             <Link to="/mi-perfil">Mi Perfil</Link>
+                            <Link to="/mensajes">Mensajes</Link>
 
                             <button onClick={irACambiarPass} className={s.dropdownButton}>
                                 Cambiar Contraseña
