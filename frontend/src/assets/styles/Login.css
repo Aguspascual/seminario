@@ -3,6 +3,7 @@
 
 /* estilos base */
 * {
+<<<<<<< HEAD
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -73,12 +74,78 @@ body {
   font-size: 2.5rem;
   font-weight: 700;
   color: #1f2937;
+=======
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0;
+}
+
+body{
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+/* Imagen de fondo*/
+.fondo-imagen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  filter: brightness(0.5); /* Un poco oscuro para resaltar el blanco */
+}
+
+/* Contenedor principal */
+.login-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  background-color: transparent; /* Dejamos ver la imagen */
+  z-index: 10;
+}
+
+
+.main-card {
+  background-color: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Sombra más marcada */
+  
+  max-width: 450px;
+  width: 90%;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/*Logo*/
+.logo-img {
+  width: 150px; 
+  height: auto; 
+  margin-bottom: 0rem;
+}
+
+
+.login-title {
+  font-size: 2.5rem; 
+  font-weight: 700; 
+  color: #1f2937; 
+>>>>>>> origin/Home
   text-align: center;
   margin-top: 0;
   margin-bottom: 0;
   line-height: 1.2;
 }
 
+<<<<<<< HEAD
 .login-subtitulo {
   font-size: 1.1rem;
   color: #6b7280;
@@ -93,6 +160,21 @@ body {
 }
 
 .login-contrasena {
+=======
+.login-subtitulo{
+  font-size: 1.1rem; 
+  color: #6b7280; 
+  text-align: center;
+  margin-top: -1rem; 
+  margin-bottom: 1rem;
+}
+
+.login-email{
+  font-size: 0.9rem;
+  color: #003459;
+}
+.login-contrasena{
+>>>>>>> origin/Home
   font-size: 0.9rem;
   color: #003459;
 }
@@ -106,11 +188,16 @@ form {
 
 
 /*Inputs*/
+<<<<<<< HEAD
 .input-group {
+=======
+.input-group{
+>>>>>>> origin/Home
   position: relative;
   width: 100%
 }
 
+<<<<<<< HEAD
 .custom-input {
   width: 100%;
   padding: 0.8rem 1rem;
@@ -119,6 +206,14 @@ form {
 
   border: 1px solid #15803d;
   /* Borde verde Ecopolo (como tu color-primary) */
+=======
+.custom-input{
+  width: 100%;
+  padding: 0.8rem 1rem;
+  padding-right: 3rem; /* Espacio extra a la derecha para el ojito */
+  
+  border: 1px solid #15803d; /* Borde verde Ecopolo (como tu color-primary) */
+>>>>>>> origin/Home
   border-radius: 0.4rem;
   background-color: #f9fafb;
   color: #1f2937;
@@ -126,6 +221,7 @@ form {
   transition: all 0.2s ease;
 }
 
+<<<<<<< HEAD
 .custom-input:focus {
   outline: none;
   border-color: #166534;
@@ -140,11 +236,25 @@ form {
   width: 100%;
   display: flex;
   /* Asegura que el input ocupe el espacio correctamente */
+=======
+.custom-input:focus{
+  outline: none;
+  border-color: #166534; /* Verde más oscuro al enfocar */
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.15); /* Glow verde suave */
+}
+
+.password-wrapper{
+  position: relative;
+  width: 100%;
+  display: flex; /* Asegura que el input ocupe el espacio correctamente */
+>>>>>>> origin/Home
   align-items: center;
 }
 
 /* --- BOTÓN DEL OJO (Corrección para que entre en el rectángulo) --- */
 .password-toggle-btn {
+<<<<<<< HEAD
   position: absolute;
   /* Flota sobre el padre (.password-wrapper) */
   /* 1. Moverlo más a la derecha */
@@ -152,12 +262,21 @@ form {
   /* 2. Centrado vertical preciso */
   top: -26%;
 
+=======
+  position: absolute; /* Flota sobre el padre (.password-wrapper) */
+  /* 1. Moverlo más a la derecha */
+  right: -15px;  
+  /* 2. Centrado vertical preciso */
+  top: -26%;
+  
+>>>>>>> origin/Home
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   justify-content: center;
   /* Asegura que el SVG esté centrado dentro del botón */
   color: #6b7280;
@@ -165,6 +284,14 @@ form {
 
   /* 3. Opcional: Limitar el tamaño del botón para que no sea una "caja" grande */
   width: 30px;
+=======
+  justify-content: center; /* Asegura que el SVG esté centrado dentro del botón */
+  color: #6b7280;
+  z-index: 10;
+  
+  /* 3. Opcional: Limitar el tamaño del botón para que no sea una "caja" grande */
+  width: 30px; 
+>>>>>>> origin/Home
   height: 30px;
 }
 
@@ -176,12 +303,19 @@ form {
 .btn-login {
   width: 100%;
   padding: 0.85rem;
+<<<<<<< HEAD
   background-color: #15803d;
   /* Verde Ecopolo */
   color: white;
   border: none;
   border-radius: 0.4rem;
   /* Radio suave como en tu ejemplo */
+=======
+  background-color: #15803d; /* Verde Ecopolo */
+  color: white;
+  border: none;
+  border-radius: 0.4rem; /* Radio suave como en tu ejemplo */
+>>>>>>> origin/Home
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -189,6 +323,7 @@ form {
   box-shadow: 0 4px 6px rgba(21, 128, 61, 0.2);
   transform: translateX(-20px);
 }
+<<<<<<< HEAD
 
 .btn-login:hover {
   background-color: #166534;
@@ -196,6 +331,14 @@ form {
 }
 
 .btn-login:disabled {
+=======
+.btn-login:hover{
+  background-color: #166534; 
+  transform: translateY(-10px, -2px);
+}
+
+.btn-login:disabled{
+>>>>>>> origin/Home
   background-color: #9ca3af;
   cursor: not-allowed;
 }
@@ -203,8 +346,12 @@ form {
 /* Links y errores */
 .forgot-link {
   width: 100%;
+<<<<<<< HEAD
   display: block;
   /* Para que ocupe todo el ancho */
+=======
+  display: block; /* Para que ocupe todo el ancho */
+>>>>>>> origin/Home
   text-align: center;
   font-size: 0.9rem;
   color: #15803d;
@@ -227,6 +374,7 @@ form {
 }
 
 @keyframes fadeIn {
+<<<<<<< HEAD
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -236,6 +384,10 @@ form {
     opacity: 1;
     transform: translateY(0);
   }
+=======
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+>>>>>>> origin/Home
 }
 
 
@@ -243,13 +395,18 @@ form {
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 821px) {
+<<<<<<< HEAD
   .main-card {
+=======
+  .main-card{
+>>>>>>> origin/Home
     width: 85%;
     max-width: 500px;
   }
 }
 
 @media (max-width: 600px) {
+<<<<<<< HEAD
 
   .login-container {
     background-color: #f3f4f6;
@@ -267,10 +424,25 @@ form {
     box-shadow: none;
     /* Quitamos la sombra porque ya no flota */
 
+=======
+  
+  .login-container { background-color: #f3f4f6; } 
+  
+  .fondo-imagen{
+    display: none;
+  }
+  .main-card{
+    width: 100%;
+    height: 100%;
+    border-radius: 0; /* Quitamos las esquinas redondas */
+    box-shadow: none; /* Quitamos la sombra porque ya no flota */
+    
+>>>>>>> origin/Home
     /* Centramos el contenido verticalmente */
     display: flex;
     flex-direction: column;
     justify-content: center;
+<<<<<<< HEAD
 
     background: #ffffff;
     /* Quitamos transparencia para mejor lectura en móvil */
@@ -282,3 +454,22 @@ form {
     /* Título un poco más grande en móvil */
   }
 }
+=======
+    
+    background: #ffffff; /* Quitamos transparencia para mejor lectura en móvil */
+    padding: 2rem;
+  }
+  .login-title{
+    font-size: 1.75rem; /* Título un poco más grande en móvil */
+  }
+}
+
+
+
+/*position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  object-fit: cover;
+  z-index: 1;*/
+>>>>>>> origin/Home

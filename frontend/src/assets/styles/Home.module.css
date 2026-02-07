@@ -9,6 +9,7 @@
 }
 
 .homeContainer {
+<<<<<<< HEAD
     padding: 30px 40px;
     /* Espacio interno */
     width: 100%;
@@ -19,6 +20,13 @@
     /* Ocupa toda la altura menos el header */
     background-color: #F4F6F8;
     /* Un gris muy suave de fondo */
+=======
+    padding: 30px 40px; /* Espacio interno */
+    width: 100%;        /* Forzamos el 100% del ancho */
+    box-sizing: border-box; /* Para que el padding no rompa el ancho */
+    min-height: calc(100vh - 75px); /* Ocupa toda la altura menos el header */
+    background-color: #F4F6F8; /* Un gris muy suave de fondo */
+>>>>>>> origin/Home
 }
 
 /* HEADER DASHBOARD */
@@ -49,8 +57,12 @@
 }
 
 .btnCrear {
+<<<<<<< HEAD
     background-color: #2E4F6E;
     /* Botón Principal */
+=======
+    background-color: #2E4F6E; /* Botón Principal */
+>>>>>>> origin/Home
     color: white;
     border: none;
     padding: 10px 20px;
@@ -63,8 +75,12 @@
 }
 
 .btnCrear:hover {
+<<<<<<< HEAD
     background-color: #4F6F8F;
     /* Hover Botón */
+=======
+    background-color: #4F6F8F; /* Hover Botón */
+>>>>>>> origin/Home
 }
 
 /* GRID DE CARDS (KPIs) */
@@ -78,16 +94,25 @@
 .card {
     background-color: #FFFFFF;
     border-radius: 8px;
+<<<<<<< HEAD
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-top: 4px solid #6F9E8C;
     /* Detalle Eco */
+=======
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-top: 4px solid #6F9E8C; /* Detalle Eco */
+>>>>>>> origin/Home
     padding: 20px;
     transition: transform 0.2s;
 }
 
 .card:hover {
     transform: translateY(-2px);
+<<<<<<< HEAD
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+=======
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+>>>>>>> origin/Home
 }
 
 .cardHeader h3 {
@@ -135,7 +160,11 @@
     background-color: #FFFFFF;
     border-radius: 8px;
     padding: 20px;
+<<<<<<< HEAD
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+=======
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+>>>>>>> origin/Home
 }
 
 .legalItem {
@@ -166,7 +195,11 @@
     background-color: #FFFFFF;
     border-radius: 8px;
     padding: 20px;
+<<<<<<< HEAD
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+=======
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+>>>>>>> origin/Home
 }
 
 .activityList {

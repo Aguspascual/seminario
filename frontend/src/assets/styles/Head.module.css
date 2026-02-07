@@ -2,6 +2,7 @@
 
 /* Variables locales */
 .navbar {
+<<<<<<< HEAD
   --nav-bg: #1F3A52;
   /* Azul Header */
   --btn-main: #2E4F6E;
@@ -48,10 +49,54 @@
   font-size: 1.5rem;
   letter-spacing: 1px;
   margin-left: 10px;
+=======
+    --nav-bg: #1F3A52;        /* Azul Header */
+    --btn-main: #2E4F6E;      /* Botón principal */
+    --btn-hover: #4F6F8F;     /* Hover botón */
+    --bg-app: #F4F6F8;        /* Fondo general */
+    --eco-detail: #6F9E8C;    /* Detalles eco */
+    --text-white: #FFFFFF;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    background-color: var(--text-white);
+    border-bottom: 3px solid var(--nav-bg);
+    height: 80px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbarContainer {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo y Marca */
+.navbarLogo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.brandName {
+    color: var(--nav-bg);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    margin-left: 10px;
+>>>>>>> origin/Home
 }
 
 /* Menú Principal */
 .navMenu {
+<<<<<<< HEAD
   display: flex;
   gap: 20px;
   align-items: center;
@@ -60,10 +105,21 @@
 .navItem {
   display: flex;
   align-items: center;
+=======
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+>>>>>>> origin/Home
 }
 
 /* Enlaces normales */
 .navLink {
+<<<<<<< HEAD
   text-decoration: none;
   color: #555;
   font-weight: 600;
@@ -80,10 +136,28 @@
 .navLink:hover {
   background-color: #f0f4f7;
   color: var(--nav-bg);
+=======
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navLink:hover {
+    background-color: #f0f4f7;
+    color: var(--nav-bg);
+>>>>>>> origin/Home
 }
 
 /* --- DROPDOWNS --- */
 .dropdown {
+<<<<<<< HEAD
   position: relative;
   display: inline-block;
 }
@@ -169,4 +243,82 @@
 
 .logoutBtn:hover {
   background-color: #fff5f5 !important;
+=======
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.dropbtn:hover {
+    background-color: #f0f4f7;
+    color: var(--nav-bg);
+}
+
+/* Contenido del menú desplegable */
+.dropdownContent {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--text-white);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    z-index: 100;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    margin-top: 5px;
+}
+
+/* Mostrar al hacer hover en el padre (.dropdown) */
+.dropdown:hover .dropdownContent {
+    display: block;
+}
+
+.dropdownContent a, .dropdownButton {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+    text-align: left;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+}
+
+.dropdownContent a:hover, .dropdownButton:hover {
+    background-color: var(--bg-app);
+    color: var(--nav-bg);
+}
+
+/* Línea divisoria */
+.separator {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 0;
+}
+
+/* Botón especial cerrar sesión */
+.logoutBtn {
+    color: #d32f2f !important;
+}
+
+.logoutBtn:hover {
+    background-color: #fff5f5 !important;
+>>>>>>> origin/Home
 }

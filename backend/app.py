@@ -5,14 +5,20 @@ from routes.login import login_bp
 from routes.proveedores import proveedores
 from routes.areas import areas_bp
 from routes.reportes import reportes_bp
+<<<<<<< HEAD
 from routes.mensajes import mensajes_bp
 from routes.maquinarias import maquinarias_bp
 
+=======
+>>>>>>> origin/Home
 from routes.legal import legal_bp
 from routes.bitacora import bitacora_bp
 from routes.recuperar_contrasena import bp_recuperar
 from routes.home import home_bp
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Home
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -26,7 +32,16 @@ except ImportError:
     pass
 
 app = Flask(__name__)
+<<<<<<< HEAD
 CORS(app, resources={r"/*": {"origins": "*"}})
+=======
+CORS(app)
+
+uri = os.getenv("DATABASE_URL")
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+>>>>>>> origin/Home
 
 # Configuración de la base de datos
 uri = os.getenv("DATABASE_URL")
@@ -50,14 +65,21 @@ app.register_blueprint(login_bp)
 app.register_blueprint(proveedores)
 app.register_blueprint(areas_bp)
 app.register_blueprint(reportes_bp)
+<<<<<<< HEAD
 app.register_blueprint(mensajes_bp)
 app.register_blueprint(maquinarias_bp)
 
 # Registra los nuevos blueprints
+=======
+>>>>>>> origin/Home
 app.register_blueprint(legal_bp)
 app.register_blueprint(bitacora_bp)
 app.register_blueprint(bp_recuperar)
 app.register_blueprint(home_bp, url_prefix='/api')
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/Home
 
 @app.route("/", methods=["GET"])
 def index():
