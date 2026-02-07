@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const FaultFormModal = ({ onClose }) => {
@@ -9,7 +9,7 @@ const FaultFormModal = ({ onClose }) => {
         criticidad: 'Media',
         ubicacion_especifica: '',
         puede_operar: 'No',
-        reportado_por: 1 // TODO: Get from logged in user context
+        reportado_por: '' // Initialized empty, set by useEffect
     });
     const [error, setError] = useState('');
 
@@ -53,12 +53,15 @@ const FaultFormModal = ({ onClose }) => {
         }
     });
 
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('usuario'));
+        if (user && user.id) {
+            setFormData(prev => ({ ...prev, reportado_por: user.id }));
+        }
+    }, []);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Here we should inject the real user ID if available
-        // const user = JSON.parse(localStorage.getItem('usuario'));
-        // if (user) formData.reportado_por = user.legajo;
-
         mutation.mutate(formData);
     };
 
