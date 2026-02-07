@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import KPICards from './KPICards';
 import CalendarMantenimiento from './CalendarioMantenimiento';
 import ProximosMantenimientos from './ProximosMantenimientos';
-import ReportesFallasRecientes from './ReportesFallasRecientes';
+
 import MaintenanceFormModal from '../Modals/MaintenanceFormModal';
 import FaultFormModal from '../Modals/FaultFormModal';
 import { Plus, AlertTriangle } from 'lucide-react';
@@ -108,26 +108,7 @@ const DashboardMantenimiento = () => {
         }
     };
 
-    const handleDeleteFault = async (id) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/reportes/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
 
-            if (response.ok) {
-                fetchDashboardData();
-            } else {
-                alert('Error al eliminar reporte');
-            }
-        } catch (error) {
-            console.error('Error deleting fault:', error);
-            alert('Error al eliminar reporte');
-        }
-    };
 
     if (loading) {
         return <div className="p-8 text-center text-gray-500">Cargando dashboard...</div>;
@@ -169,10 +150,6 @@ const DashboardMantenimiento = () => {
                 </div>
                 <div className="space-y-6">
                     <ProximosMantenimientos mantenimientos={dashboardData?.proximos_7_dias} />
-                    <ReportesFallasRecientes
-                        reportes={dashboardData?.fallas_recientes}
-                        onDelete={handleDeleteFault} // Pass delete handler
-                    />
                 </div>
             </div>
 

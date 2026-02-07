@@ -1,228 +1,220 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import '../assets/styles/Usuarios.css';
 import Head from '../components/Head';
 import Footer from '../components/Footer';
+import Table from '../components/Table';
+import FaultFormModal from '../components/mantenimiento/Modals/FaultFormModal';
+import ConfirmationModal from '../components/mantenimiento/Modals/ConfirmationModal';
+import styles from '../assets/styles/Reportes.module.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import format from 'date-fns/format';
+import es from 'date-fns/locale/es';
 
 const Reportes = () => {
-    const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
-    const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
-    const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
-    const [formError, setFormError] = useState("");
-    
     const queryClient = useQueryClient();
+    const [isFaultModalOpen, setIsFaultModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedReportId, setSelectedReportId] = useState(null);
+    const [machineFilter, setMachineFilter] = useState('');
 
-    // 1. Obtener Usuario Actual (Simulado por ahora, idealmente vendría de AuthContext)
-    const { data: usuarioActual } = useQuery({
-        queryKey: ['currentUser'],
+    // Fetch Maquinarias for Filter
+    const { data: maquinarias = [] } = useQuery({
+        queryKey: ['maquinarias'],
         queryFn: async () => {
-             const response = await fetch("http://localhost:5000/usuarios");
-             if (!response.ok) return null;
-             const data = await response.json();
-             return data.length > 0 ? data[0] : null; // Simula login con el primer usuario
-        },
-        staleTime: Infinity 
-    });
-
-    // 2. Obtener Reportes
-    const { data: reportes = [], isLoading: loadingReportes, isError: errorReportes } = useQuery({
-        queryKey: ['reportes'],
-        queryFn: async () => {
-            const response = await fetch("http://localhost:5000/reportes");
-            if (!response.ok) throw new Error("Error al cargar reportes");
-            return response.json();
+            const token = localStorage.getItem('token');
+            const response = await fetch("http://localhost:5000/maquinarias/?limit=1000", {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) return [];
+            const data = await response.json();
+            return data.maquinarias || [];
         }
     });
 
-    // 3. Crear Reporte Mutation
-    const crearReporteMutation = useMutation({
-        mutationFn: async (formData) => {
-            const response = await fetch("http://localhost:5000/reportes", {
-                method: "POST",
-                body: formData 
-            });
+    // Fetch Reportes de Fallas
+    const { data: reportes = [], isLoading } = useQuery({
+        queryKey: ['reportes_fallas'],
+        queryFn: async () => {
+            const response = await fetch("http://localhost:5000/api/reportes");
+            if (!response.ok) throw new Error("Error fetching reports");
+            const data = await response.json();
+            return data.reportes || [];
+        }
+    });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Error al crear reporte");
-            }
+    // Delete Mutation
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5000/api/reportes/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Error deleting report");
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['reportes']);
-            setMostrarModalCrear(false);
-        },
-        onError: (err) => {
-            setFormError(err.message);
+            queryClient.invalidateQueries(['reportes_fallas']);
+            setIsDeleteModalOpen(false);
         }
     });
 
-    // 4. Responder Reporte Mutation
-    const responderReporteMutation = useMutation({
-        mutationFn: async ({ id, respuesta, idUsuarioReceptor }) => {
-            const response = await fetch(`http://localhost:5000/reportes/${id}/responder`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    respuesta,
-                    idUsuarioReceptor
-                })
-            });
+    const handleDeleteClick = (id) => {
+        setSelectedReportId(id);
+        setIsDeleteModalOpen(true);
+    };
 
-            if (!response.ok) throw new Error("Error al guardar respuesta");
-            return response.json();
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['reportes']);
-            setMostrarModalDetalles(false);
-        },
-        onError: (err) => {
-            alert(err.message);
+    const handleConfirmDelete = () => {
+        if (selectedReportId) {
+            deleteMutation.mutate(selectedReportId);
         }
+    };
+
+    const filteredReportes = reportes.filter(reporte => {
+        if (!machineFilter) return true;
+        return reporte.maquinaria_id === parseInt(machineFilter);
     });
 
-    const handleCrear = (e) => {
-        e.preventDefault();
-        setFormError("");
-        const formData = new FormData(e.target);
-        formData.append('idUsuarioEmisor', usuarioActual ? usuarioActual.id : 1);
-        crearReporteMutation.mutate(formData);
+    // Helper for Status Badge
+    const getStatusBadge = (status) => {
+        let color = '#374151';
+        let bg = '#f3f4f6';
+
+        if (status === 'Pendiente') {
+            color = '#854d0e'; // Yellow-800
+            bg = '#fef9c3';    // Yellow-100
+        } else if (status === 'Asignado' || status === 'En Progreso') {
+            color = '#1e40af'; // Blue-800
+            bg = '#dbeafe';    // Blue-100
+        } else if (status === 'Resuelto' || status === 'Finalizado') {
+            color = '#166534'; // Green-800
+            bg = '#dcfce7';    // Green-100
+        }
+
+        return (
+            <span style={{
+                backgroundColor: bg,
+                color: color,
+                padding: "4px 8px",
+                borderRadius: "12px",
+                fontSize: "0.85rem",
+                fontWeight: "500"
+            }}>
+                {status}
+            </span>
+        );
     };
 
-    const handleResponder = (e) => {
-        e.preventDefault();
-        const respuesta = e.target.respuesta.value;
-        responderReporteMutation.mutate({
-            id: reporteSeleccionado.id,
-            respuesta,
-            idUsuarioReceptor: usuarioActual ? usuarioActual.id : 2
-        });
-    };
+    // Columns Configuration
+    const columns = [
+        {
+            header: "Fecha",
+            accessor: "fecha_reporte",
+            render: (reporte) => reporte.fecha_reporte ? format(new Date(reporte.fecha_reporte), 'dd/MM/yyyy HH:mm', { locale: es }) : '-'
+        },
+        {
+            header: "Maquinaria",
+            accessor: "maquinaria_nombre"
+        },
+        {
+            header: "Descripción",
+            accessor: "descripcion_falla",
+            render: (reporte) => (
+                <span title={reporte.descripcion_falla} style={{ display: 'block', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {reporte.descripcion_falla}
+                </span>
+            )
+        },
+        {
+            header: "Reportado Por",
+            accessor: "reportador_nombre"
+        },
+        {
+            header: "Estado",
+            render: (reporte) => getStatusBadge(reporte.estado_reporte)
+        },
+        {
+            header: "Acciones",
+            render: (reporte) => (
+                <div className={styles['actions-cell']}>
+                    {/* Placeholder for View Details if needed
+                    <button className={styles['action-btn']} title="Ver detalles">
+                        <i className="fa-solid fa-eye"></i>
+                    </button>
+                    */}
+                    <button
+                        onClick={() => handleDeleteClick(reporte.id)}
+                        className={styles['btn-delete-action']}
+                        title="Eliminar Reporte"
+                    >
+                        <i className="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            )
+        }
+    ];
 
     return (
-        <div className="container">
+        <div className={styles.container}>
             <Head />
-            <div className="main">
-                <h6>Home &gt; Maquinaria &gt; Reportes</h6>
-                <div className="tabla">
-                    <div className="superior">
-                        <div className="sub-titulo">
-                            <h2>Gestión de Reportes</h2>
-                            <button className="btn" onClick={() => setMostrarModalCrear(true)}>
-                                <i className="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Modal Crear */}
-                    {mostrarModalCrear && (
-                        <div className="modal-fondo">
-                            <div className="modal-contenido">
-                                <h3>Nuevo Reporte</h3>
-                                <form onSubmit={handleCrear}>
-                                    <input type="text" name="asunto" placeholder="Asunto" required />
-                                    <textarea name="descripcion" placeholder="Descripción" required rows="4" style={{ width: '100%', marginBottom: '10px' }}></textarea>
-                                    <input type="file" name="archivo" />
-                                    
-                                    {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
-                                    {crearReporteMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{crearReporteMutation.error.message}</p>}
-
-                                    <div className="modal-botones">
-                                        <button type="submit" className="btn-confirmar" disabled={crearReporteMutation.isPending}>
-                                            {crearReporteMutation.isPending ? 'Enviando...' : 'Enviar'}
-                                        </button>
-                                        <button type="button" onClick={() => setMostrarModalCrear(false)} className="btn-cancelar" disabled={crearReporteMutation.isPending}>
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Modal Detalles */}
-                    {mostrarModalDetalles && reporteSeleccionado && (
-                        <div className="modal-fondo">
-                            <div className="modal-contenido" style={{ maxWidth: '600px' }}>
-                                <h3>Detalle del Reporte</h3>
-                                <div style={{ textAlign: 'left', marginBottom: '20px' }}>
-                                    <p><strong>Fecha:</strong> {new Date(reporteSeleccionado.fechaCreacion).toLocaleString()}</p>
-                                    <p><strong>Emisor:</strong> {reporteSeleccionado.nombreEmisor}</p>
-                                    <p><strong>Asunto:</strong> {reporteSeleccionado.asunto}</p>
-                                    <p><strong>Descripción:</strong> {reporteSeleccionado.descripcion}</p>
-                                    {reporteSeleccionado.nombreArchivo && (
-                                        <p><strong>Archivo:</strong> <a href={`/assets/reportes/${reporteSeleccionado.nombreArchivo}`} target="_blank" rel="noopener noreferrer">Ver Archivo</a></p>
-                                    )}
-                                    <hr />
-                                    {reporteSeleccionado.respuesta ? (
-                                        <div style={{ backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
-                                            <p><strong>Respuesta de {reporteSeleccionado.nombreReceptor}:</strong></p>
-                                            <p>{reporteSeleccionado.respuesta}</p>
-                                            <p><small>{new Date(reporteSeleccionado.fechaRespuesta).toLocaleString()}</small></p>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <h4>Responder</h4>
-                                            <form onSubmit={handleResponder}>
-                                                <textarea name="respuesta" placeholder="Escribe tu respuesta..." required rows="3" style={{ width: '100%' }}></textarea>
-                                                <div className="modal-botones">
-                                                    <button type="submit" className="btn-confirmar" disabled={responderReporteMutation.isPending}>
-                                                        {responderReporteMutation.isPending ? 'Enviando...' : 'Responder'}
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="modal-botones">
-                                    <button type="button" onClick={() => setMostrarModalDetalles(false)} className="btn-cancelar">Cerrar</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    <table className="tabla">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Asunto</th>
-                                <th>Emisor</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loadingReportes ? (
-                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>Cargando reportes...</td></tr>
-                            ) : errorReportes ? (
-                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px", color: "red" }}>Error al cargar reportes</td></tr>
-                            ) : reportes.map((reporte) => (
-                                <tr key={reporte.id}>
-                                    <td>{new Date(reporte.fechaCreacion).toLocaleDateString()}</td>
-                                    <td>{reporte.asunto}</td>
-                                    <td>{reporte.nombreEmisor}</td>
-                                    <td>{reporte.respuesta ? "Respondido" : "Pendiente"}</td>
-                                    <td>
-                                        <i
-                                            className="fa-solid fa-eye"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => {
-                                                setReporteSeleccionado(reporte);
-                                                setMostrarModalDetalles(true);
-                                            }}
-                                        ></i>
-                                    </td>
-                                </tr>
-                            ))}
-                            {!loadingReportes && reportes.length === 0 && (
-                                <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>No hay reportes.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
+            <div className={styles.main}>
+                {/* Breadcrumbs */}
+                <div className={styles.breadcrumbs}>
+                    <a href="/home">Home</a> <span>/</span>
+                    <a href="/mantenimiento">Mantenimiento</a> <span>/</span>
+                    <span className={styles.current}>Reportes</span>
                 </div>
+
+                {/* Header */}
+                <div className={styles['header-section']}>
+                    <h2>Gestión de Reportes</h2>
+                </div>
+
+                {/* Controls */}
+                <div className={styles['controls-section']}>
+                    <select
+                        className={styles['search-input']}
+                        value={machineFilter}
+                        onChange={(e) => setMachineFilter(e.target.value)}
+                    >
+                        <option value="">Filtrar por Maquinaria (Todas)</option>
+                        {maquinarias.map(m => (
+                            <option key={m.id_maquinaria} value={m.id_maquinaria}>{m.nombre}</option>
+                        ))}
+                    </select>
+
+                    <button
+                        className={styles['btn-add']}
+                        onClick={() => setIsFaultModalOpen(true)}
+                    >
+                        <i className="fa-solid fa-plus"></i>
+                        Nuevo Reporte
+                    </button>
+                </div>
+
+                {/* Table */}
+                <Table
+                    columns={columns}
+                    data={filteredReportes}
+                    isLoading={isLoading}
+                    emptyMessage="No se encontraron reportes de fallas."
+                />
+
+                {/* Modals */}
+                {isFaultModalOpen && (
+                    <FaultFormModal onClose={() => setIsFaultModalOpen(false)} />
+                )}
+
+                <ConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Eliminar Reporte"
+                    message="¿Estás seguro de que deseas eliminar este reporte? Esta acción no se puede deshacer."
+                    confirmText="Eliminar"
+                    isDanger={true}
+                />
             </div>
-            <Footer />
         </div>
     );
 };
