@@ -83,6 +83,44 @@ def get_usuarios():
         return jsonify({"error": f"Error al obtener usuarios: {str(e)}"}), 500
 
 
+@usuarios.route("/usuarios/conteo", methods=["GET"])
+@jwt_required()
+def get_usuarios_conteo():
+    """
+    Obtener conteo de usuarios activos (Solo Admin)
+    ---
+    tags:
+      - Usuarios
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: Conteo de usuarios activos
+        schema:
+          type: object
+          properties:
+            personal_activo:
+              type: integer
+            detalle:
+              type: string
+      401:
+        description: Token faltante o inválido
+      500:
+        description: Error interno del servidor
+    """
+    try:
+        # Contar usuarios activos
+        total_activos = Usuario.query.filter_by(Estado=True).count()
+        total_usuarios = Usuario.query.count()
+        
+        return jsonify({
+            "personal_activo": total_activos,
+            "detalle": f"{total_activos} de {total_usuarios} usuarios activos"
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener conteo: {str(e)}"}), 500
+
+
 @usuarios.route("/usuarios/perfil", methods=["GET"])
 @jwt_required()
 def get_perfil():
