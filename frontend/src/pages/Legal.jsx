@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-
-const Legal = () => {
-    return (
-        <div style={{ padding: '20px' }}>
-            <h1>Sección Legal</h1>
-            <p>Aquí irán los documentos PDF.</p>
-        </div>
-    );
-};
-
-export default Legal;
-=======
 import React, { useState, useEffect } from 'react';
 // IMPORTANTE: Importamos el Navbar
 import Head from '../components/Head';
@@ -278,4 +264,3 @@ const Legal = ({ user }) => {
 };
 
 export default Legal;
->>>>>>> origin/Home

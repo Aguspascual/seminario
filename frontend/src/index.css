@@ -18,12 +18,7 @@ a:hover {
 body {
   margin: 0;
   padding: 0;
-<<<<<<< HEAD
-  width: 100%;
-  min-width: 320px;
-=======
   min-width: 100vw;
->>>>>>> origin/Home
   min-height: 100vh;
   background-color: #f8f9fa;
 }
