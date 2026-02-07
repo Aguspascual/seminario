@@ -9,11 +9,6 @@ class Bitacora(db.Model):
     Detalle = db.Column(db.String(255), nullable=True)  # detalle de la acción
     FechaHora = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/Home
     def __init__(self, Usuario_idUsuario, Accion, Detalle):
         self.Usuario_idUsuario = Usuario_idUsuario
         self.Accion = Accion
@@ -21,8 +16,4 @@ class Bitacora(db.Model):
         # La fecha se pone sola gracias al default
 
     # Relación para acceder a los datos del usuario desde la bitácora
-<<<<<<< HEAD
     usuario_rel = db.relationship("Usuario", backref=db.backref("bitacoras", lazy=True))
-=======
-    usuario_rel = db.relationship("Usuario", backref=db.backref("bitacoras", lazy=True))
->>>>>>> origin/Home
