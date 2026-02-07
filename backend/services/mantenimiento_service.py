@@ -91,7 +91,13 @@ class MantenimientoService:
                 "color": color,
                 "extendedProps": {
                     "estado": e.estado,
-                    "prioridad": e.prioridad
+                    "prioridad": e.prioridad,
+                    "maquinaria_id": e.maquinaria_id,
+                    "tipo": e.tipo,
+                    "descripcion": e.descripcion,
+                    "responsable_id": e.responsable_id,
+                    "tiempo_estimado": e.tiempo_estimado,
+                    "hora_programada": e.hora_programada.strftime('%H:%M') if e.hora_programada else None
                 }
             })
             
