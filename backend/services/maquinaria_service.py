@@ -27,6 +27,33 @@ def get_all_maquinarias(estado=None):
         raise Exception(f"Error al obtener maquinarias: {str(e)}")
 
 
+def get_maquinarias_paginated(page=1, per_page=10, estado=None, q=None):
+    """
+    Obtiene maquinarias paginadas y filtradas.
+    """
+    try:
+        query = Maquinaria.query
+        
+        if estado is not None:
+            query = query.filter_by(estado=estado)
+        
+        if q:
+            # Validar longitud mínima de búsqueda como solicitó el usuario
+            if len(q) >= 3:
+                search = f"%{q}%"
+                query = query.filter(
+                    (Maquinaria.codigo.ilike(search)) |
+                    (Maquinaria.nombre.ilike(search)) |
+                    (Maquinaria.ubicacion.ilike(search))
+                )
+            # Si es menor a 3, ignoramos el filtro (o podríamos retornar error si fuera estricto, 
+            # pero mejor simplemente no filtrar para evitar estados vacíos confusos)
+            
+        return query.order_by(Maquinaria.id_maquinaria.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    except Exception as e:
+        raise Exception(f"Error al obtener maquinarias paginadas: {str(e)}")
+
+
 def get_maquinaria_by_id(id_maquinaria):
     """
     Obtiene una maquinaria por su ID.

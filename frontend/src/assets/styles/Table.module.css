@@ -1,17 +1,27 @@
-.tableContainer {
+/* Table Container (The Card) */
+.tableCard {
     width: 100%;
-    overflow-x: auto;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Ensures rounded corners */
+}
+
+/* Scroll Container (Only for the table) */
+.tableScrollContainer {
+    width: 100%;
+    overflow-x: auto;
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
-    text-align: left;
+    text-align: center; /* Centered text */
     font-size: 0.95rem;
+    min-width: 800px; /* Forces scroll on small screens */
 }
 
 .table thead {
@@ -20,17 +30,19 @@
 }
 
 .table th {
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
     font-weight: 600;
     color: #374151;
     text-transform: uppercase;
     font-size: 0.8rem;
     letter-spacing: 0.05em;
+    vertical-align: middle;
 }
 
 .table tbody tr {
     border-bottom: 1px solid #e5e7eb;
     transition: background-color 0.2s ease;
+    height: 35px; /* Altura compacta */
 }
 
 .table tbody tr:last-child {
@@ -42,14 +54,68 @@
 }
 
 .table td {
-    padding: 0.5rem;
+    padding: 4px 8px; /* Padding pequeño */
     color: #4b5563;
     vertical-align: middle;
+    height: 35px; /* Coincide con tr */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem; /* Fuente un poco más chica */
 }
 
 .emptyState {
-    padding: 2rem;
+    padding: 3rem;
     text-align: center;
     color: #6b7280;
     font-style: italic;
+}
+
+/* Pagination Styles - Outside of scroll */
+.paginationContainer {
+    display: flex;
+    justify-content: flex-end; /* Right aligned */
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    background-color: #fafafa;
+    gap: 1rem;
+}
+
+.paginationInfo {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.paginationControls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.paginationBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    border-radius: 6px; /* Slightly rounded */
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.paginationBtn:hover:not(:disabled) {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.paginationBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f9fafb;
 }

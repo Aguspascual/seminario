@@ -5,12 +5,12 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
 from services.maquinaria_service import (
-    get_all_maquinarias,
     get_maquinaria_by_id,
     search_maquinarias,
     create_maquinaria,
     update_maquinaria,
-    delete_maquinaria
+    delete_maquinaria,
+    get_maquinarias_paginated
 )
 from schemas.maquinaria_schema import validate_maquinaria_create, validate_maquinaria_update
 
@@ -49,14 +49,21 @@ def get_maquinarias():
         description: Error interno del servidor
     """
     try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('limit', 10, type=int)
         estado = request.args.get('estado', type=int)
-        
-        maquinarias = get_all_maquinarias(estado=estado)
-        
+        q = request.args.get('q', '')
+
+        # Usar el servicio para obtener datos paginados
+        pagination = get_maquinarias_paginated(page, per_page, estado, q)
+        maquinarias = pagination.items
+
         return jsonify({
             'success': True,
             'maquinarias': [m.to_dict() for m in maquinarias],
-            'total': len(maquinarias)
+            'total_pages': pagination.pages,
+            'current_page': page,
+            'total_items': pagination.total
         }), 200
         
     except Exception as e:

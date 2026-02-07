@@ -60,7 +60,7 @@ const Usuarios = () => {
   };
 
   // 1. Fetching Usuarios (Paginado desde Back)
-  const { data: dataUsuarios, isLoading: loadingUsuarios, isError: errorUsuarios } = useQuery({
+  const { data: dataUsuarios, isLoading: loadingUsuarios } = useQuery({
     queryKey: ['usuarios', currentPage, itemsPerPage],
     queryFn: async () => {
       const response = await fetch(`http://localhost:5000/usuarios?page=${currentPage}&limit=${itemsPerPage}`);
@@ -72,6 +72,7 @@ const Usuarios = () => {
 
   const usuarios = dataUsuarios?.usuarios || [];
   const totalPages = dataUsuarios?.total_pages || 1;
+  const totalItems = dataUsuarios?.total_items || 0;
 
   // 2. Fetching Areas (Se comparte caché con la página de Areas)
   const { data: areas = [] } = useQuery({
@@ -245,7 +246,6 @@ const Usuarios = () => {
         )}
 
         {/* Tabla Reutilizable */}
-        {/* Tabla Reutilizable */}
         <Table
           isLoading={loadingUsuarios}
           data={usuariosFiltrados}
@@ -264,28 +264,14 @@ const Usuarios = () => {
               )
             }
           ]}
+          pagination={{
+            currentPage: currentPage,
+            totalPages: totalPages,
+            totalItems: totalItems,
+            onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
+            onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
+          }}
         />
-
-        {/* Paginación */}
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Anterior
-          </button>
-          <span className="pagination-info">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Siguiente
-          </button>
-        </div>
 
         {/* Modal Detalles */}
         {mostrarModalDetalles && usuarioSeleccionado && (
