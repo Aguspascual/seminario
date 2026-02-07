@@ -22,6 +22,46 @@ const Maquinarias = ({ user }) => {
     const itemsPerPage = 8;
     const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
 
+    const [activeTab, setActiveTab] = useState('info'); // 'info', 'mantenimientos', 'reportes'
+    const [expandedItemId, setExpandedItemId] = useState(null);
+
+    // Toggle expand
+    const toggleExpand = (id) => {
+        setExpandedItemId(prev => prev === id ? null : id);
+    };
+
+    // Queries para historial (se ejecutan solo cuando hay una maquina seleccionada y la tab activa)
+    const { data: historialMantenimiento = [] } = useQuery({
+        queryKey: ['mantenimientosMaquina', maquinariaSeleccionada?.id_maquinaria],
+        queryFn: async () => {
+            if (!maquinariaSeleccionada) return [];
+            const res = await fetch(`http://localhost:5000/api/mantenimientos/maquinaria/${maquinariaSeleccionada.id_maquinaria}`);
+            if (!res.ok) throw new Error("Error al cargar mantenimientos");
+            const data = await res.json();
+            return data.mantenimientos;
+        },
+        enabled: !!maquinariaSeleccionada && activeTab === 'mantenimientos'
+    });
+
+    const { data: historialReportes = [] } = useQuery({
+        queryKey: ['reportesMaquina', maquinariaSeleccionada?.id_maquinaria],
+        queryFn: async () => {
+            if (!maquinariaSeleccionada) return [];
+            const res = await fetch(`http://localhost:5000/api/mantenimientos/reportes/maquinaria/${maquinariaSeleccionada.id_maquinaria}`);
+            if (!res.ok) throw new Error("Error al cargar reportes");
+            const data = await res.json();
+            return data.reportes;
+        },
+        enabled: !!maquinariaSeleccionada && activeTab === 'reportes'
+    });
+
+    // Reset tab on close
+    const handleCloseModal = () => {
+        cerrarModalDetalles();
+        setActiveTab('info');
+        setExpandedItemId(null);
+    };
+
     // Obtener token
     const getToken = () => localStorage.getItem("token");
 
@@ -106,7 +146,7 @@ const Maquinarias = ({ user }) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(["maquinarias"]);
-            cerrarModalDetalles();
+            handleCloseModal();
             mostrarMensaje("success", "Maquinaria actualizada exitosamente");
         },
         onError: (err) => mostrarMensaje("error", err.message),
@@ -348,7 +388,7 @@ const Maquinarias = ({ user }) => {
 
                 {/* Modal Detalles / Edición */}
                 {mostrarModalDetalles && maquinariaSeleccionada && (
-                    <div className={modoEdicion ? stylesEditar['modal-fondo'] : stylesDetalles['modal-fondo']} onClick={cerrarModalDetalles}>
+                    <div className={modoEdicion ? stylesEditar['modal-fondo'] : stylesDetalles['modal-fondo']} onClick={handleCloseModal}>
                         <div className={modoEdicion ? stylesEditar['modal-contenido'] : stylesDetalles['modal-contenido']} onClick={(e) => e.stopPropagation()}>
                             <div style={{ marginBottom: '15px' }}>
                                 <h3 style={{ margin: 0, paddingBottom: '10px' }}>
@@ -359,6 +399,9 @@ const Maquinarias = ({ user }) => {
 
                             {modoEdicion ? (
                                 <form onSubmit={handleEditar} style={{ paddingRight: "30px", paddingBottom: "0px", gap: "6px" }}>
+                                    {/* ... Formulario Edición (Mismo código que antes, lo simplifico aquí para brevedad si no cambia, pero debo devolverlo completo si replace borra todo el bloque form) ... */}
+                                    {/* Espera, el usuario NO pidió cambiar el modo edición, solo la vista de detalles. */}
+                                    {/* Voy a mantener el modo edición intacto y solo cambiar el bloque 'else' del modo lectura */}
                                     <div className={stylesEditar.formGroup} style={{ margin: "0px" }}>
                                         <label className={stylesEditar.formLabel} style={{ margin: "0px" }}>Código</label>
                                         <input name="codigo" defaultValue={maquinariaSeleccionada.codigo} required readOnly style={{ margin: "0px", backgroundColor: "#f3f4f6" }} />
@@ -401,22 +444,176 @@ const Maquinarias = ({ user }) => {
                                 </form>
                             ) : (
                                 <div className={stylesDetalles['detalles-usuario']}>
-                                    <p><strong>Código:</strong> {maquinariaSeleccionada.codigo}</p>
-                                    <p><strong>Nombre:</strong> {maquinariaSeleccionada.nombre}</p>
-                                    <p><strong>Modelo:</strong> {maquinariaSeleccionada.modelo || "-"}</p>
-                                    <p><strong>Año:</strong> {maquinariaSeleccionada.anio || "-"}</p>
-                                    <p><strong>Ubicación:</strong> {maquinariaSeleccionada.ubicacion || "-"}</p>
-                                    <p><strong>Fecha Adq.:</strong> {formatearFecha(maquinariaSeleccionada.fecha_adquisicion)}</p>
-                                    <p><strong>Estado:</strong> {getEstadoBadge(maquinariaSeleccionada.estado).texto}</p>
-
-                                    <div className={stylesDetalles['modal-botones-derecha']}>
-                                        <button onClick={cerrarModalDetalles} className={stylesDetalles['btn-gris']}>Cerrar</button>
+                                    {/* Tabs Navigation */}
+                                    <div style={{ display: 'flex', borderBottom: '1px solid #ddd', marginBottom: '15px' }}>
                                         <button
-                                            onClick={() => setModoEdicion(true)}
-                                            className={stylesDetalles['btn-editar']}
+                                            onClick={() => setActiveTab('info')}
+                                            style={{
+                                                padding: '10px 15px',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                borderBottom: activeTab === 'info' ? '2px solid #2E4F6E' : 'none',
+                                                fontWeight: activeTab === 'info' ? 'bold' : 'normal',
+                                                color: activeTab === 'info' ? '#2E4F6E' : '#666',
+                                                cursor: 'pointer'
+                                            }}
                                         >
-                                            <i className="fa-solid fa-pen-to-square"></i> Editar
+                                            Información
                                         </button>
+                                        <button
+                                            onClick={() => setActiveTab('mantenimientos')}
+                                            style={{
+                                                padding: '10px 15px',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                borderBottom: activeTab === 'mantenimientos' ? '2px solid #2E4F6E' : 'none',
+                                                fontWeight: activeTab === 'mantenimientos' ? 'bold' : 'normal',
+                                                color: activeTab === 'mantenimientos' ? '#2E4F6E' : '#666',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Historial Mantenimiento
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveTab('reportes')}
+                                            style={{
+                                                padding: '10px 15px',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                borderBottom: activeTab === 'reportes' ? '2px solid #2E4F6E' : 'none',
+                                                fontWeight: activeTab === 'reportes' ? 'bold' : 'normal',
+                                                color: activeTab === 'reportes' ? '#2E4F6E' : '#666',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Reportes de Fallas
+                                        </button>
+                                    </div>
+
+                                    {/* Tab Content: Info */}
+                                    {activeTab === 'info' && (
+                                        <>
+                                            <p><strong>Código:</strong> {maquinariaSeleccionada.codigo}</p>
+                                            <p><strong>Nombre:</strong> {maquinariaSeleccionada.nombre}</p>
+                                            <p><strong>Modelo:</strong> {maquinariaSeleccionada.modelo || "-"}</p>
+                                            <p><strong>Año:</strong> {maquinariaSeleccionada.anio || "-"}</p>
+                                            <p><strong>Ubicación:</strong> {maquinariaSeleccionada.ubicacion || "-"}</p>
+                                            <p><strong>Fecha Adq.:</strong> {formatearFecha(maquinariaSeleccionada.fecha_adquisicion)}</p>
+                                            <p><strong>Estado:</strong> {getEstadoBadge(maquinariaSeleccionada.estado).texto}</p>
+                                        </>
+                                    )}
+
+
+                                    {/* Tab Content: Mantenimientos */}
+                                    {activeTab === 'mantenimientos' && (
+                                        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                            {historialMantenimiento.length === 0 ? (
+                                                <p style={{ color: '#888', fontStyle: 'italic' }}>No hay mantenimientos registrados.</p>
+                                            ) : (
+                                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                    {historialMantenimiento.map(m => (
+                                                        <li
+                                                            key={m.id}
+                                                            style={{
+                                                                borderBottom: '1px solid #eee',
+                                                                padding: '10px',
+                                                                cursor: 'pointer',
+                                                                backgroundColor: expandedItemId === m.id ? '#f9fafb' : 'transparent',
+                                                                transition: 'background-color 0.2s'
+                                                            }}
+                                                            onClick={() => toggleExpand(m.id)}
+                                                        >
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <div>
+                                                                    <strong>{m.tipo}</strong>
+                                                                    <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '10px' }}>
+                                                                        {new Date(m.fecha_programada).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                                <span style={{
+                                                                    fontSize: '0.8em',
+                                                                    padding: '2px 6px',
+                                                                    borderRadius: '4px',
+                                                                    background: m.estado === 'Completado' ? '#dcfce7' : '#fef9c3',
+                                                                    color: m.estado === 'Completado' ? '#166534' : '#854d0e'
+                                                                }}>
+                                                                    {m.estado}
+                                                                </span>
+                                                            </div>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                                                                <p style={{ margin: '0', fontSize: '0.9em', color: '#374151' }}>{m.descripcion}</p>
+                                                                <i className={`fa-solid fa-chevron-${expandedItemId === m.id ? 'up' : 'down'}`} style={{ fontSize: '0.8em', color: '#9ca3af' }}></i>
+                                                            </div>
+
+                                                            {expandedItemId === m.id && (
+                                                                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #e5e7eb', fontSize: '0.9em', color: '#4b5563' }}>
+                                                                    <p style={{ margin: '4px 0' }}><strong>Prioridad:</strong> {m.prioridad}</p>
+                                                                    <p style={{ margin: '4px 0' }}><strong>Responsable:</strong> {m.responsable_nombre || "No asignado"}</p>
+                                                                    {m.observaciones && <p style={{ margin: '4px 0' }}><strong>Observaciones:</strong> {m.observaciones}</p>}
+                                                                    {m.tiempo_real && <p style={{ margin: '4px 0' }}><strong>Tiempo Real:</strong> {m.tiempo_real} hs</p>}
+                                                                </div>
+                                                            )}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Tab Content: Reportes */}
+                                    {activeTab === 'reportes' && (
+                                        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                            {historialReportes.length === 0 ? (
+                                                <p style={{ color: '#888', fontStyle: 'italic' }}>No hay reportes de fallas.</p>
+                                            ) : (
+                                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                    {historialReportes.map(r => (
+                                                        <li
+                                                            key={r.id}
+                                                            style={{
+                                                                borderBottom: '1px solid #eee',
+                                                                padding: '10px',
+                                                                cursor: 'pointer',
+                                                                backgroundColor: expandedItemId === r.id ? '#f9fafb' : 'transparent',
+                                                                transition: 'background-color 0.2s'
+                                                            }}
+                                                            onClick={() => toggleExpand(r.id)}
+                                                        >
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <strong style={{ color: r.criticidad === 'Alta' ? '#ef4444' : '#374151' }}>
+                                                                    {r.criticidad} - {new Date(r.fecha_reporte).toLocaleDateString()}
+                                                                </strong>
+                                                                <span style={{ fontSize: '0.8em', color: '#666' }}>{r.estado_reporte}</span>
+                                                            </div>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                                                                <p style={{ margin: '0', fontSize: '0.9em', color: '#374151' }}>{r.descripcion_falla}</p>
+                                                                <i className={`fa-solid fa-chevron-${expandedItemId === r.id ? 'up' : 'down'}`} style={{ fontSize: '0.8em', color: '#9ca3af' }}></i>
+                                                            </div>
+
+                                                            {expandedItemId === r.id && (
+                                                                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #e5e7eb', fontSize: '0.9em', color: '#4b5563' }}>
+                                                                    <p style={{ margin: '4px 0' }}><strong>Reportado por:</strong> {r.reportador_nombre}</p>
+                                                                    {r.ubicacion_especifica && <p style={{ margin: '4px 0' }}><strong>Ubicación Específica:</strong> {r.ubicacion_especifica}</p>}
+                                                                    {r.puede_operar && <p style={{ margin: '4px 0' }}><strong>¿Puede Operar?:</strong> {r.puede_operar}</p>}
+                                                                </div>
+                                                            )}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className={stylesDetalles['modal-botones-derecha']} style={{ marginTop: '20px' }}>
+                                        <button onClick={handleCloseModal} className={stylesDetalles['btn-gris']}>Cerrar</button>
+                                        {activeTab === 'info' && (
+                                            <button
+                                                onClick={() => setModoEdicion(true)}
+                                                className={stylesDetalles['btn-editar']}
+                                            >
+                                                <i className="fa-solid fa-pen-to-square"></i> Editar
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}

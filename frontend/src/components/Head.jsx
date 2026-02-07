@@ -6,12 +6,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const PERMISOS = {
     "Admin": {
-        planta: ["usuarios", "proveedores", "area", "auditoria"], // Corregido 'usuario' a 'usuarios'
+        planta: ["usuarios", "proveedores", "area", "auditoria", "insumos"], // Corregido 'usuario' a 'usuarios'
         maquinaria: ["maquinas", "mantenimiento", "reporte"],
         legal: ["documento"],
     },
     "Supervisor": {
-        planta: ["proveedores", "area", "auditoria"],
+        planta: ["proveedores", "area", "auditoria", "insumos"],
         maquinaria: ["maquinas", "mantenimientos", "reportes"],
         legal: ["documento"],
     },
@@ -75,6 +75,7 @@ const Head = ({ user }) => {
                                 {tienePermiso("planta", "proveedores") && <Link to="/proveedores">Proveedores</Link>}
                                 {tienePermiso("planta", "area") && <Link to="/areas">Áreas</Link>}
                                 {tienePermiso("planta", "auditoria") && <Link to="/auditorias">Auditorías</Link>}
+                                {tienePermiso("planta", "insumos") && <Link to="/insumos">Insumos</Link>}
                             </div>
                         </div>
                     )}
@@ -98,7 +99,7 @@ const Head = ({ user }) => {
                             {user?.nombre || "Perfil"}
                         </button>
                         <div className={s.dropdownContent}>
-                            <Link to="/perfil">Mi Perfil</Link>
+                            <Link to="/mi-perfil">Mi Perfil</Link>
                             <Link to="/mensajes">Mensajes</Link>
 
                             <button onClick={irACambiarPass} className={s.dropdownButton}>

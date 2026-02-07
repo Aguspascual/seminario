@@ -2,28 +2,19 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import '../assets/styles/Usuarios.css';
 import Head from '../components/Head';
-import Footer from '../components/Footer';
+
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const Reportes = () => {
+const Reportes = ({ user }) => {
     const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
     const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
     const [formError, setFormError] = useState("");
-    
+
     const queryClient = useQueryClient();
 
-    // 1. Obtener Usuario Actual (Simulado por ahora, idealmente vendría de AuthContext)
-    const { data: usuarioActual } = useQuery({
-        queryKey: ['currentUser'],
-        queryFn: async () => {
-             const response = await fetch("http://localhost:5000/usuarios");
-             if (!response.ok) return null;
-             const data = await response.json();
-             return data.length > 0 ? data[0] : null; // Simula login con el primer usuario
-        },
-        staleTime: Infinity 
-    });
+    // El usuario ahora viene por props, usamos 'user' en lugar de 'usuarioActual'
+    const usuarioActual = user;
 
     // 2. Obtener Reportes
     const { data: reportes = [], isLoading: loadingReportes, isError: errorReportes } = useQuery({
@@ -40,7 +31,7 @@ const Reportes = () => {
         mutationFn: async (formData) => {
             const response = await fetch("http://localhost:5000/reportes", {
                 method: "POST",
-                body: formData 
+                body: formData
             });
 
             if (!response.ok) {
@@ -102,7 +93,7 @@ const Reportes = () => {
 
     return (
         <div className="container">
-            <Head />
+            <Head user={user} />
             <div className="main">
                 <h6>Home &gt; Maquinaria &gt; Reportes</h6>
                 <div className="tabla">
@@ -124,7 +115,7 @@ const Reportes = () => {
                                     <input type="text" name="asunto" placeholder="Asunto" required />
                                     <textarea name="descripcion" placeholder="Descripción" required rows="4" style={{ width: '100%', marginBottom: '10px' }}></textarea>
                                     <input type="file" name="archivo" />
-                                    
+
                                     {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
                                     {crearReporteMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{crearReporteMutation.error.message}</p>}
 
@@ -222,7 +213,7 @@ const Reportes = () => {
                     </table>
                 </div>
             </div>
-            <Footer />
+
         </div>
     );
 };
