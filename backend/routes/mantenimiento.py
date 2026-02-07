@@ -99,3 +99,18 @@ def delete_reporte(id):
         return jsonify({'error': 'Reporte no encontrado'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@mantenimiento_bp.route('/mantenimientos/reportes/maquinaria/<int:id_maquinaria>', methods=['GET'])
+def get_reportes_by_maquinaria(id_maquinaria):
+    try:
+        reportes = MantenimientoService.get_reportes_by_maquinaria(id_maquinaria)
+        return jsonify({'reportes': reportes}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+@mantenimiento_bp.route('/mantenimientos/maquinaria/<int:id_maquinaria>', methods=['GET'])
+def get_by_maquinaria(id_maquinaria):
+    try:
+        mantenimientos = MantenimientoService.get_by_maquinaria(id_maquinaria)
+        return jsonify({'mantenimientos': mantenimientos}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

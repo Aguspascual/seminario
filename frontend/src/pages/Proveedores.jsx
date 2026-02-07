@@ -395,6 +395,16 @@ const Proveedores = () => {
                                         <button className="action-btn" onClick={() => abrirModalDetalles(item)} title="Ver detalles">
                                             <i className="fa-solid fa-eye"></i>
                                         </button>
+                                        <a
+                                            href={`https://wa.me/549${item.Numero}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="action-btn"
+                                            title="Enviar WhatsApp"
+                                            style={{ color: '#25D366' }}
+                                        >
+                                            <i className="fa-brands fa-whatsapp"></i>
+                                        </a>
                                         <button className="action-btn delete-btn" onClick={() => eliminarProveedor(item)} title="Eliminar">
                                             <i className="fas fa-trash"></i>
                                         </button>

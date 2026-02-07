@@ -8,9 +8,11 @@ from routes.reportes import reportes_bp
 from routes.mensajes import mensajes_bp
 from routes.maquinarias import maquinarias_bp
 from routes.mantenimiento import mantenimiento_bp
+from routes.auditorias import auditorias_bp
 
 from routes.legal import legal_bp
 from routes.bitacora import bitacora_bp
+from routes.insumos import insumos_bp
 from routes.recuperar_contrasena import bp_recuperar
 from routes.home import home_bp
 from flask_cors import CORS
@@ -56,9 +58,11 @@ app.register_blueprint(mantenimiento_bp, url_prefix='/api')
 
 # Registra los nuevos blueprints
 app.register_blueprint(legal_bp)
+app.register_blueprint(auditorias_bp)
 app.register_blueprint(bitacora_bp)
 app.register_blueprint(bp_recuperar)
 app.register_blueprint(home_bp, url_prefix='/api')
+app.register_blueprint(insumos_bp, url_prefix='/api')
 
 @app.route("/", methods=["GET"])
 def index():
