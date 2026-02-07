@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../assets/styles/Mensajes.module.css'; // Creating new CSS file
 import Head from '../components/Head';
-import Footer from '../components/Footer';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Mensajes = () => {
@@ -16,10 +16,18 @@ const Mensajes = () => {
     const searchInputRef = useRef(null);
     const [userId, setUserId] = useState(null); // ID del usuario local
 
+    // Leer usuario de localStorage para el Header
+    const [user] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('usuario')) || {};
+        } catch {
+            return {};
+        }
+    });
+
     useEffect(() => {
         // Obtener ID del usuario local del token o localStorage
-        const user = JSON.parse(localStorage.getItem('usuario'));
-        if (user) setUserId(user.id);
+        if (user) setUserId(user.id || user.Legajo); // Adaptar según modelo
         obtenerConversaciones();
 
         // Polling para mensajes nuevos cada 5 segundos
@@ -31,7 +39,7 @@ const Mensajes = () => {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [chatActivo]);
+    }, [chatActivo, user]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,7 +48,7 @@ const Mensajes = () => {
     const obtenerConversaciones = async () => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:5000/mensajes/conversaciones', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mensajes/conversaciones`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -55,7 +63,7 @@ const Mensajes = () => {
     const obtenerChat = async (contactoId, shouldScroll = true) => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://localhost:5000/mensajes/${contactoId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mensajes/${contactoId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -76,7 +84,7 @@ const Mensajes = () => {
 
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:5000/mensajes', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mensajes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -107,15 +115,17 @@ const Mensajes = () => {
         // Reusamos el endpoint de usuarios, filtramos en cliente por simplicidad o backend si soporta filtro
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:5000/usuarios', { // Endpoint existente
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/usuarios`, { // Endpoint existente
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             // NOTA: El endpoint /usuarios actual podría no estar protegido o requerir token si se cambió. 
             // Si requiere token, hay que enviarlo. Si devuelve todos, filtramos.
             // Asumimos que devuelve todos.
             if (response.ok) {
-                const data = await response.json();
-                const filtrados = data.filter(u =>
+                const data = await response.json(); // data structure: { usuarios: [], ... } based on previous view
+                const lista = data.usuarios || data; // Handle pagination structure if present
+
+                const filtrados = lista.filter(u =>
                     u.nombre.toLowerCase().includes(termino.toLowerCase()) &&
                     u.id !== userId // No mostrarse a sí mismo
                 );
@@ -136,8 +146,18 @@ const Mensajes = () => {
 
     return (
         <div className={styles.container}>
-            <Head />
+            <Head user={user} />
             <div className={styles.main}>
+                {/* Breadcrumbs */}
+                <div className={styles.breadcrumbs}>
+                    <Link to="/home">Home</Link> <span>&gt;</span>
+                    <span className={styles.current}>Mensajes</span>
+                </div>
+
+                <div className={styles.headerSection}>
+                    <h2>Mensajes</h2>
+                </div>
+
                 <div className={styles.mensajeriaContainer}>
                     {/* Panel Izquierdo: Lista de Chats */}
                     <div className={styles.listaChats}>
@@ -232,7 +252,6 @@ const Mensajes = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

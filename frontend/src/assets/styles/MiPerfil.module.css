@@ -5,32 +5,94 @@
   box-sizing: border-box;
 }
 
-/* Container principal */
+/* Container*/
+
 .container {
   min-height: 100vh;
-  width: 99vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
+  background-color: #F4F6F8;
 }
 
 .main {
-  height: 87vh;
+  height: auto;
+  min-height: calc(100vh - 80px);
   width: 100%;
+  padding: 15px 30px;
   display: flex;
   flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  background-color: #00695c;
+  align-items: center;
+  /* Centering content */
 }
 
-.breadcrumb {
-  color: #f5f5f5;
-  font-size: 1.2rem;
-  margin-left: 50px;
-  margin-top: 10px;
+/* Breadcrumbs matching Usuarios.css */
+.breadcrumbs {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.breadcrumbs a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbs span {
+  color: #94a3b8;
+}
+
+.breadcrumbs .current {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* Page Header matching Usuarios.css */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   margin-bottom: 20px;
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 15px;
+}
+
+.headerSection h2 {
+  font-size: 1.6rem;
+  color: #1F3A52;
+  margin: 0;
+  font-weight: 700;
+}
+
+.contentWrapper {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  /* Optional: constrain max width for large screens */
+}
+
+/* Columna Izquierda (30%) */
+.leftColumn {
+  flex: 0 0 30%;
+  max-width: 30%;
+}
+
+/* Columna Derecha (70%) */
+.rightColumn {
+  flex: 0 0 70%;
+  max-width: 70%;
 }
 
 .tarjeta {
@@ -38,8 +100,9 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100%;
-  padding: 0;
+  /* Ancho completo del padre (main) */
+  flex-grow: 1;
+  /* Ocupar el resto de la altura */
 }
 
 .card {
@@ -47,42 +110,41 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 12px;
+  overflow: hidden;
   height: 100%;
-  background-color: #F5F5F5;
-  box-shadow: none;
-  border-radius: 0;
-  overflow-y: auto;
+  /* Ensure cards match height if needed */
 }
 
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 20px 40px;
-  border-bottom: 1px solid #e0e0e0;
-}
+@media (max-width: 900px) {
+  .contentWrapper {
+    flex-direction: column;
+  }
 
-.cardHeader h2 {
-  color: #333;
-  font-size: 1.8rem;
-  font-weight: 700;
+  .leftColumn,
+  .rightColumn {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
 }
 
 .avatarSection {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 0;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 40px 0 20px;
   width: 100%;
+  background-color: #fff;
 }
 
 .avatar {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background-color: #00695c;
+  background-color: #0f172a;
+  /* Dark blue/black */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,25 +152,29 @@
   color: white;
   font-weight: 600;
   margin-bottom: 15px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .userName {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .userRole {
   font-size: 1rem;
-  color: #757575;
+  color: #64748b;
   margin-top: 5px;
+  background-color: #e2e8f0;
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 .formSection {
   display: flex;
   flex-direction: column;
-  width: 80%;
-  padding: 30px 0;
+  width: 100%;
+  padding: 20px 40px 40px;
 }
 
 .formGroup {
@@ -118,41 +184,46 @@
 }
 
 .formGroup label {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #424242;
+  color: #475569;
   margin-bottom: 8px;
 }
 
 .formGroup input,
 .formGroup select {
   width: 100%;
-  height: 45px;
+  height: 42px;
   padding: 10px 15px;
-  border: 1px solid #bdbdbd;
-  background-color: #fafafa;
-  border-radius: 5px;
-  font-size: 1rem;
-  color: #333;
-  transition: border-color 0.3s ease;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #334155;
+  transition: all 0.2s ease;
 }
 
 .formGroup input:focus {
   outline: none;
-  border-color: #00695c;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
 }
 
 .formGroup input:disabled,
 .formGroup select:disabled {
-  background-color: #eeeeee;
-  color: #757575;
+  background-color: #f1f5f9;
+  color: #94a3b8;
   cursor: not-allowed;
+  border-color: #e2e8f0;
 }
 
 .formRow {
   display: flex;
   gap: 20px;
 }
+
+
+
 
 .formRow .formGroup {
   flex: 1;
@@ -161,96 +232,97 @@
 .buttonSection {
   display: flex;
   gap: 15px;
-  justify-content: center;
-  padding: 20px 0 30px;
-  width: 80%;
+  justify-content: flex-end;
+  /* Align buttons to the right */
+  margin-top: 20px;
 }
 
 .btnEditar {
-  padding: 12px 30px;
-  background-color: #00695c;
+  padding: 10px 24px;
+  background-color: #0f172a;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .btnEditar:hover {
-  background-color: #004d40;
+  background-color: #1e293b;
 }
 
 .btnGuardar {
-  padding: 12px 30px;
-  background-color: #00695c;
+  padding: 10px 24px;
+  background-color: #0f172a;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .btnGuardar:hover {
-  background-color: #004d40;
+  background-color: #1e293b;
 }
 
 .btnCancelar {
-  padding: 12px 30px;
-  background-color: #f44336;
+  padding: 10px 24px;
+  background-color: #ef4444;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .btnCancelar:hover {
-  background-color: #d32f2f;
+  background-color: #dc2626;
 }
 
 .mensaje {
-  padding: 15px;
-  border-radius: 5px;
-  margin: 20px 40px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 20px 40px 0;
   text-align: center;
   font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .mensajeExito {
-  background-color: #c8e6c9;
-  color: #2e7d32;
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
 }
 
 .mensajeError {
-  background-color: #ffcdd2;
-  color: #c62828;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.loading,
+.error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  color: #64748b;
 }
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 1000px) {
-  .main {
-    height: 84vh;
-  }
-  .card {
-    width: 85%;
-  }
-  .breadcrumb {
-    margin-left: 20px;
-    font-size: 1rem;
-  }
-  .formRow {
-    flex-direction: column;
-    gap: 0;
-  }
+  /* .main {} removed empty rule */
 }
 
 @media (max-width: 600px) {
@@ -258,37 +330,46 @@
     height: auto;
     min-height: 80vh;
   }
+
   .card {
     width: 95%;
     border-radius: 0;
   }
+
   .tarjeta {
     padding: 1rem;
   }
+
   .cardHeader {
     padding: 15px 20px;
   }
+
   .cardHeader h2 {
     font-size: 1.4rem;
   }
+
   .formSection {
     width: 90%;
   }
+
   .buttonSection {
     flex-direction: column;
     width: 90%;
   }
+
   .btnEditar,
   .btnGuardar,
   .btnCancelar {
     width: 100%;
     justify-content: center;
   }
+
   .avatar {
     width: 100px;
     height: 100px;
     font-size: 2.5rem;
   }
+
   .breadcrumb {
     font-size: 0.9rem;
     margin-left: 15px;

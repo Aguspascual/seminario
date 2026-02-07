@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "../assets/styles/MiPerfil.module.css";
 import Head from "../components/Head";
-import Footer from "../components/Footer";
+
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { perfilSchema } from "../validations/main";
 
@@ -34,7 +34,7 @@ const MiPerfil = () => {
   } = useQuery({
     queryKey: ["perfil"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:5000/usuarios/perfil", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/usuarios/perfil`, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
@@ -54,7 +54,7 @@ const MiPerfil = () => {
   const mutation = useMutation({
     mutationFn: async (datosActualizados) => {
       const response = await fetch(
-        `http://localhost:5000/usuarios/${usuario.id}`,
+        `${import.meta.env.VITE_API_URL}/usuarios/${usuario.id}`,
         {
           method: "PUT",
           headers: {
@@ -89,9 +89,9 @@ const MiPerfil = () => {
 
   const onSubmit = (data) => {
     mutation.mutate({
-        nombre: data.nombre,
-        email: data.email,
-        telefono: data.telefono
+      nombre: data.nombre,
+      email: data.email,
+      telefono: data.telefono
     });
   };
 
@@ -118,7 +118,6 @@ const MiPerfil = () => {
         <div className={styles.main}>
           <div className={styles.loading}>Cargando perfil...</div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -130,141 +129,155 @@ const MiPerfil = () => {
         <div className={styles.main}>
           <div className={styles.error}>Error al cargar el perfil. Por favor inicie sesión nuevamente.</div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <Head />
+      <Head user={usuario} />
       <div className={styles.main}>
-        <h6 className={styles.breadcrumb}>Home &gt; Mi Perfil &gt; Ver Perfil</h6>
-        <div className={styles.tarjeta}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Mi Perfil</h2>
-            </div>
+        {/* Breadcrumbs */}
+        <div className={styles.breadcrumbs}>
+          <span style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/home'}>Home</span> <span>&gt;</span>
+          <span className={styles.current}>Mi Perfil</span>
+        </div>
 
-            {mensaje.texto && (
-              <div
-                className={`${styles.mensaje} ${
-                  mensaje.tipo === "exito" ? styles.mensajeExito : styles.mensajeError
-                }`}
+        <div className={styles.headerSection}>
+          <h2>Mi Perfil</h2>
+        </div>
+
+        <div className={styles.contentWrapper}>
+
+          {/* Columna Izquierda: 30% */}
+          <div className={styles.leftColumn}>
+            <div className={styles.card}>
+              <div className={styles.avatarSection}>
+                <div className={styles.avatar}>
+                  {getIniciales(usuario?.nombre)}
+                </div>
+                <span className={styles.userName}>{usuario?.nombre}</span>
+                <span className={styles.userRole}>{usuario?.rol}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna Derecha: 70% */}
+          <div className={styles.rightColumn}>
+            <div className={styles.card}>
+              {mensaje.texto && (
+                <div
+                  className={`${styles.mensaje} ${mensaje.tipo === "exito" ? styles.mensajeExito : styles.mensajeError
+                    }`}
+                >
+                  {mensaje.texto}
+                </div>
+              )}
+
+              <form
+                className={styles.formSection}
+                onSubmit={handleSubmit(onSubmit)}
               >
-                {mensaje.texto}
-              </div>
-            )}
-
-            <div className={styles.avatarSection}>
-              <div className={styles.avatar}>
-                {getIniciales(usuario?.nombre)}
-              </div>
-              <span className={styles.userName}>{usuario?.nombre}</span>
-              <span className={styles.userRole}>{usuario?.rol}</span>
-            </div>
-
-            <form
-              className={styles.formSection}
-              onSubmit={handleSubmit(onSubmit)}
-            >
-              <div className={styles.formGroup}>
-                <label htmlFor="nombre">Nombre Completo</label>
-                <input
-                  type="text"
-                  id="nombre"
-                  {...register("nombre")}
-                  disabled={!editando}
-                />
-                {errors.nombre && (
-                  <span style={{ color: "red", fontSize: "0.8rem" }}>
-                    {errors.nombre.message}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label htmlFor="email">Correo Electrónico</label>
+                  <label htmlFor="nombre">Nombre Completo</label>
                   <input
-                    type="email"
-                    id="email"
-                    {...register("email")}
+                    type="text"
+                    id="nombre"
+                    {...register("nombre")}
                     disabled={!editando}
                   />
-                  {errors.email && (
+                  {errors.nombre && (
                     <span style={{ color: "red", fontSize: "0.8rem" }}>
-                      {errors.email.message}
+                      {errors.nombre.message}
                     </span>
                   )}
                 </div>
-                <div className={styles.formGroup}>
-                  <label htmlFor="telefono">Teléfono</label>
-                  <input
-                    type="tel"
-                    id="telefono"
-                    {...register("telefono")}
-                    disabled={!editando}
-                  />
-                  {errors.telefono && (
-                    <span style={{ color: "red", fontSize: "0.8rem" }}>
-                      {errors.telefono.message}
-                    </span>
-                  )}
-                </div>
-              </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="rol">Rol</label>
-                  <input
-                    type="text"
-                    id="rol"
-                    value={usuario?.rol || ""}
-                    disabled
-                  />
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="email">Correo Electrónico</label>
+                    <input
+                      type="email"
+                      id="email"
+                      {...register("email")}
+                      disabled={!editando}
+                    />
+                    {errors.email && (
+                      <span style={{ color: "red", fontSize: "0.8rem" }}>
+                        {errors.email.message}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="telefono">Teléfono</label>
+                    <input
+                      type="tel"
+                      id="telefono"
+                      {...register("telefono")}
+                      disabled={!editando}
+                    />
+                    {errors.telefono && (
+                      <span style={{ color: "red", fontSize: "0.8rem" }}>
+                        {errors.telefono.message}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className={styles.formGroup}>
-                  <label htmlFor="area">Área</label>
-                  <input
-                    type="text"
-                    id="area"
-                    value={usuario?.area || ""}
-                    disabled
-                  />
-                </div>
-              </div>
 
-              <div className={styles.buttonSection}>
-                {!editando ? (
-                  <button
-                    type="button"
-                    className={styles.btnEditar}
-                    onClick={() => setEditando(true)}
-                  >
-                    <i className="fa-solid fa-pen-to-square"></i>
-                    Editar Perfil
-                  </button>
-                ) : (
-                  <>
-                    <button type="submit" className={styles.btnGuardar} disabled={mutation.isPending}>
-                      {mutation.isPending ? "Guardando..." : "Guardar Cambios"}
-                    </button>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="rol">Rol</label>
+                    <input
+                      type="text"
+                      id="rol"
+                      value={usuario?.rol || ""}
+                      disabled
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="area">Área</label>
+                    <input
+                      type="text"
+                      id="area"
+                      value={usuario?.area || ""}
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.buttonSection}>
+                  {!editando ? (
                     <button
                       type="button"
-                      className={styles.btnCancelar}
-                      onClick={handleCancelar}
+                      className={styles.btnEditar}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setEditando(true);
+                      }}
                     >
-                      Cancelar
+                      <i className="fa-solid fa-pen-to-square"></i>
+                      Editar Perfil
                     </button>
-                  </>
-                )}
-              </div>
-            </form>
+                  ) : (
+                    <>
+                      <button type="submit" className={styles.btnGuardar} disabled={mutation.isPending}>
+                        {mutation.isPending ? "Guardando..." : "Guardar Cambios"}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.btnCancelar}
+                        onClick={handleCancelar}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
