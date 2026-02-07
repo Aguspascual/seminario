@@ -33,7 +33,8 @@ class UsuarioService:
             contrasena=hashed_password,
             Email=email,
             Telefono=telefono,
-            Rol=data["Rol"]
+            Rol=data["Rol"],
+            turno_id=data.get("turno_id")
         )
 
         db.session.add(nuevo_usuario)

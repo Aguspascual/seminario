@@ -84,6 +84,16 @@ const Usuarios = () => {
     }
   });
 
+  // 3. Fetching Grupos (para Turnos)
+  const { data: grupos = [] } = useQuery({
+    queryKey: ['grupos'],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:5000/api/grupos");
+      if (!response.ok) throw new Error("Error al cargar grupos");
+      return response.json();
+    }
+  });
+
   // 3. Mutation para Crear Usuario
   const createMutation = useMutation({
     mutationFn: async (datosEnvio) => {
@@ -144,8 +154,10 @@ const Usuarios = () => {
       contrasena: formData.get("contrasena"),
       telefono: formData.get("telefono"),
       email: formData.get("email"),
-      rol: formData.get("rol"),
+
+
       area_id: formData.get("area_id"),
+      turno_id: formData.get("turno_id") || null,
     };
 
     createMutation.mutate(datosEnvio);
@@ -232,6 +244,19 @@ const Usuarios = () => {
                   ))}
                 </select>
 
+                <select name="turno_id">
+                  <option value="">Seleccionar Turno (Opcional)</option>
+                  {grupos.map((grupo) => (
+                    <optgroup key={grupo.id} label={grupo.nombre}>
+                      {grupo.turnos.map((turno) => (
+                        <option key={turno.id} value={turno.id}>
+                          {turno.nombre} ({turno.hora_inicio} - {turno.hora_fin})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+
                 {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
 
                 <div className="modal-botones">
@@ -254,7 +279,12 @@ const Usuarios = () => {
             { header: "Teléfono", accessor: "telefono" },
             { header: "Correo", accessor: "email" },
             { header: "Rol", accessor: "rol" },
+            { header: "Rol", accessor: "rol" },
             { header: "Área", accessor: "area" },
+            {
+              header: "Turno",
+              render: (u) => u.turno_nombre ? `${u.turno_nombre} (${u.grupo_nombre})` : '-'
+            },
             {
               header: "Acciones",
               render: (user) => (
@@ -286,6 +316,7 @@ const Usuarios = () => {
                   <p><strong>Teléfono:</strong> {usuarioSeleccionado?.telefono || 'N/A'}</p>
                   <p><strong>Rol:</strong> {usuarioSeleccionado?.rol || 'N/A'}</p>
                   <p><strong>Área:</strong> {usuarioSeleccionado?.area || 'N/A'}</p>
+                  <p><strong>Turno:</strong> {usuarioSeleccionado?.turno_nombre ? `${usuarioSeleccionado.turno_nombre} (${usuarioSeleccionado.grupo_nombre})` : 'Sin asignar'}</p>
                 </div>
               ) : (
                 <form onSubmit={manejarActualizacion}>
@@ -330,6 +361,21 @@ const Usuarios = () => {
                       <option key={area.id} value={area.id}>{area.nombre}</option>
                     ))}
                   </select>
+                  <select
+                    value={datosEdicion.turno_id || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, turno_id: e.target.value })}
+                  >
+                    <option value="">Seleccionar Turno</option>
+                    {grupos.map((grupo) => (
+                      <optgroup key={grupo.id} label={grupo.nombre}>
+                        {grupo.turnos.map((turno) => (
+                          <option key={turno.id} value={turno.id}>
+                            {turno.nombre} ({turno.hora_inicio} - {turno.hora_fin})
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
                 </form>
               )}
 
@@ -360,10 +406,10 @@ const Usuarios = () => {
                 )}
               </div>
             </div>
-          </div>
+          </div >
         )}
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

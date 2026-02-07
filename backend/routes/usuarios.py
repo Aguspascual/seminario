@@ -68,7 +68,10 @@ def get_usuarios():
                 "rol": usuario.Rol,
                 "area": area_nombre,
                 "area_id": usuario.Area_idArea,
-                "estado": usuario.Estado
+                "estado": usuario.Estado,
+                "turno_id": usuario.turno_id,
+                "turno_nombre": usuario.turno.nombre if usuario.turno else None,
+                "grupo_nombre": usuario.turno.grupo.nombre if usuario.turno and usuario.turno.grupo else None
             })
             
         return jsonify({
@@ -307,6 +310,9 @@ def update_usuario(id):
             usuario.Rol = data['rol']
         if 'area_id' in data:
             usuario.Area_idArea = data['area_id']
+        if 'turno_id' in data:
+            val = data['turno_id']
+            usuario.turno_id = val if val else None
         
         db.session.commit()
         

@@ -6,12 +6,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const PERMISOS = {
     "Admin": {
-        planta: ["usuarios", "proveedores", "area", "auditoria", "insumos"], // Corregido 'usuario' a 'usuarios'
+        planta: ["usuarios", "proveedores", "area", "auditoria", "insumos", "grupos"], // Corregido 'usuario' a 'usuarios'
         maquinaria: ["maquinas", "mantenimiento", "reporte"],
         legal: ["documento"],
     },
     "Supervisor": {
-        planta: ["proveedores", "area", "auditoria", "insumos"],
+        planta: ["proveedores", "area", "auditoria", "insumos", "grupos"],
         maquinaria: ["maquinas", "mantenimientos", "reportes"],
         legal: ["documento"],
     },
@@ -76,6 +76,7 @@ const Head = ({ user }) => {
                                 {tienePermiso("planta", "area") && <Link to="/areas">Áreas</Link>}
                                 {tienePermiso("planta", "auditoria") && <Link to="/auditorias">Auditorías</Link>}
                                 {tienePermiso("planta", "insumos") && <Link to="/insumos">Insumos</Link>}
+                                {tienePermiso("planta", "grupos") && <Link to="/grupos">Grupos y Turnos</Link>}
                             </div>
                         </div>
                     )}
