@@ -14,6 +14,7 @@ import CambiarContraseña from '../pages/CambiarContraseña';
 import MiPerfil from '../pages/MiPerfil';
 import Legal from '../pages/Legal';
 import Mensajes from '../pages/Mensajes';
+import MaintenancePage from '../pages/MaintenancePage';
 
 
 
@@ -41,6 +42,7 @@ function AppRoutes({user, setUser}) {
           <Route path="/proveedores" element={<Proveedores />} />
           <Route path="/auditorias" element={<Auditorias />} />
           <Route path="/areas" element={<Areas />} />
+          <Route path="/mantenimiento" element={<MaintenancePage user={user} />} />
           {/* <Route path="/capacitaciones" element={<Capacitaciones />} /> */}
         </Route>
 

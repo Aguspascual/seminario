@@ -7,6 +7,8 @@ from routes.areas import areas_bp
 from routes.reportes import reportes_bp
 from routes.mensajes import mensajes_bp
 from routes.maquinarias import maquinarias_bp
+from routes.mantenimiento import mantenimiento_bp
+
 from routes.legal import legal_bp
 from routes.bitacora import bitacora_bp
 from routes.recuperar_contrasena import bp_recuperar
@@ -50,6 +52,9 @@ app.register_blueprint(areas_bp)
 app.register_blueprint(reportes_bp)
 app.register_blueprint(mensajes_bp)
 app.register_blueprint(maquinarias_bp)
+app.register_blueprint(mantenimiento_bp, url_prefix='/api')
+
+# Registra los nuevos blueprints
 app.register_blueprint(legal_bp)
 app.register_blueprint(bitacora_bp)
 app.register_blueprint(bp_recuperar)
