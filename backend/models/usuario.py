@@ -23,9 +23,6 @@ class Usuario(db.Model):
         self.Telefono = Telefono
         self.Rol = Rol
         #Legajo se autoincrementa
-    
-
-
 
     area = db.relationship("Area", backref="usuario")
     

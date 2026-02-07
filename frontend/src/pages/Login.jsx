@@ -42,8 +42,8 @@ const Login = () => {
         console.log('Login exitoso:', data);
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('usuario', JSON.stringify(data.user));
-        // Usamos window.location para recargar la app y que App.jsx lea el usuario
-        window.location.href = '/home';
+        navigate('/home'); // Redirigir a la página de home
+        //window.location.href = '/home';
       } else {
         // Error en el login
         setError(data.error || 'Credencial incorrecta');
@@ -58,21 +58,22 @@ const Login = () => {
   };
 
   return (
-    <>
+    <> 
       {/*Imagen en full screen*/}
-      <img className='fondo-imagen' src={fondo} alt="Ecopolo s.a" />
+      <img className='fondo-imagen' src={fondo} alt="Ecopolo s.a" /> 
 
       <div className='login-container'>
         {/* Tarjeta Central */}
         <div className="main-card">
-          <img src={logo} alt='Logo Ecopolo' className='logo-img' />
-
-          <p className='login-subtitulo'>Ingresa sus credenciales</p>
-
+          <img src={logo} alt='Logo Ecopolo' className='logo-img'/>
+          
+          <h2 className='login-title'>Bienvenido</h2>
+          <p className='login-subtitulo'>Iniciar sesión en el sistema de gestión</p>
+          
           {error && <div className="error-msg">{error}</div>}
-
+          
           <form onSubmit={handleLogin} className="login-form">
-
+  
             {/* 1. GRUPO EMAIL (Corregido 'imput' por 'input') */}
             <div className='input-group'>
               <label className='login-email'>Email:</label>
@@ -90,30 +91,30 @@ const Login = () => {
             <div className='input-group'>
               <label className='login-contrasena'>Contraseña:</label>
               <div className='password-wrapper'> {/* Contenedor extra para alinear el ojo */}
-                <input
-                  className="custom-input"
-                  type={mostrarContrasena ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={contrasena}
-                  onChange={(e) => setContrasena(e.target.value)}
-                  required
-                />
+                  <input 
+                    className="custom-input"
+                    type={mostrarContrasena ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    value={contrasena}
+                    onChange={(e) => setContrasena(e.target.value)}
+                    required
+                  />
 
-                {/* EL ÍCONO DEL OJITO (Va dentro de este bloque relativo) */}
-                <button
-                  type="button"
-                  className="password-toggle-btn"
-                  onClick={() => setMostrarContrasena(!mostrarContrasena)}
-                  tabIndex="-1"
-                >
-                  {mostrarContrasena ? (
-                    /* Ojo Tachado */
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                  ) : (
-                    /* Ojo Normal */
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  )}
-                </button>
+                  {/* EL ÍCONO DEL OJITO (Va dentro de este bloque relativo) */}
+                  <button 
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                    tabIndex="-1"
+                  >
+                    {mostrarContrasena ? (
+                      /* Ojo Tachado */
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    ) : (
+                      /* Ojo Normal */
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    )}
+                  </button>
               </div>
             </div>
 
@@ -130,7 +131,7 @@ const Login = () => {
           </form>
         </div>
       </div>
-    </>
+    </>           
   );
 };
 

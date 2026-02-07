@@ -21,9 +21,8 @@ const RecuperarPassword = () => {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
-
-      // Corrección: El endpoint en el backend es /recuperar-password (con guion), no /recuperar_contrasena
-      const response = await fetch(`${apiUrl}/recuperar-password`, {
+      
+      const response = await fetch(`${apiUrl}/recuperar_contrasena`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -33,7 +32,7 @@ const RecuperarPassword = () => {
 
       if (response.ok) {
         setMensaje('¡Listo! Revisa tu correo para las instrucciones.');
-        setEmail('');
+        setEmail(''); 
       } else {
         setError(data.error || 'No encontramos ese email en el sistema.');
       }
@@ -50,25 +49,26 @@ const RecuperarPassword = () => {
       <img className='fondo-imagen' src={fondo} alt="Fondo Ecopolo" />
 
       <div className='login-container'>
-        <div className="main-card"> {/* Usamos main-card de Login.css para consistencia */}
-
-          <img src={logo} alt="Logo Ecopolo" className='logo-img' />
-
+        <div className="login-card">
+          
+          <img src={logo} alt="Logo Ecopolo" className='logo-img'/>
+          
           <div>
-            <p className='recovery-subtitle'>Ingresa tu email para restablecerla</p>
+            <h2 className='login-titulo'>Recuperar Contraseña</h2>
+            <p className='login-subtitle'>Ingresa tu email para restablecerla</p>
           </div>
 
           {/* Mensajes de feedback */}
           {error && <div className="error-msg">{error}</div>}
-          {mensaje && <div className="success-msg" style={{ color: 'green', backgroundColor: '#e6fffa', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}>{mensaje}</div>}
+          {mensaje && <div className="success-msg">{mensaje}</div>}
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className='input-group'>
-              <label className='login-email'>Email:</label>
-              <input
+              <label className='login-email' style={{display: 'block', marginBottom: '0.5rem', color: '#003459', fontSize: '0.9rem'}}>Email:</label>
+              <input 
                 className="custom-input"
-                type="email"
-                placeholder="ejemplo@ecopolo.com"
+                type="email" 
+                placeholder="ejemplo@ecopolo.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,8 +80,8 @@ const RecuperarPassword = () => {
             </button>
 
             {/* Link para volver */}
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <Link to="/login" className="forgot-link">
+            <div style={{textAlign: 'center', marginTop: '1rem'}}>
+              <Link to="/" className="forgot-link">
                 ← Volver al inicio de sesión
               </Link>
             </div>

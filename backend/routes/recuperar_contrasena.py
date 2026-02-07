@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 import secrets
 import string
-from utils.database import db
-from models.usuario import Usuario
+from app import db 
+from models import usuario
 from werkzeug.security import generate_password_hash
 
 bp_recuperar = Blueprint('recuperar_password', __name__)
@@ -17,7 +17,7 @@ def recuperar():
             return jsonify({'error': 'Falta el email'}), 400
 
         # 2. Buscar usuario
-        usuario = Usuario.query.filter_by(email=email).first()
+        usuario = usuario.query.filter_by(email=email).first()
 
         if not usuario:
             # Si no existe, devolvemos error (o mentimos por seguridad, tú decides)
@@ -28,8 +28,8 @@ def recuperar():
         pass_temporal = ''.join(secrets.choice(caracteres) for i in range(8))
 
         # 4. Guardar en base de datos (Encriptada)
-        # Usamos 'contrasena' que es el campo correcto en el modelo Usuario
-        usuario.contrasena = generate_password_hash(pass_temporal)
+        # Asumiendo que tu modelo tiene un campo 'password'
+        usuario.password = generate_password_hash(pass_temporal)
         db.session.commit()
 
         # 5. SIMULACIÓN: Mostrar en la consola negra (Terminal)

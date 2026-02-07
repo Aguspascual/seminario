@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute'; // Ajusté la ruta de importación
+import ProtectedRoute from './ProtectedRoute'; //proteccion de rutas
 import HomePage from '../pages/Home';
 import Login from '../pages/Login';
 import Usuarios from '../pages/Usuarios';
@@ -16,13 +16,14 @@ import Legal from '../pages/Legal';
 import Mensajes from '../pages/Mensajes';
 import MaintenancePage from '../pages/MaintenancePage';
 
-function AppRoutes({ user }) {
+
+
+function AppRoutes({user, setUser}) {
   return (
     <BrowserRouter>
       <Routes>
         {/* Rutas Públicas */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login setUser={setUser} />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
 
         {/* Rutas Privadas para los logueados*/}

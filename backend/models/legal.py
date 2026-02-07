@@ -10,6 +10,7 @@ class Legal(db.Model):
     FechaCarga = db.Column(db.DateTime, default=db.func.current_timestamp())
     ArchivoUrl = db.Column(db.String(500), nullable=True)     # Link al PDF en Supabase
     Estado = db.Column(db.String(20), default='Vigente')      # 1 'Vigente', 2 'Por Vencer', 0 'Vencido'
+    
 
     def __init__(self, Titulo, Descripcion, FechaVencimiento, ArchivoUrl):
         self.Titulo = Titulo

@@ -13,7 +13,6 @@ from routes.legal import legal_bp
 from routes.bitacora import bitacora_bp
 from routes.recuperar_contrasena import bp_recuperar
 from routes.home import home_bp
-
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -29,10 +28,10 @@ except ImportError:
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Configuración de la base de datos
 uri = os.getenv("DATABASE_URL")
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
 
 app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
