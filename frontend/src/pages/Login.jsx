@@ -4,7 +4,6 @@ import '../assets/styles/Login.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-//import Footer from "../components/Footer.jsx"
 
 const Login = () => {
   const [email, setEmail] = useState('');
