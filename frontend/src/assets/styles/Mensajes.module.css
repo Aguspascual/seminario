@@ -8,21 +8,77 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #f5f5f5;
+    background-color: #F4F6F8;
     overflow: hidden;
-    /* Importante para que el chat scrollee internamente */
+    padding: 15px 30px;
+    align-items: center;
+    /* Center content */
+}
+
+/* Breadcrumbs matching Usuarios.css */
+.breadcrumbs {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    /* Updated to 100% */
+}
+
+.breadcrumbs a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs span {
+    color: #94a3b8;
+}
+
+.breadcrumbs .current {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Page Header matching Usuarios.css */
+.headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    /* Updated to 100% */
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d1d5db;
+    padding-bottom: 15px;
+}
+
+.headerSection h2 {
+    font-size: 1.6rem;
+    color: #1F3A52;
+    margin: 0;
+    font-weight: 700;
 }
 
 .mensajeriaContainer {
     display: flex;
     flex: 1;
     background-color: white;
-    margin: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* margin: 20px; removed margin to align with header */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
     overflow: hidden;
-    height: calc(100vh - 150px);
-    /* Ajustar según header/footer */
+    height: calc(100vh - 200px);
+    /* Adjust height for new header */
+    width: 90%;
+    /* Updated to 90% */
+    max-width: none;
+    /* Removed max-width */
 }
 
 /* Panel Izquierdo */
@@ -37,15 +93,20 @@
     padding: 15px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 
 .buscador input {
     flex: 1;
-    padding: 8px 12px;
+    height: 50px;
+    padding: 5px 12px;
     border: 1px solid #ddd;
     border-radius: 20px;
     outline: none;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    color: #333333;
 }
 
 .btnNuevo {
@@ -56,6 +117,15 @@
     height: 35px;
     border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    /* Added for centering */
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btnNuevo:hover {
+    background: #004d40;
 }
 
 .listaConversaciones,
@@ -65,6 +135,32 @@
     margin: 0;
     overflow-y: auto;
     flex: 1;
+}
+
+/* Custom Scrollbar for lists and chat body */
+.listaConversaciones::-webkit-scrollbar,
+.listaUsuarios::-webkit-scrollbar,
+.mensajesBody::-webkit-scrollbar {
+    width: 6px;
+}
+
+.listaConversaciones::-webkit-scrollbar-track,
+.listaUsuarios::-webkit-scrollbar-track,
+.mensajesBody::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.listaConversaciones::-webkit-scrollbar-thumb,
+.listaUsuarios::-webkit-scrollbar-thumb,
+.mensajesBody::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+}
+
+.listaConversaciones::-webkit-scrollbar-thumb:hover,
+.listaUsuarios::-webkit-scrollbar-thumb:hover,
+.mensajesBody::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
 }
 
 .conversacionItem,
@@ -170,12 +266,16 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    /* Increased gap */
+    background-color: #f8fafc;
+    /* Slight bg pattern or color for chat area? */
 }
 
 .mensaje {
     display: flex;
-    max-width: 70%;
+    max-width: 75%;
+    /* Slightly wider */
 }
 
 .mensaje.mio {
@@ -187,29 +287,39 @@
 }
 
 .burbuja {
-    padding: 10px 15px;
-    border-radius: 15px;
+    padding: 12px 18px;
+    /* Bigger padding */
+    border-radius: 18px;
+    /* More rounded */
     position: relative;
     word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 .mensaje.mio .burbuja {
     background-color: #00695C;
     color: white;
-    border-bottom-right-radius: 2px;
+    border-bottom-right-radius: 4px;
+    /* Subtle visual cue */
 }
 
 .mensaje.otro .burbuja {
     background-color: white;
-    color: #333;
-    border: 1px solid #e0e0e0;
-    border-bottom-left-radius: 2px;
+    color: #334155;
+    border: none;
+    /* Removed border */
+    border-bottom-left-radius: 4px;
 }
 
 .hora {
     font-size: 0.7rem;
     margin-left: 10px;
-    opacity: 0.7;
+    opacity: 0.8;
+    vertical-align: bottom;
+    display: inline-block;
 }
 
 .chatFooter {
@@ -218,9 +328,12 @@
     border-top: 1px solid #e0e0e0;
     display: flex;
     gap: 10px;
+    display: flex;
+    flex-direction: row;
 }
 
 .chatFooter input {
+    background-color: white;
     flex: 1;
     padding: 10px;
     border: 1px solid #ddd;
@@ -237,6 +350,9 @@
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .chatFooter button:hover {
