@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../assets/styles/CambiarContraseña.module.css';
 import Head from '../components/Head';
-import Footer from '../components/Footer';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const CambiarContraseña = () => {
@@ -11,6 +11,15 @@ const CambiarContraseña = () => {
     const [mensaje, setMensaje] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Leer usuario de localStorage para el Header
+    const [user] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('usuario')) || {};
+        } catch {
+            return {};
+        }
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,7 +40,7 @@ const CambiarContraseña = () => {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch("http://localhost:5000/usuarios/cambiar_contrasena", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/usuarios/cambiar_contrasena`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -64,14 +73,23 @@ const CambiarContraseña = () => {
 
     return (
         <div className={styles.container}>
-            <Head />
+            <Head user={user} />
             <div className={styles.main}>
-                <h6>Perfil &gt; Cambiar Contraseña </h6>
-                <div className={styles.tarjeta}>
-                    <div className={styles.dentro}>
-                        <h2>Cambiar Contraseña</h2>
-                        <form onSubmit={handleSubmit}>
-                            <div className={styles.datos}>
+                {/* Breadcrumbs */}
+                <div className={styles.breadcrumbs}>
+                    <Link to="/home">Home</Link> <span>&gt;</span>
+                    <Link to="/perfil">Mi Perfil</Link> <span>&gt;</span>
+                    <span className={styles.current}>Cambiar Contraseña</span>
+                </div>
+
+                <div className={styles.headerSection}>
+                    <h2>Cambiar Contraseña</h2>
+                </div>
+
+                <div className={styles.contentWrapper}>
+                    <div className={styles.tarjeta}>
+                        <form onSubmit={handleSubmit} className={styles.form}>
+                            <div className={styles.formGroup}>
                                 <label>Contraseña Actual</label>
                                 <input
                                     type="password"
@@ -80,6 +98,8 @@ const CambiarContraseña = () => {
                                     onChange={(e) => setContrasenaActual(e.target.value)}
                                     required
                                 />
+                            </div>
+                            <div className={styles.formGroup}>
                                 <label>Nueva Contraseña</label>
                                 <input
                                     type="password"
@@ -88,6 +108,8 @@ const CambiarContraseña = () => {
                                     onChange={(e) => setNuevaContrasena(e.target.value)}
                                     required
                                 />
+                            </div>
+                            <div className={styles.formGroup}>
                                 <label>Confirmar Nueva Contraseña</label>
                                 <input
                                     type="password"
@@ -97,16 +119,19 @@ const CambiarContraseña = () => {
                                     required
                                 />
                             </div>
-                            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-                            {mensaje && <p style={{ color: 'green', marginTop: '10px' }}>{mensaje}</p>}
-                            <button type="submit" className={styles.boton} disabled={loading}>
-                                {loading ? "Guardando..." : "Guardar Cambios"}
-                            </button>
+
+                            {error && <div className={styles.mensajeError}>{error}</div>}
+                            {mensaje && <div className={styles.mensajeExito}>{mensaje}</div>}
+
+                            <div className={styles.buttonSection}>
+                                <button type="submit" className={styles.boton} disabled={loading}>
+                                    {loading ? "Guardando..." : "Guardar Cambios"}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

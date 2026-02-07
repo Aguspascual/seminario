@@ -8,7 +8,7 @@ import Head from "../components/Head";
 import Table from "../components/Table";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
-const Maquinarias = () => {
+const Maquinarias = ({ user }) => {
     const queryClient = useQueryClient();
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
@@ -45,7 +45,7 @@ const Maquinarias = () => {
             // Solo enviamos q si tiene longitud válida o si el backend lo maneja, 
             // pero optimizamos no enviando calls innecesarios
             if (busquedaDebounced) url += `&q=${busquedaDebounced}`;
-            
+
             const response = await fetch(url, {
                 headers: { Authorization: `Bearer ${getToken()}` },
             });
@@ -200,7 +200,7 @@ const Maquinarias = () => {
 
     const getEstadoBadge = (estado) => {
         const text = { 0: "Inactiva", 1: "Activa", 2: "En Reparación" };
-        return { 
+        return {
             texto: text[estado] || "Desconocido",
             color: estado === 1 ? "#166534" : (estado === 2 ? "#eab308" : "#991b1b"),
             fondo: estado === 1 ? "#dcfce7" : (estado === 2 ? "#fef9c3" : "#fee2e2")
@@ -209,11 +209,11 @@ const Maquinarias = () => {
 
     return (
         <div className={styles.container}>
-            <Head />
+            <Head user={user} />
             <div className={styles.main}>
                 <div className={styles.breadcrumbs}>
-                    <a href="/home">Home</a> <span>/</span> 
-                    <a href="/planta">Planta</a> <span>/</span> 
+                    <a href="/home">Home</a> <span>/</span>
+                    <a href="/planta">Planta</a> <span>/</span>
                     <span className={styles.current}>Maquinaria</span>
                 </div>
 
@@ -222,9 +222,9 @@ const Maquinarias = () => {
                 </div>
 
                 {mensaje.texto && (
-                    <div style={{ 
-                        padding: "10px", 
-                        borderRadius: "6px", 
+                    <div style={{
+                        padding: "10px",
+                        borderRadius: "6px",
                         marginBottom: "10px",
                         backgroundColor: mensaje.tipo === 'success' ? '#dcfce7' : '#fee2e2',
                         color: mensaje.tipo === 'success' ? '#166534' : '#991b1b',
@@ -255,8 +255,8 @@ const Maquinarias = () => {
                         { header: "Nombre", accessor: "nombre" },
                         { header: "Modelo", accessor: "modelo" },
                         { header: "Ubicación", accessor: "ubicacion" },
-                        { 
-                            header: "Estado", 
+                        {
+                            header: "Estado",
                             render: (m) => {
                                 const badge = getEstadoBadge(m.estado);
                                 return (
@@ -271,7 +271,7 @@ const Maquinarias = () => {
                                         {badge.texto}
                                     </span>
                                 );
-                            } 
+                            }
                         },
                         {
                             header: "Acciones",
@@ -391,7 +391,7 @@ const Maquinarias = () => {
                                             <option value="2">En Reparación</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div className={stylesEditar['modal-botones-derecha']}>
                                         <button type="button" onClick={() => setModoEdicion(false)} className={stylesEditar['btn-gris']}>Cancelar</button>
                                         <button type="submit" className={stylesEditar['btn-confirmar']} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -408,10 +408,10 @@ const Maquinarias = () => {
                                     <p><strong>Ubicación:</strong> {maquinariaSeleccionada.ubicacion || "-"}</p>
                                     <p><strong>Fecha Adq.:</strong> {formatearFecha(maquinariaSeleccionada.fecha_adquisicion)}</p>
                                     <p><strong>Estado:</strong> {getEstadoBadge(maquinariaSeleccionada.estado).texto}</p>
-                                    
+
                                     <div className={stylesDetalles['modal-botones-derecha']}>
                                         <button onClick={cerrarModalDetalles} className={stylesDetalles['btn-gris']}>Cerrar</button>
-                                        <button 
+                                        <button
                                             onClick={() => setModoEdicion(true)}
                                             className={stylesDetalles['btn-editar']}
                                         >

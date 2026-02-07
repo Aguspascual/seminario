@@ -18,7 +18,7 @@ import MaintenancePage from '../pages/MaintenancePage';
 
 
 
-function AppRoutes({user, setUser}) {
+function AppRoutes({ user, setUser }) {
   return (
     <BrowserRouter>
       <Routes>
@@ -29,7 +29,7 @@ function AppRoutes({user, setUser}) {
         {/* Rutas Privadas para los logueados*/}
         <Route element={<ProtectedRoute user={user} />}>
           <Route path="/home" element={<HomePage user={user} />} />
-          <Route path="/maquinaria" element={<Maquinarias />} />
+          <Route path="/maquinaria" element={<Maquinarias user={user} />} />
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/mensajes" element={<Mensajes />} />
           <Route path="/mi-perfil" element={<MiPerfil />} />
@@ -38,7 +38,7 @@ function AppRoutes({user, setUser}) {
 
         {/* --- 3. Rutas para Planta (Solo admin y Rol B) --- */}
         <Route element={<ProtectedRoute user={user} allowedRoles={['Admin', 'Supervisor']} />}>
-          <Route path="/legal" element={<Legal />} />
+          <Route path="/legal" element={<Legal user={user} />} />
           <Route path="/proveedores" element={<Proveedores />} />
           <Route path="/auditorias" element={<Auditorias />} />
           <Route path="/areas" element={<Areas />} />

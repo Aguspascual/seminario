@@ -5,31 +5,31 @@ import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const PERMISOS = {
-    "Admin": { 
+    "Admin": {
         planta: ["usuarios", "proveedores", "area", "auditoria"], // Corregido 'usuario' a 'usuarios'
         maquinaria: ["maquinas", "mantenimiento", "reporte"],
         legal: ["documento"],
     },
-    "Supervisor": { 
+    "Supervisor": {
         planta: ["proveedores", "area", "auditoria"],
         maquinaria: ["maquinas", "mantenimientos", "reportes"],
         legal: ["documento"],
     },
-    "Trabajador": { 
+    "Trabajador": {
         maquinaria: ["maquinas", "mantenimiento", "reportes"],
     }
 };
 
 const Head = ({ user }) => {
     const navigate = useNavigate();
-    
+
     // Normalizamos el rol para evitar errores (si viene null)
-    const rol = user?.rol || user?.Rol || ""; 
+    const rol = user?.rol || user?.Rol || "";
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        window.location.href = '/'; 
+        window.location.href = '/';
     };
 
     const irACambiarPass = () => {
@@ -46,16 +46,15 @@ const Head = ({ user }) => {
     return (
         <nav className={s.navbar}>
             <div className={s.navbarContainer}>
-                
+
                 {/* --- LOGO --- */}
                 <Link to="/home" className={s.navbarLogo}>
-                    <img src={logo} alt="Logo Ecopolo" style={{height: '45px'}} />
-                    <span className={s.brandName}>ECOPOLO</span>
+                    <img src={logo} alt="Logo Ecopolo" style={{ height: '65px' }} />
                 </Link>
 
                 {/* --- MENÚ --- */}
                 <div className={s.navMenu}>
-                    
+
                     {/* --- LEGAL (Solo Admin y Supervisor) --- */}
                     {(rol === "Admin" || rol === "Supervisor") && (
                         <div className={s.navItem}>
@@ -86,12 +85,12 @@ const Head = ({ user }) => {
                             Maquinaria <i className="fas fa-caret-down"></i>
                         </button>
                         <div className={s.dropdownContent}>
-                            <Link to="/maquinas">Máquinas</Link>
+                            <Link to="/maquinaria">Máquinas</Link>
                             <Link to="/mantenimiento">Mantenimiento</Link>
                             <Link to="/reportes">Reportes</Link>
                         </div>
                     </div>
-                    
+
                     {/* --- PERFIL --- */}
                     <div className={s.dropdown}>
                         <button className={s.dropbtn}>
@@ -100,13 +99,14 @@ const Head = ({ user }) => {
                         </button>
                         <div className={s.dropdownContent}>
                             <Link to="/perfil">Mi Perfil</Link>
-                            
+                            <Link to="/mensajes">Mensajes</Link>
+
                             <button onClick={irACambiarPass} className={s.dropdownButton}>
                                 Cambiar Contraseña
                             </button>
 
                             <hr className={s.separator} />
-                            
+
                             <button onClick={handleLogout} className={`${s.dropdownButton} ${s.logoutBtn}`}>
                                 Cerrar Sesión
                             </button>
