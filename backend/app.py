@@ -26,7 +26,7 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuración de la base de datos
 uri = os.getenv("DATABASE_URL")
