@@ -10,6 +10,7 @@ import Maquinarias from '../pages/Maquinarias';
 import Auditorias from '../pages/Auditorias';
 import Areas from '../pages/Areas';
 import Insumos from '../pages/Insumos';
+import Grupos from '../pages/Grupos';
 import Reportes from '../pages/Reportes';
 import CambiarContraseña from '../pages/CambiarContraseña';
 import MiPerfil from '../pages/MiPerfil';
@@ -42,6 +43,7 @@ function AppRoutes({ user, setUser }) {
           <Route path="/legal" element={<Legal user={user} />} />
           <Route path="/proveedores" element={<Proveedores />} />
           <Route path="/insumos" element={<Insumos />} />
+          <Route path="/grupos" element={<Grupos />} />
           <Route path="/auditorias" element={<Auditorias />} />
           <Route path="/areas" element={<Areas />} />
           <Route path="/mantenimiento" element={<MaintenancePage user={user} />} />
