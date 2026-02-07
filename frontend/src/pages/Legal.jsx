@@ -176,11 +176,12 @@ const Legal = ({ user }) => {
                                     {doc.estado}
                                 </span>
                             </td>
-                           <td style={{textAlign: 'right', paddingRight: '20px'}}>
-                                {/* VOLVEMOS A USAR doc.archivoUrl (camelCase) */}
-                                {doc.archivoUrl ? (
+                            <td style={{textAlign: 'right', paddingRight: '20px'}}>
+                                {/* INTENTA ENCONTRAR EL ARCHIVO CON CUALQUIER NOMBRE */}
+                                {(doc.archivoUrl || doc.archivo_url || doc.archivo) ? (
                                     <a 
-                                        href={`${apiUrl}${doc.archivoUrl}`} 
+                                        /* Usa la variable que haya encontrado */
+                                        href={`${apiUrl}${doc.archivoUrl || doc.archivo_url || doc.archivo}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className={styles.btnDownload}
@@ -190,6 +191,7 @@ const Legal = ({ user }) => {
                                         Descargar
                                     </a>
                                 ) : (
+                                    /* Solo muestra esto si DE VERDAD la base de datos tiene ese campo vacío */
                                     <span style={{color: '#94a3b8', fontSize: '0.85rem'}}>Sin archivo</span>
                                 )}
                             </td>
