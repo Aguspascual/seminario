@@ -100,7 +100,7 @@ const Legal = ({ user }) => {
                 <h1 className={styles.title}>Documentación Legal</h1>
                 <p style={{color: '#64748B', margin: '5px 0 0 0'}}>Gestión de permisos, habilitaciones y seguros.</p>
             </div>
-            <button className={styles.btnAdd} onClick={() => setShowModal(true)}>
+            <button className={styles.btnTop} onClick={() => setShowModal(true)}>
                 <i className="fas fa-plus"></i> Nuevo Documento
             </button>
         </div>
@@ -176,10 +176,22 @@ const Legal = ({ user }) => {
                                     {doc.estado}
                                 </span>
                             </td>
-                            <td style={{textAlign: 'right'}}>
-                                <button className={styles.actionBtn} onClick={() => handleDownload(doc.archivoUrl)}>
-                                    <i className="fas fa-download"></i> Descargar
-                                </button>
+                           <td style={{textAlign: 'right', paddingRight: '20px'}}>
+                                {/* VOLVEMOS A USAR doc.archivoUrl (camelCase) */}
+                                {doc.archivoUrl ? (
+                                    <a 
+                                        href={`${apiUrl}${doc.archivoUrl}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className={styles.btnDownload}
+                                        style={{textDecoration: 'none'}}
+                                    >
+                                        <i className="fas fa-download" style={{marginRight: '8px'}}></i> 
+                                        Descargar
+                                    </a>
+                                ) : (
+                                    <span style={{color: '#94a3b8', fontSize: '0.85rem'}}>Sin archivo</span>
+                                )}
                             </td>
                         </tr>
                     ))}
@@ -195,7 +207,7 @@ const Legal = ({ user }) => {
             <div className={styles.modalOverlay}>
                 <div className={styles.modalContent}>
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
-                        <h2 style={{margin:0, color:'#1F3A52'}}>Subir Documento</h2>
+                        <h2 style={{margin:0, whiteSpace: 'nowrap', color:'#1F3A52'}}>Subir Documento</h2>
                         <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', fontSize:'1.2rem', cursor:'pointer'}}>&times;</button>
                     </div>
                     
@@ -223,12 +235,19 @@ const Legal = ({ user }) => {
                             <input type="file" accept="application/pdf" className={styles.inputField} required onChange={handleFileChange} />
                         </div>
                         
-                        <div style={{display:'flex', gap:'10px', justifyContent:'flex-end'}}>
-                            <button type="button" onClick={() => setShowModal(false)} 
-                                style={{background:'#F1F5F9', color:'#475569', border:'none', padding:'10px 20px', borderRadius:'6px', cursor:'pointer', fontWeight:'600'}}>
+                        <div className={styles.modalActions}>
+                            <button 
+                                type="button" 
+                                className={styles.btnCancel} 
+                                onClick={() => setShowModal(false)}
+                            >
                                 Cancelar
                             </button>
-                            <button type="submit" disabled={loading} className={styles.btnAdd}>
+                            <button 
+                                type="submit" 
+                                disabled={loading} 
+                                className={styles.btnAdd}
+                            >
                                 {loading ? "Subiendo..." : "Guardar Documento"}
                             </button>
                         </div>

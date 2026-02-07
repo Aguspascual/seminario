@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -12,9 +12,16 @@ function App() {
     return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
   });
 
+    useEffect(() => {
+    if (user) localStorage.setItem('usuario', JSON.stringify(user));
+    else localStorage.removeItem('usuario');
+  }, [user]);
+
   // 2. PASAR EL USUARIO A LAS RUTAS
   // Si no le pasas "user={user}", AppRoutes recibe "undefined" y te rebota al login
-  return <AppRoutes user={user} />;
+  return (
+      <AppRoutes user={user} setUser={setUser} />
+  );
 }
 
 export default App

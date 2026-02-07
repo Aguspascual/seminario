@@ -203,8 +203,91 @@
     padding: 30px;
     border-radius: 12px;
     width: 450px;
+    max-width: 90%;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease-out;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.btnCancel, .btnAdd {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 12px 30px;   /* Aumentamos el relleno lateral (antes era 24px) */
+    min-width: 160px;     /* FUERZA que el botón mida al menos 160px de ancho */
+    white-space: nowrap;  /* OBLIGA al texto a quedarse en una sola línea */
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;   /* Asegura que el texto quede centrado */
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.btnCancel {
+    background-color: #F1F5F9;
+    color: #64748B;
+    border: 1px solid transparent;
+}
+.btnCancel:hover {
+    background-color: #E2E8F0;
+    color: #334155;
+}
+
+/* ESTILO NUEVO EXCLUSIVO PARA EL BOTÓN DE ARRIBA */
+.btnTopSmall {
+    background-color: #1F3A52;
+    color: white;
+    padding: 8px 16px;       /* Mucho menos relleno que los del modal */
+    border-radius: 6px;      /* Bordes un poco menos redondeados */
+    font-size: 0.85rem;      /* Letra más chica y discreta */
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;                /* Espacio entre el ícono + y el texto */
+    box-shadow: 0 2px 4px rgba(31, 58, 82, 0.15); /* Sombra más suave */
+    transition: all 0.2s ease;
+    width: auto;             /* IMPORTANTE: Que solo ocupe lo necesario */
+}
+
+.btnTopSmall:hover {
+    background-color: #2E4F6E;
+    transform: translateY(-1px);
+}
+
+.btnDownload {
+    display: inline-flex; /* Importante para que el ícono y texto se alineen */
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: #1F3A52;
+    border: 1px solid #CBD5E1;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none; /* Quita el subrayado del link */
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btnDownload:hover {
+    background-color: #F8FAFC;
+    border-color: #1F3A52;
+    color: #0F172A;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 @keyframes slideIn {
