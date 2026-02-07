@@ -84,6 +84,16 @@ const Usuarios = () => {
     }
   });
 
+  // 3. Fetching Grupos (para Turnos)
+  const { data: grupos = [] } = useQuery({
+    queryKey: ['grupos'],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:5000/api/grupos");
+      if (!response.ok) throw new Error("Error al cargar grupos");
+      return response.json();
+    }
+  });
+
   // 3. Mutation para Crear Usuario
   const createMutation = useMutation({
     mutationFn: async (datosEnvio) => {
@@ -133,6 +143,45 @@ const Usuarios = () => {
     }
   });
 
+  // 5. Mutation para Dar de Baja (Soft Delete)
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await fetch(`http://localhost:5000/usuarios/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al eliminar usuario");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['usuarios']);
+      cerrarModalDetalles();
+      alert("Usuario dado de baja correctamente");
+    },
+    onError: (err) => {
+      alert(err.message);
+    }
+  });
+
+  // 6. Query para Historial de Usuario Seleccionado
+  const { data: historial = [] } = useQuery({
+    queryKey: ['historialUsuario', usuarioSeleccionado?.id],
+    queryFn: async () => {
+      if (!usuarioSeleccionado?.id) return [];
+      const response = await fetch(`http://localhost:5000/usuarios/${usuarioSeleccionado.id}/historial`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!usuarioSeleccionado?.id && mostrarModalDetalles
+  });
+
   // Función para agregar usuario
   const manejarEnvio = (e) => {
     e.preventDefault();
@@ -144,8 +193,10 @@ const Usuarios = () => {
       contrasena: formData.get("contrasena"),
       telefono: formData.get("telefono"),
       email: formData.get("email"),
-      rol: formData.get("rol"),
+
+
       area_id: formData.get("area_id"),
+      turno_id: formData.get("turno_id") || null,
     };
 
     createMutation.mutate(datosEnvio);
@@ -232,6 +283,19 @@ const Usuarios = () => {
                   ))}
                 </select>
 
+                <select name="turno_id">
+                  <option value="">Seleccionar Turno (Opcional)</option>
+                  {grupos.map((grupo) => (
+                    <optgroup key={grupo.id} label={grupo.nombre}>
+                      {grupo.turnos.map((turno) => (
+                        <option key={turno.id} value={turno.id}>
+                          {turno.nombre} ({turno.hora_inicio} - {turno.hora_fin})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+
                 {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
 
                 <div className="modal-botones">
@@ -254,13 +318,41 @@ const Usuarios = () => {
             { header: "Teléfono", accessor: "telefono" },
             { header: "Correo", accessor: "email" },
             { header: "Rol", accessor: "rol" },
+            { header: "Rol", accessor: "rol" },
             { header: "Área", accessor: "area" },
+            {
+              header: "Turno",
+              render: (u) => u.turno_nombre ? `${u.turno_nombre} (${u.grupo_nombre})` : '-'
+            },
             {
               header: "Acciones",
               render: (user) => (
-                <button className="action-btn" onClick={() => abrirModalDetalles(user)}>
-                  <i className="fa-solid fa-eye"></i>
-                </button>
+                <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                  <button className="action-btn" onClick={() => abrirModalDetalles(user)} title="Ver Detalles">
+                    <i className="fa-solid fa-eye"></i>
+                  </button>
+                  {user.telefono && (
+                    <a
+                      href={`https://wa.me/549${user.telefono.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="action-btn"
+                      style={{
+                        color: '#25D366',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textDecoration: 'none',
+                        border: 'none',
+                        background: 'transparent',
+                        fontSize: '1.1rem'
+                      }}
+                      title="Enviar WhatsApp"
+                    >
+                      <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+                  )}
+                </div>
               )
             }
           ]}
@@ -286,6 +378,25 @@ const Usuarios = () => {
                   <p><strong>Teléfono:</strong> {usuarioSeleccionado?.telefono || 'N/A'}</p>
                   <p><strong>Rol:</strong> {usuarioSeleccionado?.rol || 'N/A'}</p>
                   <p><strong>Área:</strong> {usuarioSeleccionado?.area || 'N/A'}</p>
+                  <p><strong>Turno:</strong> {usuarioSeleccionado?.turno_nombre ? `${usuarioSeleccionado.turno_nombre} (${usuarioSeleccionado.grupo_nombre})` : 'Sin asignar'}</p>
+
+                  {/* Historial de Actividad */}
+                  <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                    <h4 style={{ fontSize: '1.1rem', marginBottom: '10px', color: '#2E4F6E' }}>Actividad Reciente</h4>
+                    {historial.length === 0 ? (
+                      <p style={{ color: '#888', fontStyle: 'italic' }}>No hay actividad registrada.</p>
+                    ) : (
+                      <ul style={{ listStyle: 'none', padding: 0, maxHeight: '200px', overflowY: 'auto' }}>
+                        {historial.map((h) => (
+                          <li key={h.id} style={{ marginBottom: '8px', fontSize: '0.9rem', borderBottom: '1px solid #f0f0f0', paddingBottom: '4px' }}>
+                            <div style={{ fontWeight: 'bold', color: '#4b5563' }}>{h.accion}</div>
+                            <div style={{ color: '#666' }}>{h.detalle}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#999', textAlign: 'right' }}>{h.fecha}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={manejarActualizacion}>
@@ -330,6 +441,21 @@ const Usuarios = () => {
                       <option key={area.id} value={area.id}>{area.nombre}</option>
                     ))}
                   </select>
+                  <select
+                    value={datosEdicion.turno_id || ''}
+                    onChange={(e) => setDatosEdicion({ ...datosEdicion, turno_id: e.target.value })}
+                  >
+                    <option value="">Seleccionar Turno</option>
+                    {grupos.map((grupo) => (
+                      <optgroup key={grupo.id} label={grupo.nombre}>
+                        {grupo.turnos.map((turno) => (
+                          <option key={turno.id} value={turno.id}>
+                            {turno.nombre} ({turno.hora_inicio} - {turno.hora_fin})
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
                 </form>
               )}
 
@@ -338,6 +464,18 @@ const Usuarios = () => {
                   <>
                     <button type="button" onClick={cerrarModalDetalles} className="btn-cancelar">
                       Cerrar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm("¿Seguro que deseas dar de baja este usuario?")) {
+                          deleteMutation.mutate(usuarioSeleccionado.id);
+                        }
+                      }}
+                      className="btn-cancelar"
+                      style={{ backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+                    >
+                      Dar de Baja
                     </button>
                     <button type="button" onClick={activarModoEdicion} className="btn-confirmar">
                       Editar
@@ -360,10 +498,10 @@ const Usuarios = () => {
                 )}
               </div>
             </div>
-          </div>
+          </div >
         )}
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
