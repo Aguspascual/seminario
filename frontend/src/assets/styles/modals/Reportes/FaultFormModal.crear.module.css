@@ -14,30 +14,30 @@
 
 .modal-contenido {
   background: white;
-  padding: 20px 30px 20px 30px;
+  padding: 20px 0px 0px 20px;
   border-radius: 12px;
   width: 100%;
-  max-width: 500px; /* Reduced from 600px */
+  max-width: 450px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   text-align: left;
 }
 
 .modal-contenido h3 {
   margin-top: 0;
-  color: #1F3A52;
+  color: #1f3a52;
   margin-bottom: 20px;
 }
 
 .separator {
   height: 1px;
   background-color: #d1d5db;
-  width: 100%;
+  width: 94%;
   margin-top: -10px;
 }
 
 .formGroup {
   margin-bottom: 6px;
-  margin-right: 0px;
+  margin-right: 30px;
 }
 
 .formLabel {
@@ -51,15 +51,17 @@
 }
 
 .modal-contenido input,
-.modal-contenido select {
+.modal-contenido select,
+.modal-contenido textarea {
   width: 100%;
-  padding: 8px; /* Reduced field padding slightly for compactness? Or keep 12? user approved compact. */
+  padding: 8px;
   margin-bottom: 0;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.95rem;
   background-color: #f9fafb;
   color: #1f2937;
+  font-family: inherit;
 }
 
 .modal-contenido select {
@@ -71,13 +73,13 @@
   background-position: right 10px center;
   background-size: 12px;
   padding-right: 30px;
-  cursor: pointer;
 }
 
 .modal-contenido input:focus,
-.modal-contenido select:focus {
+.modal-contenido select:focus,
+.modal-contenido textarea:focus {
   outline: none;
-  border-color: #2E4F6E;
+  border-color: #2e4f6e;
   background-color: white;
 }
 
@@ -86,25 +88,8 @@
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  margin: 20px 0px 0px 0px;
-  padding-right: 0px;
-  padding-bottom: 0px; /* User change */
-}
-
-.btn-gris {
-  background-color: #9ca3af;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  width: 30%;
-  font-weight: 500;
-  margin: 0px;
-}
-
-.btn-gris:hover {
-  background-color: #6b7280;
+  margin: 5px 0px 0px 30px;
+  padding-bottom: 10px;
 }
 
 .btn-confirmar {
@@ -116,6 +101,7 @@
   cursor: pointer;
   width: 40%;
   font-weight: 500;
+  display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
@@ -123,4 +109,20 @@
 
 .btn-confirmar:hover {
   background-color: #14532d;
+}
+
+.btn-gris {
+  background-color: #9ca3af;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 30%;
+  font-weight: 500;
+  margin: 0;
+}
+
+.btn-gris:hover {
+  background-color: #6b7280;
 }

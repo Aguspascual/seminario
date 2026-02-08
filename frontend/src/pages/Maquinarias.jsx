@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNotification } from "../context/NotificationContext";
 import styles from "../assets/styles/Maquinaria.module.css";
 import stylesCrear from "../assets/styles/Maquinaria.crear.modal.module.css";
 import stylesDetalles from "../assets/styles/Maquinaria.detalles.modal.module.css";
@@ -10,6 +11,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Maquinarias = ({ user }) => {
     const queryClient = useQueryClient();
+    const { showNotification } = useNotification();
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
     const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
@@ -19,8 +21,8 @@ const Maquinarias = ({ user }) => {
     const [busqueda, setBusqueda] = useState("");
     const [busquedaDebounced, setBusquedaDebounced] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
-    const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
+    const itemsPerPage = 10;
+    // const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
 
     const [activeTab, setActiveTab] = useState('info'); // 'info', 'mantenimientos', 'reportes'
     const [expandedItemId, setExpandedItemId] = useState(null);
@@ -122,9 +124,9 @@ const Maquinarias = ({ user }) => {
         onSuccess: () => {
             queryClient.invalidateQueries(["maquinarias"]);
             cerrarModal();
-            mostrarMensaje("success", "Maquinaria creada exitosamente");
+            showNotification("success", "Maquinaria creada exitosamente");
         },
-        onError: (err) => mostrarMensaje("error", err.message),
+        onError: (err) => showNotification("error", err.message),
     });
 
     const updateMutation = useMutation({
@@ -147,9 +149,9 @@ const Maquinarias = ({ user }) => {
         onSuccess: () => {
             queryClient.invalidateQueries(["maquinarias"]);
             handleCloseModal();
-            mostrarMensaje("success", "Maquinaria actualizada exitosamente");
+            showNotification("success", "Maquinaria actualizada exitosamente");
         },
-        onError: (err) => mostrarMensaje("error", err.message),
+        onError: (err) => showNotification("error", err.message),
     });
 
     const deleteMutation = useMutation({
@@ -165,16 +167,13 @@ const Maquinarias = ({ user }) => {
         onSuccess: () => {
             queryClient.invalidateQueries(["maquinarias"]);
             cerrarModalEliminar();
-            mostrarMensaje("success", "Maquinaria dada de baja exitosamente");
+            showNotification("success", "Maquinaria dada de baja exitosamente");
         },
-        onError: (err) => mostrarMensaje("error", err.message),
+        onError: (err) => showNotification("error", err.message),
     });
 
     // Handlers de UI
-    const mostrarMensaje = (tipo, texto) => {
-        setMensaje({ tipo, texto });
-        setTimeout(() => setMensaje({ tipo: "", texto: "" }), 5000);
-    };
+    // const mostrarMensaje removed in favor of showNotification
 
     const abrirModal = () => setMostrarModal(true);
     const cerrarModal = () => setMostrarModal(false);
@@ -182,6 +181,12 @@ const Maquinarias = ({ user }) => {
     const abrirModalDetalles = (maq) => {
         setMaquinariaSeleccionada(maq);
         setModoEdicion(false);
+        setMostrarModalDetalles(true);
+    };
+
+    const abrirModalEditar = (maq) => {
+        setMaquinariaSeleccionada(maq);
+        setModoEdicion(true);
         setMostrarModalDetalles(true);
     };
 
@@ -261,18 +266,7 @@ const Maquinarias = ({ user }) => {
                     <h2>Gestión de Maquinaria</h2>
                 </div>
 
-                {mensaje.texto && (
-                    <div style={{
-                        padding: "10px",
-                        borderRadius: "6px",
-                        marginBottom: "10px",
-                        backgroundColor: mensaje.tipo === 'success' ? '#dcfce7' : '#fee2e2',
-                        color: mensaje.tipo === 'success' ? '#166534' : '#991b1b',
-                        width: "100%"
-                    }}>
-                        {mensaje.texto}
-                    </div>
-                )}
+                {/* mensaje local removed */}
 
                 <div className={styles['controls-section']}>
                     <input
@@ -314,11 +308,14 @@ const Maquinarias = ({ user }) => {
                             }
                         },
                         {
-                            header: "Acciones",
+                            header: <div style={{ textAlign: "right", padding: "0 35px" }}>Acciones</div>,
                             render: (m) => (
-                                <div className={styles['actions-cell']}>
-                                    <button className={styles['action-btn']} onClick={() => abrirModalDetalles(m)} title="Ver detalles / Editar">
+                                <div style={{ justifyContent: "end" }} className={styles['actions-cell']}>
+                                    <button className={styles['action-btn']} onClick={() => abrirModalDetalles(m)} title="Ver detalles">
                                         <i className="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button className={styles['action-btn']} onClick={() => abrirModalEditar(m)} title="Editar">
+                                        <i className="fa-solid fa-pen"></i>
                                     </button>
                                     <button className={styles['btn-delete-action']} onClick={() => abrirModalEliminar(m.id_maquinaria)} title="Dar de baja">
                                         <i className="fa-solid fa-trash"></i>
@@ -331,6 +328,7 @@ const Maquinarias = ({ user }) => {
                         currentPage: currentPage,
                         totalPages: totalPages,
                         totalItems: totalItems,
+                        minRows: 10,
                         onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
                         onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
                     }}
@@ -445,7 +443,7 @@ const Maquinarias = ({ user }) => {
                             ) : (
                                 <div className={stylesDetalles['detalles-usuario']}>
                                     {/* Tabs Navigation */}
-                                    <div style={{ display: 'flex', borderBottom: '1px solid #ddd', marginBottom: '15px' }}>
+                                    <div style={{ display: 'flex', marginBottom: '15px' }}>
                                         <button
                                             onClick={() => setActiveTab('info')}
                                             style={{

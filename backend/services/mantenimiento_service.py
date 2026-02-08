@@ -192,6 +192,9 @@ class MantenimientoService:
 
     @staticmethod
     def create_reporte_falla(data):
+        if len(data.get('descripcion_falla', '')) > 200:
+            raise ValueError("La descripción no puede exceder los 200 caracteres")
+
         new_reporte = ReporteFalla(
             maquinaria_id=data['maquinaria_id'],
             reportado_por=data['reportado_por'],
@@ -205,9 +208,29 @@ class MantenimientoService:
         return new_reporte
 
     @staticmethod
-    def get_all_reportes_fallas():
-        reportes = ReporteFalla.query.order_by(ReporteFalla.fecha_reporte.desc()).all()
-        return [r.to_dict() for r in reportes]
+    def get_all_reportes_fallas(page=1, per_page=10):
+        pagination = ReporteFalla.query.order_by(ReporteFalla.fecha_reporte.desc()).paginate(page=page, per_page=per_page, error_out=False)
+        
+        # Exclude descripcion_falla for list view optimization
+        result = []
+        for r in pagination.items:
+            r_dict = r.to_dict()
+            r_dict.pop('descripcion_falla', None)
+            result.append(r_dict)
+            
+        return {
+            'items': result,
+            'total': pagination.total,
+            'pages': pagination.pages,
+            'current_page': page
+        }
+
+    @staticmethod
+    def get_reporte_falla_by_id(id):
+        reporte = ReporteFalla.query.get(id)
+        if not reporte:
+            return None
+        return reporte.to_dict()
 
     @staticmethod
     def update_reporte_falla(id, data):
@@ -215,8 +238,12 @@ class MantenimientoService:
         if not reporte:
             return None
         
+        if 'descripcion_falla' in data:
+            if len(data['descripcion_falla']) > 200:
+                raise ValueError("La descripción no puede exceder los 200 caracteres")
+            reporte.descripcion_falla = data['descripcion_falla']
+            
         if 'maquinaria_id' in data: reporte.maquinaria_id = data['maquinaria_id']
-        if 'descripcion_falla' in data: reporte.descripcion_falla = data['descripcion_falla']
         if 'criticidad' in data: reporte.criticidad = data['criticidad']
         if 'ubicacion_especifica' in data: reporte.ubicacion_especifica = data['ubicacion_especifica']
         if 'puede_operar' in data: reporte.puede_operar = data['puede_operar']
