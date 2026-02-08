@@ -20,7 +20,7 @@
     padding: 0 10px;
     background-color: var(--text-white);
     border-bottom: 3px solid var(--nav-bg);
-    height: 80px;
+    height: 100px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
@@ -48,6 +48,17 @@
     font-size: 1.5rem;
     letter-spacing: 1px;
     margin-left: 10px;
+}
+
+.logoImg {
+    height: 100px;
+    width: auto;
+    margin-left: 30px;
+    transition: transform 0.3s ease;
+}
+
+.logoImg:hover {
+    transform: scale(1.05);
 }
 
 /* Menú Principal */

@@ -49,11 +49,18 @@ const Head = ({ user }) => {
 
                 {/* --- LOGO --- */}
                 <Link to="/home" className={s.navbarLogo}>
-                    <img src={logo} alt="Logo Ecopolo" style={{ height: '65px' }} />
+                    <img src={logo} alt="Logo Ecopolo" className={s.logoImg} />
                 </Link>
 
                 {/* --- MENÚ --- */}
                 <div className={s.navMenu}>
+
+                    {/* --- HOME --- */}
+                    <div className={s.navItem}>
+                        <Link to="/home" className={s.navLink}>
+                            <i className="fas fa-home"></i> Home
+                        </Link>
+                    </div>
 
                     {/* --- LEGAL (Solo Admin y Supervisor) --- */}
                     {(rol === "Admin" || rol === "Supervisor") && (
