@@ -160,9 +160,9 @@ const Insumos = () => {
                     {/* Breadcrumbs */}
                     <div style={{ marginBottom: '20px', fontSize: '0.9rem', color: '#666' }}>
                         <Link to="/home" style={{ textDecoration: 'none', color: '#666' }}>Home</Link>
-                        <span style={{ margin: '0 8px' }}>&gt;</span>
+                        <span style={{ margin: '0 8px' }}>/</span>
                         <Link to="/home" style={{ textDecoration: 'none', color: '#666' }}>Planta</Link>
-                        <span style={{ margin: '0 8px' }}>&gt;</span>
+                        <span style={{ margin: '0 8px' }}>/</span>
                         <span style={{ color: '#2E4F6E', fontWeight: 'bold' }}>Insumos</span>
                     </div>
 

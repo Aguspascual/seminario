@@ -236,8 +236,8 @@ const Usuarios = () => {
       <div className="main">
         {/* Breadcrumbs clickeables */}
         <div className="breadcrumbs">
-          <Link to="/home">Home</Link> <span>&gt;</span>
-          <Link to="/home">Planta</Link> <span>&gt;</span>
+          <Link to="/home">Home</Link> <span>/</span>
+          <Link to="/home">Planta</Link> <span>/</span>
           <span className="current">Gestión de Usuarios</span>
         </div>
         <div className="header-section">

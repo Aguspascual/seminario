@@ -62,17 +62,10 @@ def create_auditoria():
         in: formData
         type: string
         required: true
-      - name: estado
-        in: formData
-        type: string
-        required: true
       - name: lugar
         in: formData
         type: string
         required: true
-      - name: archivo
-        in: formData
-        type: file
     responses:
       201:
         description: Auditoria creada
@@ -82,16 +75,49 @@ def create_auditoria():
         description: Error interno
     """
     try:
-        file_obj = None
-        if 'archivo' in request.files:
-            file_obj = request.files['archivo']
-        
-        AuditoriaService.create_auditoria(request.form, file_obj)
-        return jsonify({"message": "Auditoria creada exitosamente"}), 201
+        # file_obj ya no se usa en la creación
+        AuditoriaService.create_auditoria(request.form)
+        return jsonify({"message": "Auditoria creada exitosamente (Programada)"}), 201
     except ValueError as e:
          return jsonify({"error": str(e)}), 400
     except Exception as e:
          return jsonify({"error": f"Error al crear auditoria: {str(e)}"}), 500
+
+@auditorias_bp.route("/auditorias/<int:id>/finalizar", methods=["POST"])
+def finalizar_auditoria(id):
+    """
+    Finalizar auditoria (subir archivo)
+    ---
+    tags:
+      - Auditorias
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: archivo
+        in: formData
+        type: file
+        required: true
+    responses:
+      200:
+        description: Auditoria finalizada
+      400:
+        description: Error validación
+      404:
+        description: No encontrada
+      500:
+        description: Error interno
+    """
+    try:
+        file_obj = None
+        if 'archivo' in request.files:
+            file_obj = request.files['archivo']
+        
+        AuditoriaService.finalizar_auditoria(id, file_obj)
+        return jsonify({"message": "Auditoria finalizada exitosamente"}), 200
+    except ValueError as e:
+         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+         return jsonify({"error": f"Error al finalizar auditoria: {str(e)}"}), 500
 
 @auditorias_bp.route("/auditorias/<int:id>", methods=["DELETE"])
 def delete_auditoria(id):
