@@ -20,17 +20,21 @@ import MaintenancePage from '../pages/MaintenancePage';
 
 
 
-function AppRoutes({ user, setUser }) {
+import { useAuth } from '../context/AuthContext';
+
+function AppRoutes() {
+  const { user } = useAuth();
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Rutas Públicas */}
-        <Route path="/" element={<Login setUser={setUser} />} />
+        <Route path="/" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
 
         {/* Rutas Privadas para los logueados*/}
         <Route element={<ProtectedRoute user={user} />}>
-          <Route path="/home" element={<HomePage user={user} />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/maquinaria" element={<Maquinarias user={user} />} />
           <Route path="/reportes" element={<Reportes user={user} />} />
           <Route path="/mensajes" element={<Mensajes />} />
