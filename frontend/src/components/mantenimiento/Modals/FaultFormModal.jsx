@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotification } from '../../../context/NotificationContext';
+import styles from '../../../assets/styles/modals/Reportes/FaultFormModal.crear.module.css';
 
 const FaultFormModal = ({ onClose }) => {
     const queryClient = useQueryClient();
+    const { showNotification } = useNotification();
+
     const [formData, setFormData] = useState({
         maquinaria_id: '',
         descripcion_falla: '',
         criticidad: 'Media',
         ubicacion_especifica: '',
         puede_operar: 'No',
-        reportado_por: '' // Initialized empty, set by useEffect
+        reportado_por: ''
     });
-    const [error, setError] = useState('');
+    // const [error, setError] = useState(''); // Removed in favor of toast
 
     // Fetch Maquinarias
     const { data: maquinarias = [] } = useQuery({
         queryKey: ['maquinarias'],
         queryFn: async () => {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/maquinarias/', { // Added trailing slash
+            const response = await fetch('http://localhost:5000/maquinarias/', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -45,11 +49,13 @@ const FaultFormModal = ({ onClose }) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['recent_faults']);
-            queryClient.invalidateQueries(['dashboard_data']); // Update KPIs
+            queryClient.invalidateQueries(['dashboard_data']);
+            queryClient.invalidateQueries(['reportes']); // Also invalidate reportes list
+            showNotification('success', 'Falla reportada correctamente');
             onClose();
         },
         onError: (err) => {
-            setError(err.message);
+            showNotification('error', err.message);
         }
     });
 
@@ -71,54 +77,77 @@ const FaultFormModal = ({ onClose }) => {
     };
 
     return (
-        <div className="modal-fondo" onClick={onClose}>
-            <div className="modal-contenido" onClick={e => e.stopPropagation()}>
-                <h3 style={{ color: '#dc2626' }}>Reportar Falla de Maquinaria</h3>
+        <div className={styles['modal-fondo']} onClick={onClose}>
+            <div className={styles['modal-contenido']} onClick={e => e.stopPropagation()}>
+                <div style={{ marginBottom: '15px' }}>
+                    <h3 style={{ margin: 0, paddingBottom: '10px' }}>Reportar Falla</h3>
+                    <div className={styles.separator}></div>
+                </div>
 
-                <form onSubmit={handleSubmit}>
-                    <select name="maquinaria_id" value={formData.maquinaria_id} onChange={handleChange} required>
-                        <option value="">Seleccionar Maquinaria Afectada</option>
-                        {maquinarias.map(m => (
-                            <option key={m.id_maquinaria} value={m.id_maquinaria}>{m.nombre}</option>
-                        ))}
-                    </select>
-
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <select name="criticidad" value={formData.criticidad} onChange={handleChange} required style={{ flex: 1 }}>
-                            <option value="Alta">Criticidad Alta</option>
-                            <option value="Media">Criticidad Media</option>
-                            <option value="Baja">Criticidad Baja</option>
-                        </select>
-                        <select name="puede_operar" value={formData.puede_operar} onChange={handleChange} required style={{ flex: 1 }}>
-                            <option value="No">No puede operar</option>
-                            <option value="Si">Si puede operar</option>
-                            <option value="Con restricciones">Con restricciones</option>
+                <form onSubmit={handleSubmit} style={{ paddingRight: "30px", paddingBottom: "0px", gap: "6px" }}>
+                    
+                    <div className={styles.formGroup} style={{ margin: "0px" }}>
+                        <label className={styles.formLabel} style={{ margin: "0px" }}>Maquinaria Afectada</label>
+                        <select name="maquinaria_id" value={formData.maquinaria_id} onChange={handleChange} required style={{ margin: "0px" }}>
+                            <option value="">Seleccionar...</option>
+                            {maquinarias.map(m => (
+                                <option key={m.id_maquinaria} value={m.id_maquinaria}>{m.nombre}</option>
+                            ))}
                         </select>
                     </div>
 
-                    <input
-                        type="text"
-                        name="ubicacion_especifica"
-                        placeholder="Ubicación específica (ej. Motor, Cabina...)"
-                        value={formData.ubicacion_especifica}
-                        onChange={handleChange}
-                    />
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className={styles.formGroup} style={{ margin: "0px", flex: 1 }}>
+                            <label className={styles.formLabel} style={{ margin: "0px" }}>Criticidad</label>
+                            <select name="criticidad" value={formData.criticidad} onChange={handleChange} required style={{ margin: "0px" }}>
+                                <option value="Alta">Alta</option>
+                                <option value="Media">Media</option>
+                                <option value="Baja">Baja</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: "0px", flex: 1 }}>
+                            <label className={styles.formLabel} style={{ margin: "0px" }}>¿Puede Operar?</label>
+                            <select name="puede_operar" value={formData.puede_operar} onChange={handleChange} required style={{ margin: "0px" }}>
+                                <option value="No">No</option>
+                                <option value="Si">Si</option>
+                                <option value="Con restricciones">Con restricciones</option>
+                            </select>
+                        </div>
+                    </div>
 
-                    <textarea
-                        name="descripcion_falla"
-                        placeholder="Describa el problema detalladamente..."
-                        value={formData.descripcion_falla}
-                        onChange={handleChange}
-                        rows="4"
-                        required
-                    ></textarea>
+                    <div className={styles.formGroup} style={{ margin: "0px" }}>
+                        <label className={styles.formLabel} style={{ margin: "0px" }}>Ubicación Específica</label>
+                        <input
+                            type="text"
+                            name="ubicacion_especifica"
+                            placeholder="Ej. Motor, Cabina..."
+                            value={formData.ubicacion_especifica}
+                            onChange={handleChange}
+                            maxLength={100}
+                        />
+                    </div>
 
-                    {error && <p style={{ color: 'red', fontSize: '0.9rem' }}>{error}</p>}
+                    <div className={styles.formGroup} style={{ margin: "0px" }}>
+                        <label className={styles.formLabel} style={{ margin: "0px" }}>Descripción</label>
+                        <textarea
+                            name="descripcion_falla"
+                            placeholder="Describa el problema detalladamente..."
+                            value={formData.descripcion_falla}
+                            onChange={handleChange}
+                            rows="3"
+                            required
+                            maxLength={200}
+                            style={{ resize: 'none' }}
+                        ></textarea>
+                    </div>
 
-                    <div className="modal-botones">
-                        <button type="button" className="btn-cancelar" onClick={onClose}>Cancelar</button>
-                        <button type="submit" className="btn-confirmar" style={{ backgroundColor: '#dc2626' }} disabled={mutation.isPending}>
-                            {mutation.isPending ? 'Enviando...' : 'Reportar Falla'}
+                    {/* Error handled by toast now */}
+
+                    <div className={styles['modal-botones-derecha']}>
+                        <button type="button" className={styles['btn-gris']} onClick={onClose}>Cancelar</button>
+                        <button type="submit" className={styles['btn-confirmar']} disabled={mutation.isPending} style={{ gap: '8px' }}>
+                            <i className="fa-solid fa-floppy-disk"></i>
+                            {mutation.isPending ? 'Enviando...' : 'Reportar'}
                         </button>
                     </div>
                 </form>

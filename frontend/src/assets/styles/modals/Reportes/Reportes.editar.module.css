@@ -14,10 +14,10 @@
 
 .modal-contenido {
   background: white;
-  padding: 20px 30px 20px 30px;
+  padding: 20px 0px 0px 20px;
   border-radius: 12px;
   width: 100%;
-  max-width: 500px; /* Reduced from 600px */
+  max-width: 450px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   text-align: left;
 }
@@ -31,13 +31,13 @@
 .separator {
   height: 1px;
   background-color: #d1d5db;
-  width: 100%;
+  width: 94%;
   margin-top: -10px;
 }
 
 .formGroup {
   margin-bottom: 6px;
-  margin-right: 0px;
+  margin-right: 30px;
 }
 
 .formLabel {
@@ -51,7 +51,8 @@
 }
 
 .modal-contenido input,
-.modal-contenido select {
+.modal-contenido select,
+.modal-contenido textarea {
   width: 100%;
   padding: 8px; /* Reduced field padding slightly for compactness? Or keep 12? user approved compact. */
   margin-bottom: 0;
@@ -60,6 +61,7 @@
   font-size: 0.95rem;
   background-color: #f9fafb;
   color: #1f2937;
+  font-family: inherit;
 }
 
 .modal-contenido select {
@@ -74,8 +76,11 @@
   cursor: pointer;
 }
 
+/* Add generic textarea support just in case, mirroring input/select generic styles if needed */
+
 .modal-contenido input:focus,
-.modal-contenido select:focus {
+.modal-contenido select:focus,
+.modal-contenido textarea:focus {
   outline: none;
   border-color: #2E4F6E;
   background-color: white;
@@ -86,9 +91,9 @@
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  margin: 20px 0px 0px 0px;
-  padding-right: 0px;
-  padding-bottom: 0px; /* User change */
+  margin: 20px 0px 0px 30px;
+  padding-right: 10px;
+  padding-bottom: 10px; /* User change */
 }
 
 .btn-gris {

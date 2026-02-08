@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Head from '../components/Head'; // Importamos la Navbar
 import styles from '../assets/styles/Home.module.css'; // Usamos CSS Modules
+import FaultFormModal from '../components/mantenimiento/Modals/FaultFormModal';
 
 const Home = ({ user }) => {
   // --- ESTADOS PARA LOS DATOS DEL BACKEND ---
@@ -9,7 +10,7 @@ const Home = ({ user }) => {
   const [actividad, setActividad] = useState([]);
   const [personalConteo, setPersonalConteo] = useState({ personal_activo: 0, detalle: "Cargando..." });
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Obtenemos la URL de la variable de entorno
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -78,7 +79,7 @@ const Home = ({ user }) => {
                 {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}hs
             </span>
           </div>
-          <button className={styles.btnCrear}>
+          <button className={styles.btnCrear} onClick={() => setShowReportModal(true)}>
             <i className="fas fa-plus-circle" style={{marginRight:'8px'}}></i>
             Crear Reporte
           </button>
@@ -166,6 +167,8 @@ const Home = ({ user }) => {
         </section>
 
       </div>
+
+      {showReportModal && <FaultFormModal onClose={() => setShowReportModal(false)} />}
     </>
   );
 };

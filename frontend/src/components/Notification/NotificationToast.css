@@ -1,0 +1,96 @@
+.notification-toast {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 400px;
+    width: fit-content;
+    animation: slideIn 0.3s ease-out;
+    border-left: 5px solid;
+    position: relative;
+    pointer-events: auto;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-toast .icon {
+    margin-right: 12px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.notification-toast .content {
+    flex: 1;
+    margin-right: 12px;
+}
+
+.notification-toast .title {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.notification-toast .message {
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.notification-toast .close-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.notification-toast .close-btn:hover {
+    color: #4b5563;
+}
+
+/* Tipos */
+.notification-toast.success {
+    border-left-color: #10b981;
+}
+.notification-toast.success .icon {
+    color: #10b981;
+}
+
+.notification-toast.error {
+    border-left-color: #ef4444;
+}
+.notification-toast.error .icon {
+    color: #ef4444;
+}
+
+.notification-toast.warning {
+    border-left-color: #f59e0b;
+}
+.notification-toast.warning .icon {
+    color: #f59e0b;
+}
+
+.notification-toast.info {
+    border-left-color: #3b82f6;
+}
+.notification-toast.info .icon {
+    color: #3b82f6;
+}

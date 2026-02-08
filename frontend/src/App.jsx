@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import AppRoutes from './routes/AppRoutes';
 
+import { NotificationProvider } from './context/NotificationContext';
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,11 @@ function App() {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#1F3A52', fontFamily: 'sans-serif' }}>Cargando...</div>;
   }
 
-  return <AppRoutes user={user} />;
+  return (
+    <NotificationProvider>
+      <AppRoutes user={user} />
+    </NotificationProvider>
+  );
 }
 
 export default App

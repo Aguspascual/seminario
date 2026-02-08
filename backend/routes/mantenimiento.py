@@ -74,8 +74,27 @@ def create_reporte():
 @mantenimiento_bp.route('/reportes', methods=['GET'])
 def get_reportes():
     try:
-        reportes = MantenimientoService.get_all_reportes_fallas()
-        return jsonify({'reportes': reportes}), 200
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('limit', 10, type=int)
+        
+        data = MantenimientoService.get_all_reportes_fallas(page, per_page)
+        
+        return jsonify({
+            'reportes': data['items'],
+            'total_pages': data['pages'],
+            'current_page': data['current_page'],
+            'total_items': data['total']
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@mantenimiento_bp.route('/reportes/<int:id>', methods=['GET'])
+def get_reporte(id):
+    try:
+        reporte = MantenimientoService.get_reporte_falla_by_id(id)
+        if reporte:
+            return jsonify({'reporte': reporte}), 200
+        return jsonify({'error': 'Reporte no encontrado'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -87,8 +87,8 @@ const Head = ({ user }) => {
                             Maquinaria <i className="fas fa-caret-down"></i>
                         </button>
                         <div className={s.dropdownContent}>
-                            <Link to="/maquinaria">Máquinas</Link>
                             <Link to="/mantenimiento">Mantenimiento</Link>
+                            <Link to="/maquinaria">Máquinas</Link>
                             <Link to="/reportes">Reportes</Link>
                         </div>
                     </div>

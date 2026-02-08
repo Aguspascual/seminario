@@ -46,6 +46,14 @@ const Table = ({ columns, data, isLoading, pagination, emptyMessage = "No hay da
                                 ))}
                             </tr>
                         ))}
+                        {/* Empty Rows Padding */}
+                        {pagination && pagination.minRows && data.length < pagination.minRows && (
+                            Array.from({ length: pagination.minRows - data.length }).map((_, index) => (
+                                <tr key={`empty-${index}`} className={styles.emptyRow}>
+                                    <td colSpan={columns.length} style={{ height: '53px' }}>&nbsp;</td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
