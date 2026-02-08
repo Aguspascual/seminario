@@ -139,7 +139,7 @@ const MiPerfil = () => {
       <div className={styles.main}>
         {/* Breadcrumbs */}
         <div className={styles.breadcrumbs}>
-          <span style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/home'}>Home</span> <span>&gt;</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/home'}>Home</span> <span>/</span>
           <span className={styles.current}>Mi Perfil</span>
         </div>
 

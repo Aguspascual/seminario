@@ -197,7 +197,7 @@ const Proveedores = () => {
             <div className="main">
                 {/* Breadcrumbs */}
                 <div className="breadcrumbs">
-                    <Link to="/home">Home</Link> <span>&gt;</span>
+                    <Link to="/home">Home</Link> <span>/</span>
                     <Link to="/home">Planta</Link> <span>&gt;</span>
                     <span className="current">Gestión de Proveedores</span>
                 </div>

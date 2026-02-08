@@ -23,33 +23,44 @@ class AuditoriaService:
 
     @staticmethod
     def get_all():
-        return Auditoria.query.all()
+        # Actualizar estados automáticamente
+        auditorias = Auditoria.query.all()
+        now = datetime.datetime.now()
+        
+        updated = False
+        for aud in auditorias:
+            if aud.estado == "Programado":
+                # Combinar fecha y hora para comparar
+                # aud.fecha es datetime.date, aud.hora es datetime.time
+                aud_dt = datetime.datetime.combine(aud.fecha, aud.hora)
+                if now >= aud_dt:
+                    aud.estado = "En Proceso"
+                    updated = True
+        
+        if updated:
+            db.session.commit()
+            
+        return auditorias
 
     @staticmethod
-    def create_auditoria(form_data, file_obj):
-        # Extraer datos del formulario
+    def create_auditoria(form_data):
+        # Extraer datos del formulario (Solo Fecha, Hora, Lugar)
         fecha_str = form_data.get('fecha')
         hora_str = form_data.get('hora')
-        estado = form_data.get('estado')
         lugar = form_data.get('lugar')
 
-        if not all([fecha_str, hora_str, estado, lugar]):
-             raise ValueError("Faltan datos requeridos")
-
-        filename = None
-        if file_obj and file_obj.filename != '' and AuditoriaService.allowed_file(file_obj.filename):
-            filename = secure_filename(file_obj.filename)
-            filename = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-            file_obj.save(os.path.join(AuditoriaService.get_upload_folder(), filename))
+        if not all([fecha_str, hora_str, lugar]):
+             raise ValueError("Faltan datos requeridos (Fecha, Hora, Lugar)")
         
-        # SQLAlchemy suele manejar strings ISO para columnas Date/Time.
+        # Estado inicial automático
+        estado = "Programado"
         
         nueva = Auditoria(
             fecha=fecha_str,
             hora=hora_str,
             estado=estado,
             lugar=lugar,
-            archivo_path=filename
+            archivo_path=None # Sin archivo al principio
         )
         
         db.session.add(nueva)
@@ -57,10 +68,38 @@ class AuditoriaService:
         return nueva
 
     @staticmethod
+    def finalizar_auditoria(id, file_obj):
+        auditoria = Auditoria.query.get(id)
+        if not auditoria:
+            raise ValueError("Auditoria no encontrada")
+            
+        if auditoria.estado != "En Proceso":
+            raise ValueError("Solo se pueden finalizar auditorias En Proceso")
+            
+        if not file_obj or file_obj.filename == '':
+            raise ValueError("Debe subir un archivo para finalizar")
+            
+        if not AuditoriaService.allowed_file(file_obj.filename):
+            raise ValueError("Tipo de archivo no permitido")
+
+        filename = secure_filename(file_obj.filename)
+        filename = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+        file_obj.save(os.path.join(AuditoriaService.get_upload_folder(), filename))
+        
+        auditoria.archivo_path = filename
+        auditoria.estado = "Terminado" # o Finalizado
+        
+        db.session.commit()
+        return auditoria
+
+    @staticmethod
     def delete_auditoria(id):
         auditoria = Auditoria.query.get(id)
         if not auditoria:
              raise ValueError("Auditoria no encontrada")
+        
+        if auditoria.estado != "Programado":
+            raise ValueError("No se pueden eliminar auditorias en proceso o terminadas")
         
         # Opcional: Eliminar archivo del disco
         if auditoria.archivo_path:

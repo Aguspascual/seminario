@@ -150,7 +150,7 @@ const Mensajes = () => {
             <div className={styles.main}>
                 {/* Breadcrumbs */}
                 <div className={styles.breadcrumbs}>
-                    <Link to="/home">Home</Link> <span>&gt;</span>
+                    <Link to="/home">Home</Link> <span>/</span>
                     <span className={styles.current}>Mensajes</span>
                 </div>
 
