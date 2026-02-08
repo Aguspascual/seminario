@@ -90,7 +90,7 @@ const Home = () => {
             subtext={`${data.maquinarias.en_reparacion} en reparación`}
             status={data.maquinarias.en_reparacion > 0 ? 'warning' : 'success'}
             colorClass="green"
-            linkTo="/maquinarias"
+            linkTo="/maquinaria"
           />
 
           <KPICard
@@ -125,11 +125,13 @@ const Home = () => {
           <KPICard
             title="Personal Activo"
             icon={Users}
-            value={data.turno?.turno ? `${data.turno.usuarios?.length || 0} Activos` : 'Sin Turno'}
-            subtext={data.turno?.turno ? `${data.turno.turno.nombre} (${data.turno.turno.hora_inicio} - ${data.turno.turno.hora_fin})` : 'No hay personal registrado'}
-            status={data.turno?.turno ? 'success' : 'normal'}
+            value={data.turno?.turnos?.length > 0 ? `${data.turno.usuarios?.length || 0} Activos` : 'Sin Turno'}
+            subtext={data.turno?.turnos?.length > 0
+              ? data.turno.turnos.map(t => `${t.nombre} (${t.hora_inicio}-${t.hora_fin})`).join(', ')
+              : 'No hay personal registrado'}
+            status={data.turno?.turnos?.length > 0 ? 'success' : 'normal'}
             colorClass="blue"
-            onClick={data.turno?.turno ? () => setShowShiftModal(true) : null}
+            onClick={data.turno?.turnos?.length > 0 ? () => setShowShiftModal(true) : null}
           />
         </div>
 
@@ -143,7 +145,7 @@ const Home = () => {
           <ActiveShiftUsersModal
             isOpen={showShiftModal}
             onClose={() => setShowShiftModal(false)}
-            turnoData={data.turno ? { turno: data.turno, usuarios: data.turno.usuarios || [] } : null}
+            turnoData={data.turno ? { turnos: data.turno.turnos, usuarios: data.turno.usuarios || [] } : null}
           />
         )}
       </div>

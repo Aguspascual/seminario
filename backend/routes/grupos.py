@@ -74,8 +74,9 @@ def get_turno_actual():
         current_time_str = now.strftime("%H:%M")
         
         # Obtener todos los turnos
+        # Obtener todos los turnos
         turnos = Turno.query.all()
-        turno_actual = None
+        turnos_activos = []
         
         for t in turnos:
             start = t.hora_inicio
@@ -84,39 +85,41 @@ def get_turno_actual():
             # Caso normal: start < end (ej: 06:00 - 14:00)
             if start <= end:
                 if start <= current_time_str <= end:
-                    turno_actual = t
-                    break
+                    turnos_activos.append(t)
             # Caso nocturno: start > end (ej: 22:00 - 06:00)
             else:
                 if current_time_str >= start or current_time_str <= end:
-                    turno_actual = t
-                    break
+                    turnos_activos.append(t)
         
-        if not turno_actual:
+        if not turnos_activos:
             return jsonify({
-                "turno": None,
+                "turnos": [],
                 "usuarios": [],
-                "mensaje": "No hay turno activo en este momento"
+                "mensaje": "No hay turnos activos en este momento"
             }), 200
             
-        # Buscar usuarios del turno activo
-        usuarios_activos = Usuario.query.filter_by(turno_id=turno_actual.id, Estado=True).all()
+        # Buscar usuarios de los turnos activos
+        ids_turnos = [t.id for t in turnos_activos]
+        usuarios_activos = Usuario.query.filter(Usuario.turno_id.in_(ids_turnos), Usuario.Estado == True).all()
         
         usuarios_data = [{
             "id": u.Legajo,
             "nombre": u.nombre,
             "rol": u.Rol,
-            "area": u.area.nombre if u.area else "Sin área"
+            "area": u.area.nombre if u.area else "Sin área",
+            "turno": u.turno.nombre if u.turno else "Sin turno"
         } for u in usuarios_activos]
         
+        turnos_data = [{
+            "id": t.id,
+            "nombre": t.nombre,
+            "hora_inicio": t.hora_inicio,
+            "hora_fin": t.hora_fin,
+            "grupo": t.grupo.nombre if t.grupo else "Sin grupo"
+        } for t in turnos_activos]
+        
         return jsonify({
-            "turno": {
-                "id": turno_actual.id,
-                "nombre": turno_actual.nombre,
-                "hora_inicio": turno_actual.hora_inicio,
-                "hora_fin": turno_actual.hora_fin,
-                "grupo": turno_actual.grupo.nombre if turno_actual.grupo else "Sin grupo"
-            },
+            "turnos": turnos_data,
             "usuarios": usuarios_data
         }), 200
         

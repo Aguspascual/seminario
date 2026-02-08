@@ -4,7 +4,7 @@ import { X, User, Briefcase, MapPin } from 'lucide-react';
 const ActiveShiftUsersModal = ({ isOpen, onClose, turnoData }) => {
     if (!isOpen || !turnoData) return null;
 
-    const { turno, usuarios } = turnoData;
+    const { turnos, usuarios } = turnoData;
 
     return (
         <div style={{
@@ -36,12 +36,19 @@ const ActiveShiftUsersModal = ({ isOpen, onClose, turnoData }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                         <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#111827', fontWeight: '600' }}>
-                            Turno: {turno ? turno.nombre : 'Sin Turno'}
+                            Personal Activo
                         </h2>
-                        {turno && (
-                            <p style={{ margin: '4px 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
-                                {turno.hora_inicio} - {turno.hora_fin} • {usuarios.length} activos
-                            </p>
+                        {turnos && turnos.length > 0 && (
+                            <div style={{ margin: '4px 0 0', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                {turnos.map(t => (
+                                    <p key={t.id} style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+                                        • {t.nombre} ({t.hora_inicio} - {t.hora_fin})
+                                    </p>
+                                ))}
+                                <p style={{ margin: '4px 0 0', color: '#374151', fontSize: '0.9rem', fontWeight: '500' }}>
+                                    Total: {usuarios.length} usuarios
+                                </p>
+                            </div>
                         )}
                     </div>
                     <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#9ca3af', padding: '4px' }}>
@@ -78,13 +85,27 @@ const ActiveShiftUsersModal = ({ isOpen, onClose, turnoData }) => {
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#374151', fontWeight: '500' }}>{user.nombre}</h4>
-                                    <div style={{ display: 'flex', gap: '12px', marginTop: '2px' }}>
+                                    <div style={{ display: 'flex', gap: '12px', marginTop: '2px', flexWrap: 'wrap' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: '#6b7280' }}>
                                             <Briefcase size={12} /> {user.rol}
                                         </span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: '#6b7280' }}>
                                             <MapPin size={12} /> {user.area}
                                         </span>
+                                        {user.turno && (
+                                            <span style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                fontSize: '0.75rem',
+                                                color: '#2563eb',
+                                                backgroundColor: '#eff6ff',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px'
+                                            }}>
+                                                {user.turno}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
