@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import AppRoutes from './routes/AppRoutes';
 
-import { NotificationProvider } from './context/NotificationContext';
+import { NotificationProvider } from './context/NotificationProvider';
 
 function App() {
   const [user, setUser] = useState(null);

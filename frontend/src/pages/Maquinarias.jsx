@@ -377,7 +377,9 @@ const Maquinarias = ({ user }) => {
                                 </div>
                                 <div className={stylesCrear['modal-botones-derecha']}>
                                     <button type="button" onClick={cerrarModal} className={stylesCrear['btn-gris']}>Cancelar</button>
-                                    <button type="submit" className={stylesCrear['btn-confirmar']}>Guardar</button>
+                                    <button type="submit" className={stylesCrear['btn-confirmar']}>
+                                        <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i> Guardar
+                                    </button>
                                 </div>
                             </form>
                         </div>
