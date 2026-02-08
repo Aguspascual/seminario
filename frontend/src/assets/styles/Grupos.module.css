@@ -1,0 +1,322 @@
+/* Main Layout */
+.container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #f3f4f6;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.breadcrumbs a {
+    text-decoration: none;
+    color: #666;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs span {
+    margin: 0 8px;
+}
+
+.currentPath {
+    color: #2E4F6E;
+    font-weight: bold;
+}
+
+/* Header Section */
+.headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.headerSection h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.8rem;
+}
+
+/* Controls */
+.controlsSection {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.btnNew {
+    background-color: #2E4F6E;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+}
+
+.btnNew:hover {
+    background-color: #1a3c5b;
+}
+
+.centerColumn {
+    text-align: center;
+}
+
+/* Table Styles - Matching Areas/Generic Table */
+.tableContainer {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+/* Chips for Shifts */
+.turnosContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.turnoChip {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #bae6fd;
+}
+
+/* Action Buttons */
+.actionsContainer {
+    display: flex;
+    gap: 12px;
+}
+
+.btnAction {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+}
+
+.btnAction:hover {
+    transform: scale(1.1);
+}
+
+.btnEdit {
+    color: #3b82f6;
+}
+
+.btnDelete {
+    color: #ef4444;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modalContent {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalHeader {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.5rem;
+}
+
+.separator {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 20px 0;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formLabel {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.inputField {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.inputField:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Turnos Form Items */
+.turnoRow {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.turnoInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+.timeInput {
+    width: 110px;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+.separatorText {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.btnRemoveTurno {
+    border: none;
+    background: #fee2e2;
+    color: #ef4444;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btnRemoveTurno:hover {
+    background-color: #fecaca;
+}
+
+.btnAddTurno {
+    background: none;
+    border: 2px dashed #e5e7eb;
+    color: #3b82f6;
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.btnAddTurno:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+/* Modal Actions */
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btnCancel {
+    background-color: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btnCancel:hover {
+    background-color: #f3f4f6;
+}
+
+.btnSave {
+    background-color: #2E4F6E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btnSave:hover {
+    background-color: #1a3c5b;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .turnoRow {
+        flex-wrap: wrap;
+    }
+
+    .timeInput {
+        width: calc(50% - 20px);
+    }
+
+    .separatorText {
+        display: none;
+    }
+}

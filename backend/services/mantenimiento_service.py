@@ -6,6 +6,11 @@ from sqlalchemy import func
 
 class MantenimientoService:
     @staticmethod
+    def get_by_maquinaria(id_maquinaria):
+        mantenimientos = Mantenimiento.query.filter_by(maquinaria_id=id_maquinaria).order_by(Mantenimiento.fecha_programada.desc()).all()
+        return [m.to_dict() for m in mantenimientos]
+
+    @staticmethod
     def get_dashboard_kpis():
         today = date.today()
         first_day_of_month = today.replace(day=1)
@@ -180,6 +185,11 @@ class MantenimientoService:
         return True
 
     # --- ReporteFalla CRUD ---
+    @staticmethod
+    def get_reportes_by_maquinaria(id_maquinaria):
+        reportes = ReporteFalla.query.filter_by(maquinaria_id=id_maquinaria).order_by(ReporteFalla.fecha_reporte.desc()).all()
+        return [r.to_dict() for r in reportes]
+
     @staticmethod
     def create_reporte_falla(data):
         new_reporte = ReporteFalla(

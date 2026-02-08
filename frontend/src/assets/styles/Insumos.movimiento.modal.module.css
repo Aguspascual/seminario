@@ -1,0 +1,145 @@
+.modal-fondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal-contenido {
+    background: white;
+    padding: 20px 0px 0px 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    text-align: left;
+}
+
+.modal-contenido h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    /* Color will be handled inline or via dynamic classes */
+}
+
+.separator {
+    height: 1px;
+    background-color: #d1d5db;
+    width: 94%;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+    /* Slightly more spacing for this form */
+    margin-right: 30px;
+}
+
+.formLabel {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-contenido input,
+.modal-contenido textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 0;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #f9fafb;
+    color: #1f2937;
+    box-sizing: border-box;
+}
+
+.modal-contenido textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.modal-contenido input:focus,
+.modal-contenido textarea:focus {
+    outline: none;
+    border-color: #2E4F6E;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(46, 79, 110, 0.1);
+}
+
+.modal-botones-derecha {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0px 0px 30px;
+    padding-right: 10px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #f3f4f6;
+    margin-right: 20px;
+}
+
+.btn-base {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 100px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+.btn-entrada {
+    background-color: #166534;
+}
+
+.btn-entrada:hover {
+    background-color: #14532d;
+}
+
+.btn-salida {
+    background-color: #ca8a04;
+}
+
+.btn-salida:hover {
+    background-color: #a16207;
+}
+
+.btn-gris {
+    background-color: white;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 90px;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-gris:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
