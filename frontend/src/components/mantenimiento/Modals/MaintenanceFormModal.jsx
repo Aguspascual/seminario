@@ -146,6 +146,13 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
                         <option value="Baja">Prioridad Baja</option>
                     </select>
 
+                    <select name="estado" value={formData.estado} onChange={handleChange} required>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Vencido">Vencido</option>
+                    </select>
+
                     <select name="responsable_id" value={formData.responsable_id} onChange={handleChange}>
                         <option value="">Asignar Responsable (Opcional)</option>
                         {usuarios.map(u => (
