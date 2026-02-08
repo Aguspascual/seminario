@@ -4,6 +4,8 @@ import styles from '../assets/styles/Head.module.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import { useAuth } from '../context/AuthContext';
+
 const PERMISOS = {
     "Admin": {
         planta: ["usuarios", "proveedores", "area", "auditoria", "insumos", "grupos"], // Corregido 'usuario' a 'usuarios'
@@ -20,16 +22,15 @@ const PERMISOS = {
     }
 };
 
-const Head = ({ user }) => {
+const Head = () => {
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     // Normalizamos el rol para evitar errores (si viene null)
     const rol = user?.rol || user?.Rol || "";
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-        window.location.href = '/';
+        logout();
     };
 
     const irACambiarPass = () => {

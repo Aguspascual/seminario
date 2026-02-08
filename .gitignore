@@ -1,5 +1,4 @@
-.agent/skills
-.agents/
+
 .vite/
 frontend/.vite/
 node_modules

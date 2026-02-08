@@ -1,187 +1,172 @@
-/* Home.module.css */
+/* Home Dashboard - Professional Clean Design with Animations */
+
+/* Entry Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .loadingContainer {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    color: #1F3A52;
+}
+
+/* Simple spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .homeContainer {
-    padding: 30px 40px; /* Espacio interno */
-    width: 100%;        /* Forzamos el 100% del ancho */
-    box-sizing: border-box; /* Para que el padding no rompa el ancho */
-    min-height: calc(100vh - 75px); /* Ocupa toda la altura menos el header */
-    background-color: #F4F6F8; /* Un gris muy suave de fondo */
+    max-width: 1300px;
+    width: 95%;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: fadeInUp 0.4s ease-out;
+    /* Entry animation for whole page */
 }
 
-/* HEADER DASHBOARD */
 .headerDashboard {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 40px;
-    border-bottom: 1px solid #d1d5db;
-    padding-bottom: 15px;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    /* Subtle separator */
 }
 
 .welcomeBox h1 {
-    color: #1F3A52;
-    margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.75rem;
+    color: #111827;
+    margin: 0 0 0.25rem 0;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
 .userName {
-    font-weight: 700;
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.time {
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-top: 5px;
-    display: block;
+.dateText {
+    color: #6b7280;
+    font-size: 0.95rem;
+    text-transform: capitalize;
+    margin: 0;
 }
 
 .btnCrear {
-    background-color: #2E4F6E; /* Botón Principal */
+    background-color: #2563eb;
+    /* Primary Blue */
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background 0.3s;
     display: flex;
     align-items: center;
+    gap: 0.6rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
 }
 
 .btnCrear:hover {
-    background-color: #4F6F8F; /* Hover Botón */
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.2);
 }
 
-/* GRID DE CARDS (KPIs) */
+/* GRID LAYOUT */
 .kpiGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
 }
 
-.card {
-    background-color: #FFFFFF;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border-top: 4px solid #6F9E8C; /* Detalle Eco */
-    padding: 20px;
-    transition: transform 0.2s;
+/* Staggered animation for cards can be done via :nth-child in css or framer-motion in JS. 
+   Here is a simple CSS approach for the grid itself. */
+.kpiGrid>* {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+    /* Star hidden */
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.kpiGrid>*:nth-child(1) {
+    animation-delay: 0.1s;
 }
 
-.cardHeader h3 {
-    margin: 0 0 15px 0;
-    color: #1F3A52;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.kpiGrid>*:nth-child(2) {
+    animation-delay: 0.15s;
 }
 
-.cardBody p {
-    margin: 5px 0;
-    font-size: 1rem;
-    color: #334155;
+.kpiGrid>*:nth-child(3) {
+    animation-delay: 0.2s;
 }
 
-.textMuted {
-    color: #94a3b8;
-    font-size: 0.9rem;
+.kpiGrid>*:nth-child(4) {
+    animation-delay: 0.25s;
 }
 
-.statusOk {
-    color: #166534;
-    font-weight: 600;
-    background-color: #dcfce7;
-    padding: 2px 6px;
-    border-radius: 4px;
+.kpiGrid>*:nth-child(5) {
+    animation-delay: 0.3s;
 }
 
-/* SECCIÓN LEGAL */
-.legalSection {
-    margin-bottom: 40px;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .kpiGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.sectionTitle {
-    color: #1F3A52;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-    border-left: 4px solid #1F3A52;
-    padding-left: 10px;
-}
+@media (max-width: 768px) {
+    .homeContainer {
+        padding: 1.5rem 1rem;
+    }
 
-.legalCard {
-    background-color: #FFFFFF;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
+    .headerDashboard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 
-.legalItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #f1f5f9;
-}
+    .welcomeBox h1 {
+        font-size: 1.5rem;
+    }
 
-.legalItem:last-child {
-    border-bottom: none;
-}
+    .btnCrear {
+        width: 100%;
+        justify-content: center;
+    }
 
-.legalTitle {
-    font-weight: 600;
-    color: #334155;
-    flex: 2;
-}
-
-.legalDate {
-    color: #64748b;
-    flex: 1;
-}
-
-/* BITÁCORA / ACTIVIDAD */
-.activitySection {
-    background-color: #FFFFFF;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.activityList {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.activityItem {
-    padding: 8px 0;
-    font-size: 0.95rem;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.logTime {
-    color: #2E4F6E;
-    font-weight: 600;
-}
-
-.logDivider {
-    margin: 0 10px;
-    color: #cbd5e1;
-}
-
-.logMessage {
-    color: #475569;
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
 }

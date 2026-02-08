@@ -21,8 +21,8 @@ const RecuperarPassword = () => {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
-      
-      const response = await fetch(`${apiUrl}/recuperar_contrasena`, { 
+
+      const response = await fetch(`${apiUrl}/recuperar-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -32,7 +32,7 @@ const RecuperarPassword = () => {
 
       if (response.ok) {
         setMensaje('¡Listo! Revisa tu correo para las instrucciones.');
-        setEmail(''); 
+        setEmail('');
       } else {
         setError(data.error || 'No encontramos ese email en el sistema.');
       }
@@ -50,12 +50,12 @@ const RecuperarPassword = () => {
 
       <div className='login-container'>
         <div className="login-card">
-          
-          <img src={logo} alt="Logo Ecopolo" className='logo-img'/>
-          
+
+          <img src={logo} alt="Logo Ecopolo" className='logo-img' />
+
           <div>
-            <h2 className='login-titulo'>Recuperar Contraseña</h2>
-            <p className='login-subtitle'>Ingresa tu email para restablecerla</p>
+            {/* <h2 className='login-titulo'>Recuperar Contraseña</h2> REMOVED */}
+            <p className='login-subtitle' style={{ fontSize: '1rem', fontWeight: '500', marginTop: '1rem' }}>Ingresa tu email para restablecer la contraseña</p>
           </div>
 
           {/* Mensajes de feedback */}
@@ -64,11 +64,11 @@ const RecuperarPassword = () => {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className='input-group'>
-              <label className='login-email' style={{display: 'block', marginBottom: '0.5rem', color: '#003459', fontSize: '0.9rem'}}>Email:</label>
-              <input 
+              <label className='login-email' style={{ display: 'block', marginBottom: '0.5rem', color: '#003459', fontSize: '0.9rem' }}>Email:</label>
+              <input
                 className="custom-input"
-                type="email" 
-                placeholder="ejemplo@ecopolo.com" 
+                type="email"
+                placeholder="ejemplo@ecopolo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,7 +80,7 @@ const RecuperarPassword = () => {
             </button>
 
             {/* Link para volver */}
-            <div style={{textAlign: 'center', marginTop: '1rem'}}>
+            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
               <Link to="/" className="forgot-link">
                 ← Volver al inicio de sesión
               </Link>

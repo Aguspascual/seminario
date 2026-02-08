@@ -2,8 +2,67 @@ from flask import Blueprint, request, jsonify
 from schemas.auditoria_schema import AuditoriaSchema
 from services.auditoria_service import AuditoriaService
 from marshmallow import ValidationError
+from datetime import datetime
 
 auditorias_bp = Blueprint("auditorias", __name__)
+
+@auditorias_bp.route("/auditorias/summary", methods=["GET"])
+def get_auditoria_summary():
+    """
+    Obtener resumen de auditorias para el dashboard
+    ---
+    tags:
+      - Auditorias
+    responses:
+      200:
+        description: Resumen de auditorias
+    """
+    try:
+        # Reutilizamos el servicio get_all que ya actualiza estados
+        auditorias = AuditoriaService.get_all()
+        
+        # Ordenar por fecha/hora
+        # Necesitamos objetos datetime para ordenar correctamente
+        # Asumimos que get_all devuelve objetos SQLAlchemy
+        
+        now = datetime.now()
+        
+        proxima = None
+        ultima = None
+        
+        # Filtrar futuras y pasadas
+        # Incluimos "En Proceso" como prioridad para "Próxima" (es la actual)
+        futuras = [a for a in auditorias if a.estado in ["Programado", "Programada", "En Proceso"]]
+        pasadas = [a for a in auditorias if a.estado in ["Finalizado", "Terminado", "Aprobada", "Rechazada"]] 
+
+        # Encontrar la próxima más cercana
+        if futuras:
+            # Ordenar por fecha asc
+            futuras.sort(key=lambda x: (x.fecha, x.hora))
+            proxima_obj = futuras[0]
+            fecha_str = f"{proxima_obj.fecha.strftime('%d/%m/%Y')} {proxima_obj.hora.strftime('%H:%M')}"
+            if proxima_obj.estado == "En Proceso":
+                proxima = f"EN CURSO ({fecha_str})"
+            else:
+                proxima = fecha_str
+            
+        # Encontrar la última realizada
+        if pasadas:
+            # Ordenar por fecha desc
+            pasadas.sort(key=lambda x: (x.fecha, x.hora), reverse=True)
+            ultima_obj = pasadas[0]
+            # Podríamos devolver el estado también
+            ultima = {
+                "fecha": ultima_obj.fecha.strftime('%d/%m/%Y'),
+                "estado": ultima_obj.estado
+            }
+            
+        return jsonify({
+            "proxima": proxima,
+            "ultima": ultima
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener resumen: {str(e)}"}), 500
 
 @auditorias_bp.route("/auditorias", methods=["GET"])
 def get_auditorias():

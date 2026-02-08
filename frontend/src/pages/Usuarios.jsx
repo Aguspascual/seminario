@@ -193,8 +193,7 @@ const Usuarios = () => {
       contrasena: formData.get("contrasena"),
       telefono: formData.get("telefono"),
       email: formData.get("email"),
-
-
+      rol: formData.get("rol"),
       area_id: formData.get("area_id"),
       turno_id: formData.get("turno_id") || null,
     };

@@ -1,174 +1,152 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Head from '../components/Head'; // Importamos la Navbar
-import styles from '../assets/styles/Home.module.css'; // Usamos CSS Modules
-import FaultFormModal from '../components/mantenimiento/Modals/FaultFormModal';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
+import KPICard from '../components/Dashboard/KPICard';
+import styles from '../assets/styles/Home.module.css';
+import { Activity, Wrench, Package, ClipboardList, AlertCircle, Plus, Users } from 'lucide-react';
+import ReporteModal from '../components/mantenimiento/Modals/FaultFormModal';
+import ActiveShiftUsersModal from '../components/Dashboard/ActiveShiftUsersModal';
+import Head from '../components/Head';
 
-const Home = ({ user }) => {
-  // --- ESTADOS PARA LOS DATOS DEL BACKEND ---
-  const [legalStatus, setLegalStatus] = useState([]);
-  const [actividad, setActividad] = useState([]);
-  const [personalConteo, setPersonalConteo] = useState({ personal_activo: 0, detalle: "Cargando..." });
-  const [loading, setLoading] = useState(true);
+const Home = () => {
+  const { user } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showShiftModal, setShowShiftModal] = useState(false);
+  const { data: dashboardData, isLoading, error } = useDashboardMetrics(user);
 
-  // Obtenemos la URL de la variable de entorno
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const getGreeting = () => {
+    return 'Bienvenido';
+  };
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      const token = localStorage.getItem('token');
-      const headers = { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
+  const formatDate = () => {
+    return new Date().toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
 
-      try {
-        // 1. FETCH LEGAL (Tu tabla)
-        const resLegal = await fetch(`${apiUrl}/legal/dashboard-status`, { headers });
-        if (resLegal.ok) {
-            const dataLegal = await resLegal.json();
-            setLegalStatus(dataLegal);
-        }
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+      </div>
+    );
+  }
 
-        // 2. FETCH BITÁCORA (Tu tabla)
-        const resBitacora = await fetch(`${apiUrl}/bitacora/recientes`, { headers });
-        if (resBitacora.ok) {
-            const dataBitacora = await resBitacora.json();
-            setActividad(dataBitacora);
-        }
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <p>Error cargando el dashboard. Por favor intente nuevamente.</p>
+      </div>
+    );
+  }
 
-        // 3. FETCH USUARIOS (Solo Admin)
-        // Verificamos que user exista antes de chequear el rol
-        if (user && user.rol === 'Admin') {
-          const resUser = await fetch(`${apiUrl}/usuarios/conteo`, { headers });
-          if (resUser.ok) {
-              const dataUser = await resUser.json();
-              setPersonalConteo(dataUser);
-          }
-        }
-
-      } catch (error) {
-        console.error("Error conectando con el servidor:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Solo ejecutamos el fetch si tenemos usuario
-    if (user) {
-        fetchDashboardData();
-    }
-  }, [user, apiUrl]);
-
-  if (loading) return <div className={styles.loadingContainer}>Cargando Dashboard...</div>;
+  // Safe defaults
+  const data = dashboardData || {
+    auditorias: { proxima: '-', ultima: null },
+    maquinarias: { operativas: 0, en_reparacion: 0, total: 0 },
+    insumos: { alertas_stock: 0 },
+    mantenimientos: { pendientes: 0, vencidos: 0 },
+    reportes: { pendientes: 0 }
+  };
 
   return (
     <>
-      {/* 1. NAVBAR SUPERIOR */}
-      <Head user={user} />
-
-      {/* 2. CONTENIDO DEL DASHBOARD */}
+      <Head />
       <div className={styles.homeContainer}>
-        
-        {/* HEADER: Saludo y Hora */}
         <header className={styles.headerDashboard}>
           <div className={styles.welcomeBox}>
-            <h1>Bienvenido, <span className={styles.userName}>{user?.nombre || "Usuario"}</span></h1>
-            <span className={styles.time}>
-                {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}hs
-            </span>
+            <h1>
+              {getGreeting()}, <span className={styles.userName}>{user?.nombre}</span>
+            </h1>
+            <p className={styles.dateText}>{formatDate()}</p>
           </div>
-          <button className={styles.btnCrear} onClick={() => setShowReportModal(true)}>
-            <i className="fas fa-plus-circle" style={{marginRight:'8px'}}></i>
-            Crear Reporte
-          </button>
+
+          <div className={styles.actions}>
+            <button className={styles.btnCrear} onClick={() => setShowReportModal(true)}>
+              <Plus size={20} />
+              <span>Nuevo Reporte</span>
+            </button>
+          </div>
         </header>
 
-        {/* --- SECCIÓN DE CARDS (KPIs) --- */}
-        <section className={styles.kpiGrid}>
-          
-          {/* CARD AUDITORÍA (Admin y B) */}
-          {(user?.rol === 'Admin' || user?.rol === 'Supervisor') && (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                  <h3><i className="fas fa-folder-open"></i> Auditoría</h3>
-              </div>
-              <div className={styles.cardBody}>
-                  <p>Última: <span className={styles.statusOk}>Aprobada ✅</span></p>
-                  <p>Próxima: <strong>27/08/2026</strong></p>
-              </div>
-            </div>
-          )}
+        <div className={styles.kpiGrid}>
+          <KPICard
+            title="Auditorías"
+            icon={ClipboardList} // Lucide Icon component
+            value={data.auditorias.proxima || 'Sin programar'}
+            subtext={data.auditorias.ultima ? `Última: ${data.auditorias.ultima.fecha} (${data.auditorias.ultima.estado})` : 'Sin registros previos'}
+            status="normal"
+            colorClass="blue"
+            linkTo="/auditorias"
+          />
 
-          {/* CARD MAQUINARIA (Todos) */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-                <h3><i className="fas fa-cogs"></i> Maquinaria</h3>
-            </div>
-            <div className={styles.cardBody}>
-                <p>En funcionamiento: <strong>3</strong></p>
-                <p className={styles.textMuted}>Detalle: en espera de camiones</p>
-            </div>
-          </div>
+          <KPICard
+            title="Maquinaria"
+            icon={Activity}
+            value={`${data.maquinarias.operativas} / ${data.maquinarias.total}`}
+            subtext={`${data.maquinarias.en_reparacion} en reparación`}
+            status={data.maquinarias.en_reparacion > 0 ? 'warning' : 'success'}
+            colorClass="green"
+            linkTo="/maquinarias"
+          />
 
-          {/* CARD PERSONAL (Solo Admin) */}
-          {user?.rol === 'Admin' && (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                  <h3><i className="fas fa-users"></i> Personal</h3>
-              </div>
-              <div className={styles.cardBody}>
-                  <p>Activos: <strong>{personalConteo.personal_activo}</strong></p>
-                  <p className={styles.textMuted}>{personalConteo.detalle}</p>
-              </div>
-            </div>
-          )}
-        </section>
+          <KPICard
+            title="Mantenimiento"
+            icon={Wrench}
+            value={data.mantenimientos.pendientes}
+            subtext={`${data.mantenimientos.vencidos} vencidos`}
+            status={data.mantenimientos.vencidos > 0 ? 'danger' : 'normal'}
+            colorClass="purple"
+            linkTo="/mantenimiento"
+          />
 
-        {/* --- SEMÁFORO LEGAL (Admin y B) --- */}
-        {(user?.rol === 'Admin' || user?.rol === 'Supervisor') && (
-          <section className={styles.legalSection}>
-             <h3 className={styles.sectionTitle}>Estado Legal de Planta</h3>
-             <div className={styles.legalCard}>
-                {legalStatus.length > 0 ? (
-                    legalStatus.map((doc, index) => (
-                    <div key={index} className={styles.legalItem}>
-                        <span className={styles.legalTitle}>{doc.titulo}</span>
-                        <span className={styles.legalDate}>Vence {doc.vencimiento}</span>
-                        <span className={styles.legalIcon}>
-                            {doc.estado_visual === 'ok' ? '✅' : doc.estado_visual === 'warning' ? '⚠️' : '❌'}
-                        </span>
-                    </div>
-                    ))
-                ) : (
-                    <p>No hay alertas legales pendientes.</p>
-                )}
-             </div>
-          </section>
+          <KPICard
+            title="Logística"
+            icon={Package}
+            value={data.insumos.alertas_stock}
+            subtext="Alertas de stock bajo"
+            status={data.insumos.alertas_stock > 0 ? 'warning' : 'normal'}
+            colorClass="yellow"
+            linkTo="/insumos"
+          />
+
+          <KPICard
+            title="Reportes"
+            icon={AlertCircle}
+            value={data.reportes.pendientes}
+            subtext="Reportes sin responder"
+            status={data.reportes.pendientes > 0 ? 'danger' : 'normal'}
+            colorClass="red"
+            linkTo="/reportes"
+          />
+          <KPICard
+            title="Personal Activo"
+            icon={Users}
+            value={data.turno?.turno ? `${data.turno.usuarios?.length || 0} Activos` : 'Sin Turno'}
+            subtext={data.turno?.turno ? `${data.turno.turno.nombre} (${data.turno.turno.hora_inicio} - ${data.turno.turno.hora_fin})` : 'No hay personal registrado'}
+            status={data.turno?.turno ? 'success' : 'normal'}
+            colorClass="blue"
+            onClick={data.turno?.turno ? () => setShowShiftModal(true) : null}
+          />
+        </div>
+
+        {showReportModal && (
+          <ReporteModal
+            onClose={() => setShowReportModal(false)}
+          />
         )}
 
-        {/* --- ACTIVIDAD RECIENTE (Bitácora) --- */}
-        <section className={styles.activitySection}>
-            <h3 className={styles.sectionTitle}>Actividad Reciente</h3>
-            <div className={styles.activityList}>
-                {actividad.length > 0 ? (
-                    actividad.map((log) => (
-                    <div key={log.id} className={styles.activityItem}>
-                        <span className={styles.logTime}>{log.hora}</span>
-                        <span className={styles.logDivider}>|</span>
-                        <span className={styles.logMessage}>{log.mensaje}</span>
-                    </div>
-                    ))
-                ) : (
-                    <p className={styles.textMuted}>No hay actividad reciente registrada.</p>
-                )}
-            </div>
-        </section>
-
+        {showShiftModal && (
+          <ActiveShiftUsersModal
+            isOpen={showShiftModal}
+            onClose={() => setShowShiftModal(false)}
+            turnoData={data.turno ? { turno: data.turno, usuarios: data.turno.usuarios || [] } : null}
+          />
+        )}
       </div>
-
-      {showReportModal && <FaultFormModal onClose={() => setShowReportModal(false)} />}
     </>
   );
 };

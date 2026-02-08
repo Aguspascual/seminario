@@ -8,6 +8,28 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 insumos_bp = Blueprint('insumos_bp', __name__)
 
+@insumos_bp.route('/insumos/dashboard-summary', methods=['GET'])
+def get_dashboard_summary():
+    """
+    Obtener resumen de insumos para dashboard
+    ---
+    tags:
+      - Insumos
+    responses:
+      200:
+        description: Resumen de insumos (alertas de stock)
+    """
+    try:
+        # Items con stock crítico
+        criticos = Insumo.query.filter(Insumo.stock_actual <= Insumo.stock_minimo).all()
+        
+        return jsonify({
+            "alertas_stock": len(criticos),
+            "items_criticos": [i.to_dict() for i in criticos]
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @insumos_bp.route('/insumos', methods=['GET'])
 def get_insumos():
     try:
