@@ -357,7 +357,6 @@ const Reportes = ({ user }) => {
                 {/* Breadcrumbs */}
                 <div className={styles.breadcrumbs}>
                     <a href="/home">Home</a> <span>/</span>
-                    <a href="/mantenimiento">Mantenimiento</a> <span>/</span>
                     <span className={styles.current}>Reportes</span>
                 </div>
 

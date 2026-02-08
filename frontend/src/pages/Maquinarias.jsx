@@ -258,8 +258,7 @@ const Maquinarias = ({ user }) => {
             <div className={styles.main}>
                 <div className={styles.breadcrumbs}>
                     <a href="/home">Home</a> <span>/</span>
-                    <a href="/planta">Planta</a> <span>/</span>
-                    <span className={styles.current}>Maquinaria</span>
+                    <span className={styles.current}>Maquinas</span>
                 </div>
 
                 <div className={styles['header-section']}>

@@ -14,8 +14,7 @@ const DashboardMantenimiento = () => {
     const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    // Modal States
-    // Modal States
+        // Modal States
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showFaultModal, setShowFaultModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -127,7 +126,7 @@ const DashboardMantenimiento = () => {
         <>
             {/* Breadcrumbs */}
             <div className="breadcrumbs">
-                <a href="/home">Home</a> <span>&gt;</span>
+                <a href="/home">Home</a> <span>/</span>
                 <span className="current">Mantenimiento</span>
             </div>
 
