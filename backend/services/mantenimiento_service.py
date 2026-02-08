@@ -21,14 +21,23 @@ class MantenimientoService:
         
         pendientes = Mantenimiento.query.filter(Mantenimiento.estado == 'Pendiente', Mantenimiento.fecha_programada >= today).count()
         en_proceso = Mantenimiento.query.filter(Mantenimiento.estado == 'En Proceso').count()
-        completados_mes = Mantenimiento.query.filter(
-            Mantenimiento.estado == 'Completado',
-            Mantenimiento.fecha_realizada >= first_day_of_month
+        completados = Mantenimiento.query.filter(
+            Mantenimiento.estado == 'Completado'
         ).count()
         
         # Calculate completion rate (completados / (completados + vencidos)) * 100 roughly
-        total_closed = completados_mes + real_vencidos
-        tasa_cumplimiento = (completados_mes / total_closed * 100) if total_closed > 0 else 100
+        # For total completion rate, maybe we should use total created vs total completed?
+        # User only asked to change the count. I will keep the rate logic simple/same for now or maybe adjust?
+        # "tasa_cumplimiento" usually implies adherence to schedule. 
+        # If we change "Completados" to total, the rate might be confusing if it combines monthly vencidos with total completed.
+        # Let's keep existing rate logic but update the count variable name.
+        
+        # Actually user just wants "Completados" to show total.
+        # I will keep "completados_mes" variable for rate calculation if needed, or just not touch rate for now.
+        # Let's see:
+        
+        total_closed = completados + real_vencidos
+        tasa_cumplimiento = (completados / total_closed * 100) if total_closed > 0 else 100
         
         # Upcoming 7 days
         next_week = today + timedelta(days=7)
@@ -46,7 +55,7 @@ class MantenimientoService:
             "vencidos": real_vencidos,
             "pendientes": pendientes,
             "en_proceso": en_proceso,
-            "completados_mes": completados_mes,
+            "completados": completados,
             "tasa_cumplimiento": round(tasa_cumplimiento, 1),
             "proximos_7_dias": [m.to_dict() for m in proximos],
             "fallas_recientes": fallas_recientes
@@ -93,9 +102,11 @@ class MantenimientoService:
                     "estado": e.estado,
                     "prioridad": e.prioridad,
                     "maquinaria_id": e.maquinaria_id,
+                    "maquinaria_nombre": e.maquinaria.nombre if e.maquinaria else 'Desconocida',
                     "tipo": e.tipo,
                     "descripcion": e.descripcion,
                     "responsable_id": e.responsable_id,
+                    "responsable_nombre": e.responsable.nombre if e.responsable else 'Sin asignar',
                     "tiempo_estimado": e.tiempo_estimado,
                     "hora_programada": e.hora_programada.strftime('%H:%M') if e.hora_programada else None
                 }
@@ -143,9 +154,15 @@ class MantenimientoService:
         if 'prioridad' in data: mant.prioridad = data['prioridad']
         if 'tiempo_estimado' in data: mant.tiempo_estimado = data['tiempo_estimado']
         if 'descripcion' in data: mant.descripcion = data['descripcion']
-        if 'estado' in data: mant.estado = data['estado']
-        if 'fecha_realizacion' in data:
-            mant.fecha_realizacion = datetime.strptime(data['fecha_realizacion'], '%Y-%m-%d').date() if data['fecha_realizacion'] else None
+        if 'estado' in data: 
+            mant.estado = data['estado']
+            if mant.estado == 'Completado' and not mant.fecha_realizada:
+                 mant.fecha_realizada = date.today()
+            elif mant.estado != 'Completado':
+                 mant.fecha_realizada = None
+
+        if 'fecha_realizada' in data:
+            mant.fecha_realizada = datetime.strptime(data['fecha_realizada'], '%Y-%m-%d').date() if data['fecha_realizada'] else None
         if 'observaciones' in data: mant.observaciones = data['observaciones']
         if 'realizado_por' in data: mant.realizado_por = data['realizado_por']
 

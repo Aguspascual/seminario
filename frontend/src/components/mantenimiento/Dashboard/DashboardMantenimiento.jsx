@@ -5,6 +5,7 @@ import ProximosMantenimientos from './ProximosMantenimientos';
 
 import MaintenanceFormModal from '../Modals/MaintenanceFormModal';
 import FaultFormModal from '../Modals/FaultFormModal';
+import MaintenanceDetailModal from '../Modals/MaintenanceDetailModal';
 import { Plus, AlertTriangle } from 'lucide-react';
 
 const DashboardMantenimiento = () => {
@@ -14,9 +15,12 @@ const DashboardMantenimiento = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     // Modal States
+    // Modal States
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showFaultModal, setShowFaultModal] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
+    const [selectedDetailEvent, setSelectedDetailEvent] = useState(null);
 
     useEffect(() => {
         fetchDashboardData();
@@ -61,16 +65,21 @@ const DashboardMantenimiento = () => {
     };
 
     const handleEventClick = (event) => {
-        // Prepare data for edit
+        // Prepare data for view/edit
         const maintenanceData = {
             id: event.id,
             fecha_programada: event.start.toISOString(),
-            ...event.extendedProps // estado, prioridad
-            // We might need to fetch full details here if not present in calendar event
+            ...event.extendedProps // estado, prioridad, maquinaria_nombre, etc
         };
-        // Ideally we fetch full details by ID before opening modal
-        // For now, let's just open modal (future implementation: fetch details)
-        setSelectedMaintenance(maintenanceData);
+
+        setSelectedDetailEvent(maintenanceData);
+        setShowDetailModal(true);
+    };
+
+    const handleEditFromDetail = (maintenance) => {
+        setShowDetailModal(false);
+        setSelectedDetailEvent(null);
+        setSelectedMaintenance(maintenance);
         setShowMaintenanceModal(true);
     };
 
@@ -164,6 +173,14 @@ const DashboardMantenimiento = () => {
             {showFaultModal && (
                 <FaultFormModal
                     onClose={handleCloseFaultModal}
+                />
+            )}
+
+            {showDetailModal && (
+                <MaintenanceDetailModal
+                    onClose={() => setShowDetailModal(false)}
+                    maintenance={selectedDetailEvent}
+                    onEdit={handleEditFromDetail}
                 />
             )}
         </>

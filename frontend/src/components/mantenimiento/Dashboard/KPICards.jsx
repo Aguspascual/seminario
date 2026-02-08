@@ -28,8 +28,8 @@ const KPICards = ({ stats }) => {
             borderColor: 'border-blue-200'
         },
         {
-            title: 'Completados (Mes)',
-            value: stats?.completados_mes || 0,
+            title: 'Completados',
+            value: stats?.completados || 0,
             icon: CheckCircle,
             color: 'text-green-600',
             bgColor: 'bg-green-100',
