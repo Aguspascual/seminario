@@ -250,7 +250,11 @@ const Legal = ({ user }) => {
                                         disabled={loading}
                                         className={styles.btnAdd}
                                     >
-                                        {loading ? "Subiendo..." : "Guardar Documento"}
+                                        {loading ? "Subiendo..." : (
+                                            <>
+                                                <i className="fa-solid fa-save" style={{ marginRight: '5px' }}></i> Guardar
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </form>
