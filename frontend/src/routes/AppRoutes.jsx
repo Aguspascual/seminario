@@ -32,9 +32,13 @@ function AppRoutes() {
         <Route path="/" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
 
-        {/* Rutas Privadas para los logueados*/}
+        {/* Rutas Privadas Comunes (Todos los usuarios) */}
+        {/* Home, Legal, Insumos, Mantenimiento, Maquinas, Reportes, Mi Perfil, Cambiar Contraseña, Mensajes */}
         <Route element={<ProtectedRoute user={user} />}>
           <Route path="/home" element={<HomePage />} />
+          <Route path="/legal" element={<Legal user={user} />} />
+          <Route path="/insumos" element={<Insumos />} />
+          <Route path="/mantenimiento" element={<MaintenancePage user={user} />} />
           <Route path="/maquinaria" element={<Maquinarias user={user} />} />
           <Route path="/reportes" element={<Reportes user={user} />} />
           <Route path="/mensajes" element={<Mensajes />} />
@@ -42,20 +46,19 @@ function AppRoutes() {
           <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
         </Route>
 
-        {/* --- 3. Rutas para Planta (Solo admin y Rol B) --- */}
-        <Route element={<ProtectedRoute user={user} allowedRoles={['Admin', 'Supervisor']} />}>
-          <Route path="/legal" element={<Legal user={user} />} />
+        {/* Rutas para Admin y Supervisor */}
+        {/* Proveedores, Auditorias */}
+        <Route element={<ProtectedRoute user={user} allowedRoles={['Admin', 'Administrador', 'Supervisor']} />}>
           <Route path="/proveedores" element={<Proveedores />} />
-          <Route path="/insumos" element={<Insumos />} />
-          <Route path="/grupos" element={<Grupos />} />
           <Route path="/auditorias" element={<Auditorias />} />
-          <Route path="/areas" element={<Areas />} />
-          <Route path="/mantenimiento" element={<MaintenancePage user={user} />} />
-          {/* <Route path="/capacitaciones" element={<Capacitaciones />} /> */}
         </Route>
 
-        <Route element={<ProtectedRoute user={user} allowedRoles={['Admin']} />}>
+        {/* Rutas Solo Admin */}
+        {/* Usuarios, Areas, Grupos */}
+        <Route element={<ProtectedRoute user={user} allowedRoles={['Admin', 'Administrador']} />}>
           <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/areas" element={<Areas />} />
+          <Route path="/grupos" element={<Grupos />} />
         </Route>
 
       </Routes>
