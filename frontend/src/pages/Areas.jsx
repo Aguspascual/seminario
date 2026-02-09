@@ -1,182 +1,264 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import '../assets/styles/Areas.css';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import styles from '../assets/styles/modals/Areas/Areas.module.css';
+import stylesCrear from '../assets/styles/modals/Areas/Areas.crear.module.css';
+import stylesEditar from '../assets/styles/modals/Areas/Areas.editar.module.css';
+import stylesDetalle from '../assets/styles/modals/Areas/Areas.detalles.module.css';
+
 import Head from '../components/Head';
 import Table from '../components/Table';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useNotification } from "../context/NotificationContext";
+
+// Schemas
+const areaSchema = yup.object().shape({
+    nombre: yup.string().required("El nombre del área es requerido"),
+});
 
 const Areas = () => {
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [modoEdicion, setModoEdicion] = useState(false);
-    const [areaActual, setAreaActual] = useState({ id: null, nombre: '' });
-    const [formError, setFormError] = useState('');
-    const [busqueda, setBusqueda] = useState('');
+    const [mostrarModalDetalle, setMostrarModalDetalle] = useState(false);
+    const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
+    
+    const [modalMode, setModalMode] = useState('crear'); // 'crear', 'editar'
+    const [areaSeleccionada, setAreaSeleccionada] = useState(null);
+    const [areaAEliminar, setAreaAEliminar] = useState(null);
+
+    const [busqueda, setBusqueda] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [modalEliminar, setModalEliminar] = useState({ mostrar: false, id: null, nombre: '' });
-    const itemsPerPage = 10;
+    const itemsPerPage = 10; 
 
-    // Obtener usuario del localStorage para el Head
     const user = JSON.parse(localStorage.getItem('usuario'));
-
     const queryClient = useQueryClient();
+    const { showNotification } = useNotification();
 
-    // 1. Fetching con useQuery
-    const { data: areas = [], isLoading, isError, error } = useQuery({
-        queryKey: ['areas'],
-        queryFn: async () => {
-            const response = await fetch('http://localhost:5000/areas');
-            if (!response.ok) throw new Error('Error al cargar áreas');
-            return response.json();
+    // Form
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm({
+        resolver: yupResolver(areaSchema),
+        defaultValues: {
+            nombre: ''
         }
     });
 
-    // 2. Mutation para Crear/Actualizar
-    const saveMutation = useMutation({
-        mutationFn: async (area) => {
-            const url = modoEdicion
-                ? `http://localhost:5000/areas/${area.id}`
-                : 'http://localhost:5000/areas';
-            const method = modoEdicion ? 'PUT' : 'POST';
+    // Queries
+    const { data: areas = [], isLoading } = useQuery({
+        queryKey: ['areas'],
+        queryFn: async () => {
+            const res = await fetch("http://localhost:5000/areas");
+            if (!res.ok) throw new Error("Error al cargar áreas");
+            return res.json();
+        }
+    });
 
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre: area.nombre })
+    // Mutations
+    const mutation = useMutation({
+        mutationFn: async (data) => {
+             const url = modalMode === 'editar' && areaSeleccionada
+                ? `http://localhost:5000/areas/${areaSeleccionada.id}`
+                : "http://localhost:5000/areas";
+            const method = modalMode === 'editar' && areaSeleccionada ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
             });
-
-            if (!response.ok) throw new Error('Error al guardar el área');
-            return response.json();
+            if (!res.ok) throw new Error("Error al guardar área");
+            return res.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['areas']);
             cerrarModal();
+            showNotification("success", `Área ${modalMode === 'editar' ? 'editada' : 'creada'} correctamente`);
         },
-        onError: (err) => {
-            setFormError(err.message);
-        }
+        onError: (err) => showNotification("error", err.message)
     });
 
-    // 3. Mutation para Eliminar
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            const response = await fetch(`http://localhost:5000/areas/${id}`, {
-                method: 'DELETE'
-            });
-            if (!response.ok) throw new Error('Error al eliminar el área');
-            return response.json();
+            const res = await fetch(`http://localhost:5000/areas/${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Error al eliminar área");
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['areas']);
+            cerrarModalEliminar();
+            showNotification("success", "Área eliminada correctamente");
         },
-        onError: (err) => {
-            alert(err.message);
-        }
+        onError: (err) => showNotification("error", err.message)
     });
 
-    const abrirModal = (area = null) => {
-        setFormError('');
-        if (area) {
-            setModoEdicion(true);
-            setAreaActual({ id: area.id, nombre: area.nombre });
-        } else {
-            setModoEdicion(false);
-            setAreaActual({ id: null, nombre: '' });
-        }
+    // Handlers
+    const abrirModalCrear = () => {
+        setModalMode('crear');
+        setAreaSeleccionada(null);
+        reset({ nombre: '' });
         setMostrarModal(true);
+    };
+
+    const abrirModalEditar = (area) => {
+        setModalMode('editar');
+        setAreaSeleccionada(area);
+        reset({ nombre: area.nombre });
+        setMostrarModal(true);
+    };
+
+    const abrirModalDetalle = (area) => {
+        setAreaSeleccionada(area);
+        setMostrarModalDetalle(true);
+    };
+
+    const abrirModalEliminar = (area) => {
+        setAreaAEliminar(area);
+        setMostrarModalEliminar(true);
     };
 
     const cerrarModal = () => {
         setMostrarModal(false);
-        setAreaActual({ id: null, nombre: '' });
-        setFormError('');
+        setMostrarModalDetalle(false);
+        setAreaSeleccionada(null);
+        reset();
     };
 
-    const manejarEnvio = (e) => {
-        e.preventDefault();
-        saveMutation.mutate(areaActual);
+    const cerrarModalEliminar = () => {
+        setAreaAEliminar(null);
+        setMostrarModalEliminar(false);
     };
 
-    const eliminarArea = (area) => {
-        setModalEliminar({ mostrar: true, id: area.id, nombre: area.nombre });
-    };
-
-    const confirmarEliminacion = () => {
-        if (modalEliminar.id) {
-            deleteMutation.mutate(modalEliminar.id);
-            setModalEliminar({ mostrar: false, id: null, nombre: '' });
+    const confirmarEliminar = () => {
+        if (areaAEliminar) {
+            deleteMutation.mutate(areaAEliminar.id);
         }
     };
 
-    const cancelarEliminacion = () => {
-        setModalEliminar({ mostrar: false, id: null, nombre: '' });
+    const onSubmit = (data) => {
+        mutation.mutate(data);
     };
 
-    // Filtrado y Paginación (Client-side por ahora)
-    const areasFiltradas = areas.filter((area) =>
-        area.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    );
+     // Filtering & Pagination
+    const filteredAreas = useMemo(() => {
+        return areas.filter(a =>
+            a.nombre.toLowerCase().includes(busqueda.toLowerCase())
+        );
+    }, [areas, busqueda]);
 
-    const totalPages = Math.ceil(areasFiltradas.length / itemsPerPage);
-    // Ajustar página actual si supera el total tras filtrar
-    if (currentPage > totalPages && totalPages > 0) {
-        setCurrentPage(1);
-    }
+    const totalItems = filteredAreas.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredAreas.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredAreas, currentPage, itemsPerPage]);
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = areasFiltradas.slice(startIndex, startIndex + itemsPerPage);
+    // Columns
+    const columns = [
+        { header: 'Nombre', accessor: 'nombre', style: { fontWeight: 'bold' } },
+        {
+            header: "Acciones",
+            render: (area) => (
+                <div className={styles['actions-cell']}>
+                    <button className={styles['action-btn']} onClick={() => abrirModalDetalle(area)} title="Ver Detalles">
+                        <i className="fa-solid fa-eye"></i>
+                    </button>
+                    <button 
+                        className={styles['action-btn']} 
+                        onClick={() => abrirModalEditar(area)} 
+                        title="Editar"
+                    >
+                        <i className="fa-solid fa-pen"></i>
+                    </button>
+                    <button 
+                        className={styles['btn-delete-action']} 
+                        onClick={() => abrirModalEliminar(area)} 
+                        title="Eliminar"
+                    >
+                        <i className="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            )
+        }
+    ];
 
+    // Styles selection based on mode
+    const currentStyles = modalMode === 'crear' ? stylesCrear : stylesEditar;
 
     return (
-        <div className="container">
+        <div className={styles.container}>
             <Head user={user} />
-            <div className="main">
+            <div className={styles.main}>
                 {/* Breadcrumbs */}
-                <div className="breadcrumbs">
-                    <Link to="/home">Home</Link> <span>&gt;</span>
-                    <Link to="/home">Planta</Link> <span>&gt;</span>
-                    <span className="current">Gestión de Áreas</span>
+                <div className={styles.breadcrumbs}>
+                    <Link to="/home">Home</Link> <span>/</span>
+                    <Link to="/home">Planta</Link> <span>/</span>
+                    <span className={styles.current}>Gestión de Áreas</span>
                 </div>
 
-                <div className="header-section">
+                {/* Header */}
+                <div className={styles['header-section']}>
                     <h2>Gestión de Áreas</h2>
                 </div>
 
-                <div className="controls-section">
+                {/* Controls */}
+                <div className={styles['controls-section']}>
                     <input
                         type="text"
-                        placeholder='Buscar Áreas...'
-                        className="search-input"
+                        placeholder="Buscar área..."
                         value={busqueda}
-                        onChange={(e) => setBusqueda(e.target.value)}
+                        onChange={(e) => { setBusqueda(e.target.value); setCurrentPage(1); }}
+                        className={styles['search-input']}
                     />
-                    <button className="btn-add" onClick={() => abrirModal()}>
-                        <i className="fa-solid fa-plus"></i> Agregar Área
+                    <button className={styles['btn-add']} onClick={abrirModalCrear}>
+                        <i className="fa-solid fa-plus"></i> Nueva Área
                     </button>
                 </div>
 
-                {/* Modal */}
+                {/* Table */}
+                <Table
+                    isLoading={isLoading}
+                    data={paginatedData}
+                    columns={columns}
+                    pagination={{
+                        currentPage: currentPage,
+                        totalPages: totalPages,
+                        totalItems: totalItems,
+                        minRows: itemsPerPage,
+                        onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
+                        onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
+                    }}
+                    emptyMessage="No se encontraron áreas."
+                />
+
+                {/* MODAL (Crear / Editar) */}
                 {mostrarModal && (
-                    <div className="modal-fondo">
-                        <div className="modal-contenido">
-                            <h3>{modoEdicion ? 'Editar Área' : 'Agregar Área'}</h3>
-                            <form onSubmit={manejarEnvio}>
-                                <input
-                                    type="text"
-                                    placeholder="Nombre del Área"
-                                    required
-                                    value={areaActual.nombre}
-                                    onChange={(e) => setAreaActual({ ...areaActual, nombre: e.target.value })}
-                                    disabled={saveMutation.isPending}
-                                />
-                                {formError && <p style={{ color: 'red' }}>{formError}</p>}
-                                {saveMutation.isError && <p style={{ color: 'red' }}>{saveMutation.error.message}</p>}
-                                <div className="modal-botones">
-                                    <button type="button" onClick={cerrarModal} className="btn-cancelar" disabled={saveMutation.isPending}>
-                                        Cancelar
-                                    </button>
-                                    <button type="submit" className="btn-confirmar" disabled={saveMutation.isPending}>
-                                        {saveMutation.isPending ? 'Guardando...' : (modoEdicion ? 'Guardar' : 'Agregar')}
+                    <div className={currentStyles['modal-fondo']}>
+                        <div className={currentStyles['modal-contenido']}>
+                            <h3>{modalMode === 'crear' ? 'Nueva Área' : 'Editar Área'}</h3>
+                            <div style={{ width: '100%' }} className={currentStyles.separator}></div>
+                            
+                            <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: '10px', gap: '10px' }}>
+                                <div className={currentStyles.formGroup}>
+                                    <label className={currentStyles.formLabel}>Nombre del Área</label>
+                                    <input 
+                                        {...register("nombre")} 
+                                        placeholder="Ej: Producción" 
+                                        className={errors.nombre ? 'input-error' : ''}
+                                    />
+                                    {errors.nombre && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errors.nombre.message}</p>}
+                                </div>
+
+                                <div className={currentStyles['modal-botones-derecha']}>
+                                    <button type="button" onClick={cerrarModal} className={currentStyles['btn-gris']}>Cancelar</button>
+                                    <button type="submit" className={currentStyles['btn-confirmar']} disabled={mutation.isPending}>
+                                        <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>
+                                        {mutation.isPending ? 'Guardando...' : (modalMode === 'editar' ? 'Guardar Cambios' : 'Guardar')}
                                     </button>
                                 </div>
                             </form>
@@ -184,73 +266,53 @@ const Areas = () => {
                     </div>
                 )}
 
-                {/* Modal Eliminar */}
-                {modalEliminar.mostrar && (
-                    <div className="modal-fondo">
-                        <div className="modal-contenido">
-                            <h3>Eliminar Área</h3>
-                            <p>Estas seguro de eliminar esta area <strong>{modalEliminar.nombre}</strong>?</p>
-                            <div className="modal-botones">
-                                <button onClick={cancelarEliminacion} className="btn-cancelar">
-                                    Cancelar
-                                </button>
-                                <button onClick={confirmarEliminacion} className="btn-confirmar" style={{ backgroundColor: '#ef4444' }}>
-                                    Eliminar
+                {/* MODAL DETALLES */}
+                {mostrarModalDetalle && areaSeleccionada && (
+                    <div className={stylesDetalle['modal-fondo']} onClick={cerrarModal}>
+                        <div className={stylesDetalle['modal-contenido']} onClick={e => e.stopPropagation()}>
+                            <h3>Detalles del Área</h3>
+                            <div className={stylesDetalle.separator}></div>
+                            
+                            <div className={stylesDetalle['detalles-usuario']}>
+                                <p><strong>Nombre:</strong> {areaSeleccionada.nombre}</p>
+                            </div>
+
+                            <div className={stylesDetalle['modal-botones-derecha']}>
+                                <button type="button" onClick={cerrarModal} className={stylesDetalle['btn-gris']}>Cerrar</button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => {
+                                        setMostrarModalDetalle(false);
+                                        abrirModalEditar(areaSeleccionada);
+                                    }} 
+                                    className={stylesDetalle['btn-editar']}
+                                >
+                                    <i className="fa-solid fa-pen"></i> Editar
                                 </button>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="table-container-areas">
-                    <Table
-                        isLoading={isLoading}
-                        data={currentData}
-                        columns={[
-                            { header: "Nombre", accessor: "nombre", className: "column-name" },
-                            {
-                                header: "Acciones",
-                                className: "column-actions",
-                                render: (area) => (
-                                    <>
-                                        <button className="action-btn" onClick={() => abrirModal(area)} title="Editar">
-                                            <i className="fas fa-edit"></i>
-                                        </button>
-                                        <button className="action-btn delete-btn" onClick={() => eliminarArea(area)} title="Eliminar">
-                                            <i className="fas fa-trash"></i>
-                                        </button>
-                                    </>
-                                )
-                            }
-                        ]}
-                    />
-                </div>
-
-                {/* Paginación - Solo si hay más de una página */}
-                {totalPages > 1 && (
-                    <div className="pagination">
-                        <button
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="pagination-btn"
-                        >
-                            Anterior
-                        </button>
-                        <span className="pagination-info">
-                            Página {currentPage} de {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            className="pagination-btn"
-                        >
-                            Siguiente
-                        </button>
+                {/* MODAL CONFIRMACIÓN ELIMINAR */}
+                {mostrarModalEliminar && (
+                    <div className={styles['modal-confirmacion-fondo']} onClick={cerrarModalEliminar}>
+                        <div className={styles['modal-confirmacion-contenido']} onClick={(e) => e.stopPropagation()}>
+                            <div style={{ marginBottom: "15px", color: "#ef4444", fontSize: "3rem" }}>
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                            </div>
+                            <h3>¿Estás seguro?</h3>
+                            <p>¿Deseas eliminar el área <strong>{areaAEliminar?.nombre}</strong>? Esta acción no se puede deshacer.</p>
+                            <div className={styles['modal-confirmacion-botones']}>
+                                <button onClick={cerrarModalEliminar} className={styles['btn-gris-modal']}>Cancelar</button>
+                                <button onClick={confirmarEliminar} className={styles['btn-rojo']}>Eliminar</button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-            {/* Footer removido intencionalmente */}
         </div>
     );
 };
+
 export default Areas;

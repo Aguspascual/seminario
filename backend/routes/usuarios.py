@@ -46,11 +46,28 @@ def get_usuarios():
         description: Error interno del servidor
     """
     try:
+        # Base query: Usuarios activos y NO administradores
+        query = Usuario.query.filter(
+            Usuario.Estado == True,
+            Usuario.Rol.notin_(['Admin', 'Administrador'])
+        )
+
+        # Búsqueda (Backend-side)
+        search_term = request.args.get('search', '').strip()
+        if search_term:
+            search_pattern = f"%{search_term}%"
+            query = query.filter(
+                (Usuario.nombre.ilike(search_pattern)) | 
+                (Usuario.Email.ilike(search_pattern)) |
+                (Usuario.Telefono.ilike(search_pattern))
+            )
+
         if "page" in request.args or "limit" in request.args:
             # Paginación con SQLAlchemy
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('limit', 10, type=int)
-            pagination = Usuario.query.filter_by(Estado=True).paginate(page=page, per_page=per_page, error_out=False)
+            
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
             listaUsuarios = pagination.items
             
             total_pages = pagination.pages
@@ -58,7 +75,7 @@ def get_usuarios():
             current_page = page
         else:
             # Sin paginación
-            listaUsuarios = Usuario.query.filter_by(Estado=True).all()
+            listaUsuarios = query.all()
             total_pages = 1
             total_items = len(listaUsuarios)
             current_page = 1

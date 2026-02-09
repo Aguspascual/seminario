@@ -41,7 +41,7 @@
 .table tbody tr {
     border-bottom: 1px solid #e5e7eb;
     transition: background-color 0.2s ease;
-    height: 35px; /* Altura compacta */
+    height: 50px; /* Altura compacta */
 }
 
 .table tbody tr:last-child {
@@ -117,4 +117,30 @@
     opacity: 0.5;
     cursor: not-allowed;
     background-color: #f9fafb;
+}
+
+/* Loading Spinner */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    color: #3b82f6;
+    gap: 12px;
+    font-size: 0.95rem;
+    padding: 40px 0;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(59, 130, 246, 0.3); /* Blue-500 light opacity */
+    border-radius: 50%;
+    border-top-color: #3b82f6; /* Blue-500 */
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

@@ -209,7 +209,8 @@ class MantenimientoService:
 
     @staticmethod
     def get_all_reportes_fallas(page=1, per_page=10):
-        pagination = ReporteFalla.query.order_by(ReporteFalla.fecha_reporte.desc()).paginate(page=page, per_page=per_page, error_out=False)
+        # Filter out soft-deleted reports
+        pagination = ReporteFalla.query.filter(ReporteFalla.fecha_baja == None).order_by(ReporteFalla.fecha_reporte.desc()).paginate(page=page, per_page=per_page, error_out=False)
         
         # Exclude descripcion_falla for list view optimization
         result = []
@@ -259,6 +260,7 @@ class MantenimientoService:
         if not reporte:
             return False
         
-        db.session.delete(reporte)
+        # Soft delete
+        reporte.fecha_baja = datetime.now()
         db.session.commit()
         return True

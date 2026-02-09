@@ -1,0 +1,133 @@
+.modal-fondo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modal-contenido {
+  background: white;
+  padding: 20px 20px 20px 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  text-align: left;
+}
+
+.modal-contenido h3 {
+  margin-top: 0;
+  color: #1F3A52;
+  margin-bottom: 20px;
+}
+
+.separator {
+  height: 1px;
+  background-color: #d1d5db;
+  width: 100%;
+  margin-top: -10px;
+}
+
+.formRow {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.formGroup {
+  margin-bottom: 10px;
+  margin-right: 0px;
+  width: 100%;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-contenido input,
+.modal-contenido select {
+  width: 100%;
+  padding: 8px; /* Reduced field padding slightly for compactness? Or keep 12? user approved compact. */
+  margin-bottom: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.modal-contenido select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231F3A52%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.modal-contenido input:focus,
+.modal-contenido select:focus {
+  outline: none;
+  border-color: #2E4F6E;
+  background-color: white;
+}
+
+.modal-botones-derecha {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0px 0px 0px;
+  padding-right: 0px;
+  padding-bottom: 0px; /* User change */
+}
+
+.btn-gris {
+  background-color: #9ca3af;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 30%;
+  font-weight: 500;
+  margin: 0px;
+}
+
+.btn-gris:hover {
+  background-color: #6b7280;
+}
+
+.btn-confirmar {
+  background-color: #166534;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 40%;
+  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.btn-confirmar:hover {
+  background-color: #14532d;
+}

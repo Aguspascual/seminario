@@ -36,37 +36,86 @@ def delete_proveedor(id):
 @proveedores.route("/proveedores", methods=["GET"])
 def get_proveedores():
     """
-    Obtener lista de proveedores
+    Obtener lista de proveedores con paginación y búsqueda
     ---
     tags:
       - Proveedores
+    parameters:
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+      - name: limit
+        in: query
+        type: integer
+        required: false
+        default: 10
+      - name: search
+        in: query
+        type: string
+        required: false
     responses:
       200:
-        description: Lista de proveedores
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              nombre:
-                type: string
-              numero:
-                type: string
-              email:
-                type: string
-              tipo:
-                type: string
+        description: Lista de proveedores paginada
       500:
         description: Error interno
     """
     try:
-        lista = ProveedorService.get_all()
-        # Puedes crear un schema para lista pero por ahora to_dict() del modelo es ok
-        # O mejor, usar el schema:
-        schema = ProveedorSchema(many=True)
-        return jsonify(schema.dump(lista)), 200
+        from models.proveedor import Proveedor
+        
+        # Base query: todos los proveedores (o solo activos si se desea, pero el requerimiento no lo especifica explicitamente, aunque usuarios si. Asumiremos todos por ahora, o Estado=True si existe)
+        # Viendo el codigo original, no filtraba por estado. Pero el componente frontend muestra "Estado: Activo/Inactivo".
+        # Si queremos mostrar todos para gestionarlos, no filtramos por estado en la query base.
+        # Sin embargo, la tabla de usuarios filtraba Estado=True. 
+        # Voy a mostrar TODOS para que se pueda ver el estado y reactivar si es necesario, o filtrar en front.
+        # REVISION: Usuarios mostraba solo activos. Proveedores tiene Soft Delete.
+        # Si hago soft delete, normalmente quiero ocultarlos. 
+        # Voy a filtrar Estado=True para consistencia con Usuarios, salvo que se pida lo contrario.
+        
+        query = Proveedor.query.filter(Proveedor.Estado == True)
+
+        # Búsqueda
+        search_term = request.args.get('search', '').strip()
+        if search_term:
+            search_pattern = f"%{search_term}%"
+            query = query.filter(
+                (Proveedor.Nombre.ilike(search_pattern)) | 
+                (Proveedor.Email.ilike(search_pattern)) |
+                (Proveedor.Numero.ilike(search_pattern))
+            )
+
+        # Paginación
+        if "page" in request.args or "limit" in request.args:
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('limit', 10, type=int)
+            
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+            lista = pagination.items
+            
+            total_pages = pagination.pages
+            total_items = pagination.total
+            current_page = page
+            
+            # Serializar
+            schema = ProveedorSchema(many=True)
+            data = schema.dump(lista)
+            
+            return jsonify({
+                "proveedores": data,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "current_page": current_page
+            }), 200
+        else:
+            # Sin paginación explícita (legacy support o select inputs) -> Ojo, el frontend nuevo usará paginación.
+            # Si no envían page, devuelvo todo? Mejor default a paginación si no se dice nada?
+            # Para selects, se suele pedir sin paginacion.
+            # Mantendré el comportamiento "sin params -> todo" para no romper selects
+            lista = query.all()
+            schema = ProveedorSchema(many=True)
+            return jsonify(schema.dump(lista)), 200
+
     except Exception as e:
         return jsonify({"error": f"Error al obtener proveedores: {str(e)}"}), 500
 

@@ -72,7 +72,6 @@
 }
 
 /* Controles (Buscador + Botón Agregar) */
-/* Controles (Buscador + Botón Agregar) */
 .controls-section {
   display: flex;
   justify-content: flex-start;
@@ -125,8 +124,8 @@
   border: 1px solid #94a3b8; /* Borde más notorio (Slate-400) */
   cursor: pointer;
   color: #2E4F6E;
-  transition: all 0.2s;
   padding: 0px 0px 0px 0px;
+  transition: all 0.2s;
   width: 32px;
   height: 32px;
   display: flex;
@@ -163,63 +162,37 @@
   gap: 8px;
 }
 
-/* PAGINATION */
-.pagination {
+/* WhatsApp Action Button */
+.btn-whatsapp {
+  background: none;
+  border: 1px solid #25D366;
+  cursor: pointer;
+  color: #25D366;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-  padding: 15px 0;
+  border-radius: 6px; 
+  margin: 0; 
 }
 
-.pagination-btn {
-  background-color: #2E4F6E;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s;
+.btn-whatsapp:hover {
+  color: #128C7E;
+  background-color: #dcfce7; 
+  border-color: #128C7E;
 }
 
-.pagination-btn:hover:not(:disabled) {
-  background-color: #4F6F8F;
+.btn-whatsapp:active {
+  transform: scale(0.95);
+  box-shadow: inset 0 0 0 1px #128C7E;
 }
 
-.pagination-btn:disabled {
-  background-color: #d1d5db;
-  cursor: not-allowed;
-  opacity: 0.6;
+.btn-whatsapp:focus {
+  outline: none;
 }
 
-.pagination-info {
-  color: #64748b;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .controls-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-input {
-    width: 100%;
-  }
-
-  .btn-add {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* DELETE ACTION BUTTON */
 /* DELETE ACTION BUTTON */
 .btn-delete-action {
   background-color: #c50606; 

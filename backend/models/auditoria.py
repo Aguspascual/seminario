@@ -12,6 +12,7 @@ class Auditoria(db.Model):
     archivo_path = db.Column(db.String(255), nullable=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_baja = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, fecha, hora, estado, lugar, archivo_path=None):
         self.fecha = fecha

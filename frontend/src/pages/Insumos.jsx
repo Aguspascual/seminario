@@ -1,35 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import styles from '../assets/styles/modals/Insumos/Insumos.module.css';
+import stylesCrear from '../assets/styles/modals/Insumos/Insumos.crear.module.css';
+import stylesMovimiento from '../assets/styles/modals/Insumos/Insumos.movimiento.module.css';
+import stylesDetalle from '../assets/styles/modals/Insumos/Insumos.detalles.module.css';
+
 import Head from '../components/Head';
 import Table from '../components/Table';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import styles from '../assets/styles/Areas.module.css'; // Reusing Areas styles for consistency
-import stylesCrear from '../assets/styles/Insumos.crear.modal.module.css';
-import stylesMovimiento from '../assets/styles/Insumos.movimiento.modal.module.css';
-import stylesDetalle from '../assets/styles/Insumos.detalle.modal.module.css';
+import { useNotification } from "../context/NotificationContext";
+
+// Schemas
+const createSchema = yup.object().shape({
+    nombre: yup.string().required("El nombre es requerido"),
+    codigo: yup.string().nullable(),
+    unidad: yup.string().required("La unidad es requerida"),
+    stock_minimo: yup.number().typeError("Debe ser un número").min(0, "Mínimo 0").required("Requerido"),
+    stock_actual: yup.number().typeError("Debe ser un número").min(0, "Mínimo 0").required("Requerido"),
+    proveedor_id: yup.string().nullable().label("Proveedor") // Can be empty if not selected? Assuming optional based on original code, or check validation.
+});
+
+const movimientoSchema = yup.object().shape({
+    cantidad: yup.number().typeError("Debe ser un número").positive("Debe ser mayor a 0").required("La cantidad es requerida"),
+    motivo: yup.string().required("El motivo es requerido")
+});
 
 const Insumos = () => {
-    const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
     const [mostrarModalMovimiento, setMostrarModalMovimiento] = useState(false);
+    const [mostrarModalDetalle, setMostrarModalDetalle] = useState(false);
+
     const [insumoSeleccionado, setInsumoSeleccionado] = useState(null);
-    const [insumoVerDetalle, setInsumoVerDetalle] = useState(null); // State for details modal
     const [tipoMovimiento, setTipoMovimiento] = useState(''); // 'ENTRADA' or 'SALIDA'
 
-    // States for forms
     const [busqueda, setBusqueda] = useState("");
-    const [formError, setFormError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const itemsPerPage = 10; // Adjust to match if needed, user didn't specify for this one but consistent is good.
 
     const user = JSON.parse(localStorage.getItem('usuario'));
     const queryClient = useQueryClient();
+    const { showNotification } = useNotification();
 
-    // --- QUERIES ---
+    // Forms
+    const {
+        register: registerCrear,
+        handleSubmit: handleSubmitCrear,
+        reset: resetCrear,
+        formState: { errors: errorsCrear }
+    } = useForm({
+        resolver: yupResolver(createSchema)
+    });
+
+    const {
+        register: registerMovimiento,
+        handleSubmit: handleSubmitMovimiento,
+        reset: resetMovimiento,
+        formState: { errors: errorsMovimiento }
+    } = useForm({
+        resolver: yupResolver(movimientoSchema)
+    });
+
+    // Queries
     const { data: insumos = [], isLoading: loadingInsumos } = useQuery({
         queryKey: ['insumos'],
         queryFn: async () => {
-            const res = await fetch("http://127.0.0.1:5000/api/insumos");
+             const res = await fetch("http://127.0.0.1:5000/api/insumos");
             if (!res.ok) throw new Error("Error al cargar insumos");
             return res.json();
         }
@@ -45,245 +85,234 @@ const Insumos = () => {
     });
 
     const { data: movimientos = [], isLoading: loadingMovimientos } = useQuery({
-        queryKey: ['movimientos', insumoVerDetalle?.id],
+        queryKey: ['movimientos', insumoSeleccionado?.id],
         queryFn: async () => {
-            if (!insumoVerDetalle?.id) return [];
-            const res = await fetch(`http://127.0.0.1:5000/api/insumos/${insumoVerDetalle.id}/movimientos`);
+            if (!insumoSeleccionado?.id) return [];
+            const res = await fetch(`http://127.0.0.1:5000/api/insumos/${insumoSeleccionado.id}/movimientos`);
             if (!res.ok) throw new Error("Error al cargar movimientos");
             return res.json();
         },
-        enabled: !!insumoVerDetalle?.id
+        enabled: !!insumoSeleccionado?.id && mostrarModalDetalle
     });
 
-    // --- MUTATIONS ---
+    // Mutations
     const createMutation = useMutation({
-        mutationFn: async (nuevoInsumo) => {
+        mutationFn: async (data) => {
             const res = await fetch("http://127.0.0.1:5000/api/insumos", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
-                body: JSON.stringify(nuevoInsumo)
+                body: JSON.stringify(data)
             });
             if (!res.ok) throw new Error("Error al crear insumo");
             return res.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['insumos']);
-            cerrarModal();
-        }
+            setMostrarModalCrear(false);
+            resetCrear();
+            showNotification("success", "Insumo creado correctamente");
+        },
+        onError: (err) => showNotification("error", err.message)
     });
 
     const movimientoMutation = useMutation({
-        mutationFn: async (movimiento) => {
+        mutationFn: async (data) => {
             const res = await fetch("http://127.0.0.1:5000/api/insumos/movimiento", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
-                body: JSON.stringify(movimiento)
+                body: JSON.stringify(data)
             });
             if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "Error al registrar movimiento");
+                 const err = await res.json();
+                 throw new Error(err.error || "Error al registrar movimiento");
             }
             return res.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['insumos']);
-            cerrarModalMovimiento();
+            setMostrarModalMovimiento(false);
+            resetMovimiento();
+            setInsumoSeleccionado(null);
+            showNotification("success", "Movimiento registrado correctamente");
         },
-        onError: (err) => alert(err.message)
+        onError: (err) => showNotification("error", err.message)
     });
 
-    // --- HANDLERS ---
-    const abrirModal = () => setMostrarModal(true);
-    const cerrarModal = () => setMostrarModal(false);
+    // Filtering & Pagination
+    const filteredInsumos = useMemo(() => {
+        return insumos.filter(i =>
+            i.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+            (i.codigo && i.codigo.toLowerCase().includes(busqueda.toLowerCase()))
+        );
+    }, [insumos, busqueda]);
+
+    const totalItems = filteredInsumos.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredInsumos.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredInsumos, currentPage, itemsPerPage]);
+
+    // Handlers
+    const handleCrear = (data) => {
+        createMutation.mutate(data);
+    };
+
+    const handleMovimientoGuardar = (data) => {
+        if (insumoSeleccionado) {
+            movimientoMutation.mutate({
+                insumo_id: insumoSeleccionado.id,
+                tipo: tipoMovimiento,
+                cantidad: data.cantidad,
+                motivo: data.motivo
+            });
+        }
+    };
 
     const abrirModalMovimiento = (insumo, tipo) => {
         setInsumoSeleccionado(insumo);
         setTipoMovimiento(tipo);
+        resetMovimiento();
         setMostrarModalMovimiento(true);
     };
 
-    const cerrarModalMovimiento = () => {
-        setInsumoSeleccionado(null);
-        setTipoMovimiento('');
-        setMostrarModalMovimiento(false);
-    };
-
     const abrirModalDetalle = (insumo) => {
-        setInsumoVerDetalle(insumo);
+        setInsumoSeleccionado(insumo);
+        setMostrarModalDetalle(true);
     };
 
-    const cerrarModalDetalle = () => {
-        setInsumoVerDetalle(null);
-    };
-
-    const handleCreate = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        createMutation.mutate({
-            nombre: formData.get('nombre'),
-            codigo: formData.get('codigo'),
-            unidad: formData.get('unidad'),
-            stock_minimo: parseInt(formData.get('stock_minimo')),
-            stock_actual: parseFloat(formData.get('stock_actual')) || 0,
-            proveedor_id: formData.get('proveedor_id')
-        });
-    };
-
-    const handleMovimiento = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        movimientoMutation.mutate({
-            insumo_id: insumoSeleccionado.id,
-            tipo: tipoMovimiento,
-            cantidad: parseFloat(formData.get('cantidad')),
-            motivo: formData.get('motivo')
-        });
-    };
-
-    // --- FILTER & PAGINATION ---
-    const filteredInsumos = insumos.filter(i =>
-        i.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        (i.codigo && i.codigo.toLowerCase().includes(busqueda.toLowerCase()))
-    );
-
-    // Using Table component which handles pagination if we pass paginated data, 
-    // but here we do client-side pagination to match other components
-    const totalPages = Math.ceil(filteredInsumos.length / itemsPerPage);
-    const currentData = filteredInsumos.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    // Columns
+    const columns = [
+        { header: 'Código', accessor: 'codigo', render: (i) => <strong>{i.codigo || '-'}</strong> },
+        { header: 'Nombre', accessor: 'nombre' },
+        { header: 'Unidad', accessor: 'unidad' },
+        {
+            header: 'Stock Actual',
+            render: (i) => (
+                <span style={{
+                    color: i.stock_actual <= i.stock_minimo ? '#dc2626' : '#166534',
+                    fontWeight: 'bold',
+                    backgroundColor: i.stock_actual <= i.stock_minimo ? '#fee2e2' : '#dcfce7',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                }}>
+                    {i.stock_actual}
+                </span>
+            )
+        },
+        {
+            header: <div style={{ textAlign: 'center' }}>Acciones</div>,
+            render: (i) => (
+                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                    <button
+                        className={styles['action-btn']}
+                        onClick={() => abrirModalDetalle(i)}
+                        title="Ver Detalle e Historial"
+                    >
+                        <i className="fa-solid fa-eye"></i>
+                    </button>
+                    <button
+                        className={styles['action-btn']}
+                        onClick={() => abrirModalMovimiento(i, 'SALIDA')}
+                        title="Registrar Salida"
+                        style={{ color: '#b45309', backgroundColor: '#fef3c7', border: '1px solid #b45309' }}
+                    >
+                        <i className="fa-solid fa-minus"></i>
+                    </button>
+                    <button
+                        className={styles['action-btn']} 
+                        onClick={() => abrirModalMovimiento(i, 'ENTRADA')}
+                        title="Registrar Entrada"
+                        style={{ color: '#166534', backgroundColor: '#dcfce7', border: '1px solid #166534' }}
+                    >
+                        <i className="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            )
+        }
+    ];
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-            <div style={{ flex: 1 }}>
-                <Head user={user} />
-
-                <div style={{ padding: '20px', marginTop: '20px' }}>
-                    {/* Breadcrumbs */}
-                    <div style={{ marginBottom: '20px', fontSize: '0.9rem', color: '#666' }}>
-                        <Link to="/home" style={{ textDecoration: 'none', color: '#666' }}>Home</Link>
-                        <span style={{ margin: '0 8px' }}>/</span>
-                        <Link to="/home" style={{ textDecoration: 'none', color: '#666' }}>Planta</Link>
-                        <span style={{ margin: '0 8px' }}>/</span>
-                        <span style={{ color: '#2E4F6E', fontWeight: 'bold' }}>Insumos</span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h2 style={{ margin: 0, color: '#1f2937' }}>Gestión de Insumos</h2>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', backgroundColor: 'white', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                        <input
-                            type="text"
-                            placeholder="Buscar insumo..."
-                            value={busqueda}
-                            onChange={(e) => setBusqueda(e.target.value)}
-                            style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', width: '300px' }}
-                        />
-                        <button
-                            onClick={abrirModal}
-                            style={{ backgroundColor: '#2E4F6E', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                            <i className="fa-solid fa-plus"></i> Nuevo Insumo
-                        </button>
-                    </div>
-
-                    <Table
-                        data={currentData}
-                        isLoading={loadingInsumos}
-                        columns={[
-                            { header: 'Código', accessor: 'codigo', render: (i) => <strong>{i.codigo || '-'}</strong> },
-                            { header: 'Nombre', accessor: 'nombre' },
-                            { header: 'Unidad', accessor: 'unidad' },
-                            {
-                                header: 'Stock Actual',
-                                render: (i) => (
-                                    <span style={{
-                                        color: i.stock_actual <= i.stock_minimo ? '#dc2626' : '#166534',
-                                        fontWeight: 'bold',
-                                        backgroundColor: i.stock_actual <= i.stock_minimo ? '#fee2e2' : '#dcfce7',
-                                        padding: '4px 8px',
-                                        borderRadius: '4px'
-                                    }}>
-                                        {i.stock_actual}
-                                    </span>
-                                )
-                            },
-                            {
-                                header: <div style={{ textAlign: 'center' }}>Movimientos</div>,
-                                render: (i) => (
-                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                        <button
-                                            onClick={() => abrirModalDetalle(i)}
-                                            title="Ver Detalle e Historial"
-                                            style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}
-                                        >
-                                            <i className="fa-solid fa-eye"></i>
-                                        </button>
-                                        <button
-                                            onClick={() => abrirModalMovimiento(i, 'ENTRADA')}
-                                            title="Registrar Entrada"
-                                            style={{ backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}
-                                        >
-                                            <i className="fa-solid fa-plus"></i>
-                                        </button>
-                                        <button
-                                            onClick={() => abrirModalMovimiento(i, 'SALIDA')}
-                                            title="Registrar Salida"
-                                            style={{ backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}
-                                        >
-                                            <i className="fa-solid fa-minus"></i>
-                                        </button>
-                                    </div>
-                                )
-                            }
-                        ]}
-                    />
-
-                    {/* Pagination - Reuse logic if needed or use Table's built-in if compatible */}
-                    {totalPages > 1 && (
-                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
-                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Anterior</button>
-                            <span>Página {currentPage} de {totalPages}</span>
-                            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Siguiente</button>
-                        </div>
-                    )}
+        <div className={styles.container}>
+            <Head user={user} />
+            <div className={styles.main}>
+                {/* Breadcrumbs */}
+                <div className={styles.breadcrumbs}>
+                    <Link to="/home">Home</Link> <span>/</span>
+                    <span className={styles.current}>Gestion de Insumos</span>
                 </div>
 
+                {/* Header */}
+                <div className={styles['header-section']}>
+                    <h2>Gestión de Insumos</h2>
+                </div>
 
+                {/* Controls */}
+                <div className={styles['controls-section']}>
+                    <input
+                        type="text"
+                        placeholder="Buscar insumo..."
+                        value={busqueda}
+                        onChange={(e) => { setBusqueda(e.target.value); setCurrentPage(1); }}
+                        className={styles['search-input']}
+                    />
+                    <button className={styles['btn-add']} onClick={() => { setMostrarModalCrear(true); resetCrear(); }}>
+                        <i className="fa-solid fa-plus"></i> Nuevo Insumo
+                    </button>
+                </div>
 
-
+                {/* Table */}
+                <Table
+                    isLoading={loadingInsumos}
+                    data={paginatedData}
+                    columns={columns}
+                    pagination={{
+                        currentPage: currentPage,
+                        totalPages: totalPages,
+                        totalItems: totalItems,
+                        minRows: itemsPerPage,
+                        onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
+                        onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
+                    }}
+                    emptyMessage="No se encontraron insumos."
+                />
 
                 {/* MODAL CREAR */}
-                {mostrarModal && (
-                    <div className={stylesCrear['modal-fondo']} onClick={cerrarModal}>
-                        <div className={stylesCrear['modal-contenido']} onClick={e => e.stopPropagation()}>
+                {mostrarModalCrear && (
+                    <div className={stylesCrear['modal-fondo']}>
+                        <div className={stylesCrear['modal-contenido']}>
                             <div style={{ marginBottom: '15px' }}>
                                 <h3 style={{ margin: 0, paddingBottom: '10px' }}>Nuevo Insumo</h3>
                                 <div className={stylesCrear.separator}></div>
                             </div>
-                            <form onSubmit={handleCreate} style={{ paddingRight: "30px", paddingBottom: "0px", gap: "6px" }}>
+                            <form onSubmit={handleSubmitCrear(handleCrear)} style={{ paddingRight: "30px", paddingBottom: "0px", gap: "6px" }}>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Nombre</label>
-                                    <input name="nombre" placeholder="Ej: Tornillos, Aceite..." required />
+                                    <input {...registerCrear("nombre")} placeholder="Ej: Tornillos, Aceite..." />
+                                    {errorsCrear.nombre && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.nombre.message}</p>}
                                 </div>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Código <small>(Opcional)</small></label>
-                                    <input name="codigo" placeholder="Ej: INS-001" />
+                                    <input {...registerCrear("codigo")} placeholder="Ej: INS-001" />
                                 </div>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Unidad</label>
-                                    <input name="unidad" placeholder="Ej: Litros, Unidades, Metros" required />
+                                    <input {...registerCrear("unidad")} placeholder="Ej: Litros, Unidades, Metros" />
+                                    {errorsCrear.unidad && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.unidad.message}</p>}
                                 </div>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Stock Mínimo</label>
-                                    <input name="stock_minimo" type="number" placeholder="0" defaultValue={0} min="0" />
+                                    <input type="number" {...registerCrear("stock_minimo")} placeholder="0" />
+                                    {errorsCrear.stock_minimo && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.stock_minimo.message}</p>}
                                 </div>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Stock Actual</label>
-                                    <input name="stock_actual" type="number" placeholder="0" defaultValue={0} min="0" />
+                                    <input type="number" {...registerCrear("stock_actual")} placeholder="0" />
+                                    {errorsCrear.stock_actual && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.stock_actual.message}</p>}
                                 </div>
                                 <div className={stylesCrear.formGroup}>
                                     <label className={stylesCrear.formLabel}>Proveedor</label>
-                                    <select name="proveedor_id">
+                                    <select {...registerCrear("proveedor_id")}>
                                         <option value="">-- Seleccionar Proveedor --</option>
                                         {proveedores.map(p => (
                                             <option key={p.id} value={p.id}>{p.Nombre}</option>
@@ -291,8 +320,10 @@ const Insumos = () => {
                                     </select>
                                 </div>
                                 <div className={stylesCrear['modal-botones-derecha']}>
-                                    <button type="button" onClick={cerrarModal} className={stylesCrear['btn-gris']}>Cancelar</button>
-                                    <button type="submit" className={stylesCrear['btn-confirmar']}>Guardar</button>
+                                    <button type="button" onClick={() => setMostrarModalCrear(false)} className={stylesCrear['btn-gris']}>Cancelar</button>
+                                    <button type="submit" className={stylesCrear['btn-confirmar']} disabled={createMutation.isPending}>
+                                        {createMutation.isPending ? 'Guardando...' : 'Guardar'}
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -301,8 +332,8 @@ const Insumos = () => {
 
                 {/* MODAL MOVIMIENTO */}
                 {mostrarModalMovimiento && (
-                    <div className={stylesMovimiento['modal-fondo']} onClick={cerrarModalMovimiento}>
-                        <div className={stylesMovimiento['modal-contenido']} onClick={e => e.stopPropagation()}>
+                    <div className={stylesMovimiento['modal-fondo']}>
+                        <div className={stylesMovimiento['modal-contenido']}>
                             <div style={{ marginBottom: '15px' }}>
                                 <h3 style={{ margin: 0, paddingBottom: '10px', color: tipoMovimiento === 'ENTRADA' ? '#166534' : '#b45309' }}>
                                     Registrar {tipoMovimiento}
@@ -312,34 +343,33 @@ const Insumos = () => {
                                 </div>
                                 <div className={stylesMovimiento.separator}></div>
                             </div>
-                            <form onSubmit={handleMovimiento} style={{ paddingRight: "30px", paddingBottom: "0px" }}>
+                            <form onSubmit={handleSubmitMovimiento(handleMovimientoGuardar)} style={{ paddingBottom: "0px", gap: "10px" }}>
                                 <div className={stylesMovimiento.formGroup}>
                                     <label className={stylesMovimiento.formLabel}>Cantidad</label>
                                     <input
-                                        name="cantidad"
                                         type="number"
                                         step="0.01"
-                                        min="0.01"
-                                        required
-                                        autoFocus
+                                        {...registerMovimiento("cantidad")}
                                         placeholder="0.00"
                                     />
+                                    {errorsMovimiento.cantidad && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsMovimiento.cantidad.message}</p>}
                                 </div>
                                 <div className={stylesMovimiento.formGroup}>
                                     <label className={stylesMovimiento.formLabel}>Motivo</label>
                                     <textarea
-                                        name="motivo"
+                                        {...registerMovimiento("motivo")}
                                         placeholder="Ej. Compra mensual, Reparación, Ajuste de inventario..."
-                                        required
                                     />
+                                    {errorsMovimiento.motivo && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsMovimiento.motivo.message}</p>}
                                 </div>
                                 <div className={stylesMovimiento['modal-botones-derecha']}>
-                                    <button type="button" onClick={cerrarModalMovimiento} className={stylesMovimiento['btn-gris']}>Cancelar</button>
+                                    <button type="button" onClick={() => setMostrarModalMovimiento(false)} className={stylesMovimiento['btn-gris']}>Cancelar</button>
                                     <button
                                         type="submit"
                                         className={`${stylesMovimiento['btn-base']} ${tipoMovimiento === 'ENTRADA' ? stylesMovimiento['btn-entrada'] : stylesMovimiento['btn-salida']}`}
+                                        disabled={movimientoMutation.isPending}
                                     >
-                                        Confirmar
+                                        {movimientoMutation.isPending ? 'Registrando...' : 'Confirmar'}
                                     </button>
                                 </div>
                             </form>
@@ -348,12 +378,12 @@ const Insumos = () => {
                 )}
 
                 {/* MODAL DETALLE E HISTORIAL */}
-                {insumoVerDetalle && (
-                    <div className={stylesDetalle['modal-fondo']} onClick={cerrarModalDetalle}>
+                {mostrarModalDetalle && insumoSeleccionado && (
+                    <div className={stylesDetalle['modal-fondo']} onClick={() => setMostrarModalDetalle(false)}>
                         <div className={stylesDetalle['modal-contenido']} onClick={e => e.stopPropagation()}>
                             <div className={stylesDetalle.header}>
-                                <h2>{insumoVerDetalle.nombre}</h2>
-                                <button className={stylesDetalle.closeButton} onClick={cerrarModalDetalle}>
+                                <h2>{insumoSeleccionado.nombre}</h2>
+                                <button className={stylesDetalle.closeButton} onClick={() => setMostrarModalDetalle(false)}>
                                     <i className="fa-solid fa-times"></i>
                                 </button>
                             </div>
@@ -361,30 +391,30 @@ const Insumos = () => {
                             <div className={stylesDetalle.gridInfo}>
                                 <div className={stylesDetalle.infoItem}>
                                     <span className={stylesDetalle.label}>Código</span>
-                                    <span className={stylesDetalle.value}>{insumoVerDetalle.codigo || '-'}</span>
+                                    <span className={stylesDetalle.value}>{insumoSeleccionado.codigo || '-'}</span>
                                 </div>
                                 <div className={stylesDetalle.infoItem}>
                                     <span className={stylesDetalle.label}>Proveedor</span>
                                     <span className={stylesDetalle.value}>
-                                        {proveedores.find(p => p.id === insumoVerDetalle.proveedor_id)?.Nombre || 'N/A'}
+                                        {proveedores.find(p => p.id === insumoSeleccionado.proveedor_id)?.Nombre || 'N/A'}
                                     </span>
                                 </div>
                                 <div className={stylesDetalle.infoItem}>
                                     <span className={stylesDetalle.label}>Unidad</span>
-                                    <span className={stylesDetalle.value}>{insumoVerDetalle.unidad}</span>
+                                    <span className={stylesDetalle.value}>{insumoSeleccionado.unidad}</span>
                                 </div>
                                 <div className={stylesDetalle.infoItem}>
                                     <span className={stylesDetalle.label}>Stock Actual</span>
                                     <span className={stylesDetalle.value} style={{
-                                        color: insumoVerDetalle.stock_actual <= insumoVerDetalle.stock_minimo ? '#dc2626' : '#166534',
+                                        color: insumoSeleccionado.stock_actual <= insumoSeleccionado.stock_minimo ? '#dc2626' : '#166534',
                                         fontWeight: 'bold'
                                     }}>
-                                        {insumoVerDetalle.stock_actual}
+                                        {insumoSeleccionado.stock_actual}
                                     </span>
                                 </div>
                                 <div className={stylesDetalle.infoItem}>
                                     <span className={stylesDetalle.label}>Stock Mínimo</span>
-                                    <span className={stylesDetalle.value}>{insumoVerDetalle.stock_minimo}</span>
+                                    <span className={stylesDetalle.value}>{insumoSeleccionado.stock_minimo}</span>
                                 </div>
                             </div>
 

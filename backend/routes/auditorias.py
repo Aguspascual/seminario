@@ -83,6 +83,45 @@ def create_auditoria():
     except Exception as e:
          return jsonify({"error": f"Error al crear auditoria: {str(e)}"}), 500
 
+@auditorias_bp.route("/auditorias/<int:id>", methods=["PUT"])
+def update_auditoria(id):
+    """
+    Actualizar auditoria existente
+    ---
+    tags:
+      - Auditorias
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+      - name: fecha
+        in: formData
+        type: string
+      - name: hora
+        in: formData
+        type: string
+      - name: lugar
+        in: formData
+        type: string
+    responses:
+      200:
+        description: Auditoria actualizada
+      400:
+        description: Error validación
+      404:
+        description: No encontrada
+      500:
+        description: Error interno
+    """
+    try:
+        AuditoriaService.update_auditoria(id, request.form)
+        return jsonify({"message": "Auditoria actualizada exitosamente"}), 200
+    except ValueError as e:
+         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+         return jsonify({"error": f"Error al actualizar auditoria: {str(e)}"}), 500
+
 @auditorias_bp.route("/auditorias/<int:id>/finalizar", methods=["POST"])
 def finalizar_auditoria(id):
     """

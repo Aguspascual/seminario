@@ -13,13 +13,14 @@ import styles from '../assets/styles/Table.module.css';
  */
 const Table = ({ columns, data, isLoading, pagination, emptyMessage = "No hay datos disponibles" }) => {
 
-    if (isLoading) {
-        return <div className={styles.emptyState}>Cargando datos...</div>;
-    }
+    // if (isLoading) {
+    //     return <div className={styles.emptyState}>Cargando datos...</div>;
+    // }
 
-    if (!data || data.length === 0) {
-        return <div className={styles.emptyState}>{emptyMessage}</div>;
-    }
+    // if (!data || data.length === 0) {
+    //     return <div className={styles.emptyState}>{emptyMessage}</div>;
+    // }
+    // Moved empty check inside to preserve headers
 
     return (
         <div className={styles.tableCard}> {/* New wrapper for the card look */}
@@ -35,22 +36,40 @@ const Table = ({ columns, data, isLoading, pagination, emptyMessage = "No hay da
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item, rowIndex) => (
-                            <tr key={item.id || rowIndex}>
-                                {columns.map((col, colIndex) => (
-                                    <td key={colIndex} className={col.className || ''}>
-                                        {col.render
-                                            ? col.render(item)
-                                            : item[col.accessor]}
-                                    </td>
-                                ))}
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan={columns.length}>
+                                    <div className={styles.loadingContainer}>
+                                        <div className={styles.spinner}></div>
+                                        <span>Cargando datos...</span>
+                                    </div>
+                                </td>
                             </tr>
-                        ))}
-                        {/* Empty Rows Padding */}
-                        {pagination && pagination.minRows && data.length < pagination.minRows && (
+                        ) : (data && data.length > 0) ? (
+                            data.map((item, rowIndex) => (
+                                <tr key={item.id || rowIndex}>
+                                    {columns.map((col, colIndex) => (
+                                        <td key={colIndex} className={col.className || ''}>
+                                            {col.render
+                                                ? col.render(item)
+                                                : item[col.accessor]}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={columns.length}>
+                                    <div className={styles.emptyState}>{emptyMessage}</div>
+                                </td>
+                            </tr>
+                        )}
+                        
+                        {/* Empty Rows Padding (Only if not loading and data exists but less than minRows) */}
+                        {!isLoading && data && pagination && pagination.minRows && data.length > 0 && data.length < pagination.minRows && (
                             Array.from({ length: pagination.minRows - data.length }).map((_, index) => (
                                 <tr key={`empty-${index}`} className={styles.emptyRow}>
-                                    <td colSpan={columns.length} style={{ height: '53px' }}>&nbsp;</td>
+                                    <td colSpan={columns.length} style={{ height: '50px' }}>&nbsp;</td>
                                 </tr>
                             ))
                         )}

@@ -75,6 +75,7 @@ class ReporteFalla(db.Model):
     puede_operar = db.Column(db.String(20), nullable=True) # Si, No, Con restricciones
     
     estado_reporte = db.Column(db.String(20), default='Pendiente') # Pendiente, Asignado, En Proceso, Resuelto
+    fecha_baja = db.Column(db.DateTime, nullable=True) # Soft delete
     
     mantenimiento_generado_id = db.Column(db.Integer, db.ForeignKey('mantenimientos.id'), nullable=True)
     
@@ -88,6 +89,7 @@ class ReporteFalla(db.Model):
             'id': self.id,
             'maquinaria_id': self.maquinaria_id,
             'maquinaria_nombre': self.maquinaria.nombre if self.maquinaria else None,
+            'maquinaria_ubicacion': self.maquinaria.ubicacion if self.maquinaria else None,
             'reportado_por': self.reportado_por,
             'reportador_nombre': self.reportador.nombre if self.reportador else None, # Changed .Nombre to .nombre
             'fecha_reporte': self.fecha_reporte.isoformat() if self.fecha_reporte else None,

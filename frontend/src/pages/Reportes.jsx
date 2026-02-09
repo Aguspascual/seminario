@@ -307,10 +307,6 @@ const Reportes = ({ user }) => {
             render: (reporte) => getOperationBadge(reporte.puede_operar)
         },
         {
-            header: "Estado",
-            render: (reporte) => getStatusBadge(reporte.estado_reporte)
-        },
-        {
             header: "Acciones",
             render: (reporte) => (
                 <div className={styles['actions-cell']}>
@@ -446,6 +442,10 @@ const Reportes = ({ user }) => {
                                             <input defaultValue={reportToDisplay.maquinaria_nombre} readOnly style={{ margin: "0px", backgroundColor: "#f3f4f6" }} />
                                         </div>
                                         <div className={stylesEditar.formGroup} style={{ margin: "0px" }}>
+                                            <label className={stylesEditar.formLabel} style={{ margin: "0px" }}>Ubicación Máquina</label>
+                                            <input defaultValue={reportToDisplay.maquinaria_ubicacion || '-'} readOnly style={{ margin: "0px", backgroundColor: "#f3f4f6" }} />
+                                        </div>
+                                        <div className={stylesEditar.formGroup} style={{ margin: "0px" }}>
                                             <label className={stylesEditar.formLabel} style={{ margin: "0px" }}>Descripción Falla</label>
                                             <textarea
                                                 name="descripcion_falla"
@@ -493,6 +493,7 @@ const Reportes = ({ user }) => {
                                     <div className={stylesDetalles['detalles-usuario']}>
                                         <p><strong>Fecha Reporte:</strong> {reportToDisplay.fecha_reporte ? format(new Date(reportToDisplay.fecha_reporte), 'dd/MM/yyyy HH:mm', { locale: es }) : '-'}</p>
                                         <p><strong>Maquinaria:</strong> {reportToDisplay.maquinaria_nombre}</p>
+                                        <p><strong>Ubicación Máquina:</strong> {reportToDisplay.maquinaria_ubicacion || '-'}</p>
                                         <p><strong>Reportado Por:</strong> {reportToDisplay.reportador_nombre}</p>
                                         <p><strong>Descripción:</strong> <br/><span style={{display: 'block', marginTop: '4px', wordBreak: 'break-word'}}>{reportToDisplay.descripcion_falla || <em>Cargando...</em>}</span></p>
                                         <p><strong>Ubicación Específica:</strong> {reportToDisplay.ubicacion_especifica || '-'}</p>
