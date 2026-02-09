@@ -1,38 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import '../assets/styles/Proveedores.css';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import styles from '../assets/styles/modals/Proveedores/Proveedores.module.css';
+import stylesCrear from '../assets/styles/modals/Proveedores/Proveedores.crear.module.css';
+import stylesEditar from '../assets/styles/modals/Proveedores/Proveedores.editar.module.css';
+import stylesDetalles from '../assets/styles/modals/Proveedores/Proveedores.detalles.module.css';
+
 import Head from '../components/Head';
 import Table from '../components/Table';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useNotification } from "../context/NotificationContext";
+
+// Schema de Validación (lo defino aquí o en archivo separado, por ahora aquí para consistencia rápida)
+const proveedorSchema = yup.object().shape({
+  nombre: yup.string().required("El nombre es requerido").min(3, "Mínimo 3 caracteres"),
+  email: yup.string().email("Email inválido").required("El email es requerido"),
+  numero: yup.string().required("El teléfono es requerido").min(8, "Mínimo 8 caracteres"),
+  idTipo: yup.string().required("El tipo de proveedor es requerido"), // Select devuelve string usualmente
+});
 
 const Proveedores = () => {
-    const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
-    const [modalEliminar, setModalEliminar] = useState({ mostrar: false, id: null, nombre: '' });
+    const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
+    const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
+    
     const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
-    const [modoEdicion, setModoEdicion] = useState(false);
-    const [datosEdicion, setDatosEdicion] = useState({});
+    const [proveedorAEliminar, setProveedorAEliminar] = useState(null);
 
     const [busqueda, setBusqueda] = useState("");
-    const [formError, setFormError] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // Obtener usuario del localStorage para el Head
-    const user = JSON.parse(localStorage.getItem('usuario'));
-
     const queryClient = useQueryClient();
+    const { showNotification } = useNotification();
+
+    // Obtener usuario del localStorage
+    const [user] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('usuario')) || {};
+        } catch {
+            return {};
+        }
+    });
+
+    // Forms
+    const {
+        register: registerCrear,
+        handleSubmit: handleSubmitCrear,
+        reset: resetCrear,
+        formState: { errors: errorsCrear }
+    } = useForm({
+        resolver: yupResolver(proveedorSchema)
+    });
+
+    const {
+        register: registerEditar,
+        handleSubmit: handleSubmitEditar,
+        reset: resetEditar,
+        setValue: setValueEditar,
+        formState: { errors: errorsEditar }
+    } = useForm({
+        resolver: yupResolver(proveedorSchema)
+    });
+
+    // Debounce Búsqueda
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (busqueda.length >= 3 || busqueda.length === 0) {
+                setDebouncedSearch(busqueda);
+                setCurrentPage(1);
+            }
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [busqueda]);
 
     // 1. Fetching Proveedores
-    const { data: proveedores = [], isLoading: loadingProveedores, isError: errorProveedores } = useQuery({
-        queryKey: ['proveedores'],
+    const { data: dataProveedores, isLoading: loadingProveedores } = useQuery({
+        queryKey: ['proveedores', currentPage, itemsPerPage, debouncedSearch],
         queryFn: async () => {
-            const response = await fetch("http://localhost:5000/proveedores");
+            let url = `http://localhost:5000/proveedores?page=${currentPage}&limit=${itemsPerPage}`;
+            if (debouncedSearch) {
+                url += `&search=${encodeURIComponent(debouncedSearch)}`;
+            }
+            const response = await fetch(url);
             if (!response.ok) throw new Error("Error al cargar proveedores");
             return response.json();
         }
     });
+
+    // Support both array response (if backend not updated) and paginated response
+    const proveedores = Array.isArray(dataProveedores) ? dataProveedores : (dataProveedores?.proveedores || []);
+    const totalPages = dataProveedores?.total_pages || 1;
+    const totalItems = dataProveedores?.total_items || 0;
 
     // 2. Fetching Tipos de Proveedor
     const { data: tiposProveedor = [] } = useQuery({
@@ -44,31 +109,59 @@ const Proveedores = () => {
         }
     });
 
-    // 3. Mutation para Crear
+    // Mutations
     const createMutation = useMutation({
-        mutationFn: async (nuevoProveedor) => {
+        mutationFn: async (data) => {
             const response = await fetch("http://localhost:5000/proveedores", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(nuevoProveedor),
+                body: JSON.stringify({
+                    Nombre: data.nombre,
+                    Email: data.email,
+                    Numero: data.numero,
+                    idTipo: parseInt(data.idTipo)
+                }),
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Error al agregar el proveedor");
+                throw new Error(errorData.error || "Error al crear");
             }
             return response.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['proveedores']);
-            cerrarModal();
+            cerrarModalCrear();
+            showNotification("success", "Proveedor creado exitosamente");
         },
-        onError: (err) => {
-            setFormError(err.message);
-        }
+        onError: (err) => showNotification("error", err.message)
     });
 
-    // 4. Mutation para Eliminar
+    const updateMutation = useMutation({
+        mutationFn: async (data) => {
+             const response = await fetch(`http://localhost:5000/proveedores/${proveedorSeleccionado.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    Nombre: data.nombre,
+                    Email: data.email,
+                    Numero: data.numero,
+                    idTipo: parseInt(data.idTipo)
+                }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al actualizar");
+            }
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['proveedores']);
+            cerrarModalEditar();
+            showNotification("success", "Proveedor actualizado exitosamente");
+        },
+        onError: (err) => showNotification("error", err.message)
+    });
+
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
             const response = await fetch(`http://localhost:5000/proveedores/${id}`, {
@@ -82,190 +175,178 @@ const Proveedores = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['proveedores']);
+            cerrarModalEliminar();
+            showNotification("success", "Proveedor eliminado exitosamente");
         },
-        onError: (err) => {
-            alert("Error al eliminar: " + err.message);
-        }
+        onError: (err) => showNotification("error", err.message)
     });
 
-    // 5. Mutation para Actualizar
-    const updateMutation = useMutation({
-        mutationFn: async (datosActualizados) => {
-            const response = await fetch(`http://localhost:5000/proveedores/${datosActualizados.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(datosActualizados),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Error al actualizar");
-            }
-            return response.json();
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['proveedores']);
-            setModoEdicion(false);
-            cerrarModalDetalles();
-        },
-        onError: (err) => {
-            alert("Error al actualizar: " + err.message);
-        }
-    });
-
-    const abrirModal = () => {
-        setFormError("");
-        setMostrarModal(true);
+    // Handlers
+    const abrirModalCrear = () => {
+        resetCrear();
+        setMostrarModalCrear(true);
     };
+    const cerrarModalCrear = () => setMostrarModalCrear(false);
 
-    const cerrarModal = () => setMostrarModal(false);
+    const abrirModalEditar = (proveedor) => {
+        setProveedorSeleccionado(proveedor);
+        setValueEditar("nombre", proveedor.Nombre);
+        setValueEditar("email", proveedor.Email);
+        setValueEditar("numero", proveedor.Numero);
+        setValueEditar("idTipo", proveedor.idTipo); // Ensure this matches backend field
+        setMostrarModalEditar(true);
+    };
+    const cerrarModalEditar = () => {
+        setProveedorSeleccionado(null);
+        resetEditar();
+        setMostrarModalEditar(false);
+    };
 
     const abrirModalDetalles = (proveedor) => {
         setProveedorSeleccionado(proveedor);
-        setDatosEdicion(proveedor);
-        setModoEdicion(false);
         setMostrarModalDetalles(true);
     };
-
     const cerrarModalDetalles = () => {
         setProveedorSeleccionado(null);
-        setModoEdicion(false);
-        setDatosEdicion({});
         setMostrarModalDetalles(false);
     };
 
-    const activarModoEdicion = () => {
-        setDatosEdicion({ ...proveedorSeleccionado });
-        setModoEdicion(true);
+    const abrirModalEliminar = (proveedor) => {
+        setProveedorAEliminar(proveedor);
+        setMostrarModalEliminar(true);
+    };
+    const cerrarModalEliminar = () => {
+        setProveedorAEliminar(null);
+        setMostrarModalEliminar(false);
     };
 
-    const cancelarEdicion = () => {
-        setDatosEdicion({ ...proveedorSeleccionado });
-        setModoEdicion(false);
-    };
-
-    const manejarActualizacion = (e) => {
-        e.preventDefault();
-        updateMutation.mutate(datosEdicion);
-    };
-
-    const eliminarProveedor = (proveedor) => {
-        setModalEliminar({ mostrar: true, id: proveedor.id, nombre: proveedor.Nombre });
-    };
-
-    const confirmarEliminacion = () => {
-        if (modalEliminar.id) {
-            deleteMutation.mutate(modalEliminar.id);
-            setModalEliminar({ mostrar: false, id: null, nombre: '' });
+    const confirmarEliminar = () => {
+        if (proveedorAEliminar) {
+            deleteMutation.mutate(proveedorAEliminar.id);
         }
     };
 
-    const cancelarEliminacion = () => {
-        setModalEliminar({ mostrar: false, id: null, nombre: '' });
-    };
-
-    const manejarEnvio = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-
-        createMutation.mutate({
-            Nombre: formData.get("nombre"),
-            Numero: formData.get("numero"), // Se envía como string (teléfono)
-            Email: formData.get("email"),
-            idTipo: parseInt(formData.get("tipo"))
-        });
-    };
-
-    // Filtrado y Paginación (Client-side)
-    const proveedoresFiltrados = proveedores.filter(
-        (proveedor) =>
-            proveedor.Nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-            proveedor.Email?.toLowerCase().includes(busqueda.toLowerCase())
-    );
-
-    const totalPages = Math.ceil(proveedoresFiltrados.length / itemsPerPage);
-    if (currentPage > totalPages && totalPages > 0) {
-        setCurrentPage(1);
-    }
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = proveedoresFiltrados.slice(startIndex, startIndex + itemsPerPage);
+    const onCrearSubmit = (data) => createMutation.mutate(data);
+    const onEditarSubmit = (data) => updateMutation.mutate(data);
 
     return (
-        <div className="container">
+        <div className={styles.container}>
             <Head user={user} />
-            <div className="main">
+            <div className={styles.main}>
                 {/* Breadcrumbs */}
-                <div className="breadcrumbs">
+                <div className={styles.breadcrumbs}>
                     <Link to="/home">Home</Link> <span>/</span>
-                    <Link to="/home">Planta</Link> <span>&gt;</span>
-                    <span className="current">Gestión de Proveedores</span>
+                    <span className={styles.current}>Gestión de Proveedores</span>
                 </div>
 
-                <div className="header-section">
+                <div className={styles['header-section']}>
                     <h2>Gestión de Proveedores</h2>
                 </div>
 
-                <div className="controls-section">
+                {/* Controls */}
+                <div className={styles['controls-section']}>
                     <input
                         type="text"
-                        placeholder='Buscar Proveedor...'
-                        className="search-input"
+                        placeholder="Buscar proveedor..."
+                        className={styles['search-input']}
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                     />
-                    <button className="btn-add" onClick={abrirModal}>
-                        <i className="fa-solid fa-user-plus"></i> Agregar Proveedor
+                    <button className={styles['btn-add']} onClick={abrirModalCrear}>
+                        <i className="fa-solid fa-plus"></i> Nuevo Proveedor
                     </button>
                 </div>
 
-                {/* Modal */}
-                {mostrarModal && (
-                    <div className="modal-fondo">
-                        <div className="modal-contenido">
-                            <h3>Agregar Proveedor</h3>
-                            <form onSubmit={manejarEnvio}>
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    placeholder="Nombre de la empresa"
-                                    required
-                                />
-                                <input
-                                    type="tel"
-                                    name="numero"
-                                    placeholder="Teléfono"
-                                    required
-                                />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Correo electrónico"
-                                    required
-                                />
-                                <select name="tipo" required>
-                                    <option value="" hidden>Seleccione un tipo</option>
-                                    {tiposProveedor.map((tipo) => (
-                                        <option key={tipo.idTipo} value={tipo.idTipo}>
-                                            {tipo.nombreTipo}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {formError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{formError}</p>}
-                                {createMutation.isError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{createMutation.error.message}</p>}
-
-                                <div className="modal-botones">
-                                    <button
-                                        type="button"
-                                        onClick={cerrarModal}
-                                        className="btn-cancelar"
-                                        disabled={createMutation.isPending}
-                                    >
-                                        Cancelar
+                {/* Tabla */}
+                <Table
+                    isLoading={loadingProveedores}
+                    data={proveedores}
+                    columns={[
+                        { header: "Empresa", accessor: "Nombre" },
+                        { header: "Teléfono", accessor: "Numero" },
+                        { header: "Email", accessor: "Email" },
+                        { 
+                            header: "Tipo", 
+                            render: (p) => p.tipo_proveedor || "Sin tipo" 
+                        },
+                        {
+                            header: "Acciones",
+                            render: (item) => (
+                                <div className={styles['actions-cell']}>
+                                    <button className={styles['action-btn']} onClick={() => abrirModalDetalles(item)} title="Ver Detalles">
+                                        <i className="fa-solid fa-eye"></i>
                                     </button>
-                                    <button type="submit" className="btn-confirmar" disabled={createMutation.isPending}>
-                                        {createMutation.isPending ? 'Guardando...' : 'Agregar'}
+                                    <button className={styles['action-btn']} onClick={() => abrirModalEditar(item)} title="Editar">
+                                        <i className="fa-solid fa-pencil"></i>
+                                    </button>
+                                    {item.Numero && (
+                                        <a
+                                            href={`https://wa.me/549${item.Numero.replace(/\D/g, '')}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={styles['btn-whatsapp']}
+                                            title="Enviar WhatsApp"
+                                        >
+                                            <i className="fa-brands fa-whatsapp"></i>
+                                        </a>
+                                    )}
+                                    <button className={styles['btn-delete-action']} onClick={() => abrirModalEliminar(item)} title="Eliminar">
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            )
+                        }
+                    ]}
+                    pagination={{
+                        currentPage: currentPage,
+                        totalPages: totalPages,
+                        totalItems: totalItems,
+                        minRows: 10,
+                        onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
+                        onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
+                    }}
+                />
+
+                {/* Modal Crear */}
+                {mostrarModalCrear && (
+                    <div className={stylesCrear['modal-fondo']}>
+                        <div className={stylesCrear['modal-contenido']}>
+                            <h3>Agregar Proveedor</h3>
+                            <div className={stylesCrear.separator}></div>
+                            <form onSubmit={handleSubmitCrear(onCrearSubmit)} style={{ marginTop: '20px', gap: '0.5rem' }}>
+                                <div className={stylesCrear.formGroup}>
+                                    <label className={stylesCrear.formLabel}>Nombre de la Empresa</label>
+                                    <input type="text" {...registerCrear("nombre")} placeholder="Ej. Proveedora S.A." />
+                                    {errorsCrear.nombre && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.nombre.message}</p>}
+                                </div>
+                                <div className={stylesCrear.formRow}>
+                                    <div className={stylesCrear.formGroup}>
+                                        <label className={stylesCrear.formLabel}>Teléfono</label>
+                                        <input type="tel" {...registerCrear("numero")} placeholder="Ej. 1122334455" />
+                                        {errorsCrear.numero && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.numero.message}</p>}
+                                    </div>
+                                    <div className={stylesCrear.formGroup}>
+                                        <label className={stylesCrear.formLabel}>Email</label>
+                                        <input type="email" {...registerCrear("email")} placeholder="contacto@empresa.com" />
+                                        {errorsCrear.email && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.email.message}</p>}
+                                    </div>
+                                </div>
+                                <div className={stylesCrear.formGroup}>
+                                    <label className={stylesCrear.formLabel}>Tipo de Proveedor</label>
+                                    <select {...registerCrear("idTipo")}>
+                                        <option value="">Seleccionar Tipo</option>
+                                        {tiposProveedor.map((tipo) => (
+                                            <option key={tipo.idTipo} value={tipo.idTipo}>{tipo.nombreTipo}</option>
+                                        ))}
+                                    </select>
+                                    {errorsCrear.idTipo && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsCrear.idTipo.message}</p>}
+                                </div>
+
+                                <div className={stylesCrear['modal-botones-derecha']}>
+                                    <button type="button" onClick={cerrarModalCrear} className={stylesCrear['btn-gris']}>Cancelar</button>
+                                    <button type="submit" className={stylesCrear['btn-confirmar']} disabled={createMutation.isPending}>
+                                        <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>
+                                        {createMutation.isPending ? 'Guardando...' : 'Guardar'}
                                     </button>
                                 </div>
                             </form>
@@ -273,173 +354,104 @@ const Proveedores = () => {
                     </div>
                 )}
 
-                {/* Modal Eliminar */}
-                {modalEliminar.mostrar && (
-                    <div className="modal-fondo">
-                        <div className="modal-contenido">
-                            <h3>Eliminar Proveedor</h3>
-                            <p>Estas seguro de eliminar al proveedor <strong>{modalEliminar.nombre}</strong>?</p>
-                            <div className="modal-botones">
-                                <button onClick={cancelarEliminacion} className="btn-cancelar">
-                                    Cancelar
-                                </button>
-                                <button onClick={confirmarEliminacion} className="btn-confirmar" style={{ backgroundColor: '#ef4444' }}>
-                                    Eliminar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                )}
-
-                {/* Modal Detalles / Edición */}
-                {mostrarModalDetalles && proveedorSeleccionado && (
-                    <div className="modal-fondo" onClick={cerrarModalDetalles}>
-                        <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
-                            <h3>{modoEdicion ? 'Editar Proveedor' : 'Detalles del Proveedor'}</h3>
-
-                            {!modoEdicion ? (
-                                <div className="detalles-usuario">
-                                    <p><strong>Empresa:</strong> {proveedorSeleccionado.Nombre}</p>
-                                    <p><strong>Teléfono:</strong> {proveedorSeleccionado.Numero}</p>
-                                    <p><strong>Email:</strong> {proveedorSeleccionado.Email}</p>
-                                    <p><strong>Tipo:</strong> {proveedorSeleccionado.tipo_proveedor || 'N/A'}</p>
-                                    <p><strong>Estado:</strong> {proveedorSeleccionado.Estado ? 'Activo' : 'Inactivo'}</p>
+                {/* Modal Editar */}
+                {mostrarModalEditar && (
+                    <div className={stylesEditar['modal-fondo']}>
+                        <div className={stylesEditar['modal-contenido']}>
+                            <h3>Editar Proveedor</h3>
+                            <div className={stylesEditar.separator}></div>
+                            <form onSubmit={handleSubmitEditar(onEditarSubmit)} style={{ marginTop: '20px', gap: '0.5rem' }}>
+                                <div className={stylesEditar.formGroup}>
+                                    <label className={stylesEditar.formLabel}>Nombre de la Empresa</label>
+                                    <input type="text" {...registerEditar("nombre")} />
+                                    {errorsEditar.nombre && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsEditar.nombre.message}</p>}
                                 </div>
-                            ) : (
-                                <form onSubmit={manejarActualizacion}>
-                                    <input
-                                        type="text"
-                                        value={datosEdicion.Nombre || ''}
-                                        onChange={(e) => setDatosEdicion({ ...datosEdicion, Nombre: e.target.value })}
-                                        placeholder="Nombre de la empresa"
-                                        required
-                                    />
-                                    <input
-                                        type="tel"
-                                        value={datosEdicion.Numero || ''}
-                                        onChange={(e) => setDatosEdicion({ ...datosEdicion, Numero: e.target.value })}
-                                        placeholder="Teléfono"
-                                        required
-                                    />
-                                    <input
-                                        type="email"
-                                        value={datosEdicion.Email || ''}
-                                        onChange={(e) => setDatosEdicion({ ...datosEdicion, Email: e.target.value })}
-                                        placeholder="Email"
-                                        required
-                                    />
-                                    <select
-                                        value={datosEdicion.idTipo || ''}
-                                        onChange={(e) => setDatosEdicion({ ...datosEdicion, idTipo: parseInt(e.target.value) })}
-                                        required
-                                    >
-                                        <option value="" hidden>Seleccione un tipo</option>
+                                <div className={stylesEditar.formRow}>
+                                    <div className={stylesEditar.formGroup}>
+                                        <label className={stylesEditar.formLabel}>Teléfono</label>
+                                        <input type="tel" {...registerEditar("numero")} />
+                                        {errorsEditar.numero && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsEditar.numero.message}</p>}
+                                    </div>
+                                    <div className={stylesEditar.formGroup}>
+                                        <label className={stylesEditar.formLabel}>Email</label>
+                                        <input type="email" {...registerEditar("email")} />
+                                        {errorsEditar.email && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsEditar.email.message}</p>}
+                                    </div>
+                                </div>
+                                <div className={stylesEditar.formGroup}>
+                                    <label className={stylesEditar.formLabel}>Tipo de Proveedor</label>
+                                    <select {...registerEditar("idTipo")}>
+                                        <option value="">Seleccionar Tipo</option>
                                         {tiposProveedor.map((tipo) => (
-                                            <option key={tipo.idTipo} value={tipo.idTipo}>
-                                                {tipo.nombreTipo}
-                                            </option>
+                                            <option key={tipo.idTipo} value={tipo.idTipo}>{tipo.nombreTipo}</option>
                                         ))}
                                     </select>
-                                </form>
-                            )}
+                                    {errorsEditar.idTipo && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsEditar.idTipo.message}</p>}
+                                </div>
 
-                            <div className="modal-botones" style={{ marginTop: "20px" }}>
-                                {!modoEdicion ? (
-                                    <>
-                                        <button type="button" onClick={cerrarModalDetalles} className="btn-cancelar">
-                                            Cerrar
-                                        </button>
-                                        <button type="button" onClick={activarModoEdicion} className="btn-confirmar">
-                                            Editar
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <button type="button" onClick={cancelarEdicion} className="btn-cancelar">
-                                            Cancelar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={manejarActualizacion}
-                                            className="btn-confirmar"
-                                            disabled={updateMutation.isPending}
-                                        >
-                                            {updateMutation.isPending ? 'Guardando...' : 'Guardar'}
-                                        </button>
-                                    </>
-                                )}
+                                <div className={stylesEditar['modal-botones-derecha']}>
+                                    <button type="button" onClick={cerrarModalEditar} className={stylesEditar['btn-gris']}>Cancelar</button>
+                                    <button type="submit" className={stylesEditar['btn-confirmar']} disabled={updateMutation.isPending}>
+                                        <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>
+                                        {updateMutation.isPending ? 'Guardando...' : 'Guardar'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Detalles */}
+                {mostrarModalDetalles && proveedorSeleccionado && (
+                    <div className={stylesDetalles['modal-fondo']} onClick={cerrarModalDetalles}>
+                        <div className={stylesDetalles['modal-contenido']} onClick={(e) => e.stopPropagation()}>
+                            <h3>Detalles del Proveedor</h3>
+                            <div className={stylesDetalles.separator}></div>
+                            
+                            <div className={stylesDetalles['detalles-usuario']}>
+                                <p><strong>Empresa:</strong> {proveedorSeleccionado.Nombre}</p>
+                                <p><strong>Email:</strong> {proveedorSeleccionado.Email}</p>
+                                <p><strong>Teléfono:</strong> {proveedorSeleccionado.Numero}</p>
+                                <p><strong>Tipo:</strong> {proveedorSeleccionado.tipo_proveedor || 'N/A'}</p>
+                            </div>
+
+                            <div className={stylesDetalles['modal-botones-derecha']}>
+                                <button type="button" onClick={cerrarModalDetalles} className={stylesDetalles['btn-gris']}>
+                                    Cerrar
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        cerrarModalDetalles();
+                                        abrirModalEditar(proveedorSeleccionado);
+                                    }}
+                                    className={stylesDetalles['btn-editar']}
+                                >
+                                    <i className="fa-solid fa-pencil"></i> Editar
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="table-container-proveedores">
-                    <Table
-                        isLoading={loadingProveedores}
-                        data={currentData}
-                        columns={[
-                            { header: "Empresa", accessor: "Nombre" },
-                            {
-                                header: "Tipo",
-                                render: (item) => (
-                                    <span className="badge-tipo">{item.tipo_proveedor || "Sin tipo"}</span>
-                                )
-                            },
-                            { header: "Número", accessor: "Numero" },
-                            { header: "Correo", accessor: "Email" },
-                            {
-                                header: "Acciones",
-                                render: (item) => (
-                                    <>
-                                        <button className="action-btn" onClick={() => abrirModalDetalles(item)} title="Ver detalles">
-                                            <i className="fa-solid fa-eye"></i>
-                                        </button>
-                                        <a
-                                            href={`https://wa.me/549${item.Numero}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="action-btn"
-                                            title="Enviar WhatsApp"
-                                            style={{ color: '#25D366' }}
-                                        >
-                                            <i className="fa-brands fa-whatsapp"></i>
-                                        </a>
-                                        <button className="action-btn delete-btn" onClick={() => eliminarProveedor(item)} title="Eliminar">
-                                            <i className="fas fa-trash"></i>
-                                        </button>
-                                    </>
-                                )
-                            }
-                        ]}
-                    />
-                </div>
-
-                {/* Paginación */}
-                {totalPages > 1 && (
-                    <div className="pagination">
-                        <button
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="pagination-btn"
-                        >
-                            Anterior
-                        </button>
-                        <span className="pagination-info">
-                            Página {currentPage} de {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            className="pagination-btn"
-                        >
-                            Siguiente
-                        </button>
+                {/* Modal Confirmación Eliminar */}
+                {mostrarModalEliminar && (
+                    <div className={styles['modal-confirmacion-fondo']} onClick={cerrarModalEliminar}>
+                        <div className={styles['modal-confirmacion-contenido']} onClick={(e) => e.stopPropagation()}>
+                            <div style={{ marginBottom: "15px", color: "#ef4444", fontSize: "3rem" }}>
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                            </div>
+                            <h3>¿Estás seguro?</h3>
+                            <p>¿Deseas eliminar al proveedor <strong>{proveedorAEliminar?.Nombre}</strong>? Esta acción no se puede deshacer.</p>
+                            <div className={styles['modal-confirmacion-botones']}>
+                                <button onClick={cerrarModalEliminar} className={styles['btn-gris-modal']}>Cancelar</button>
+                                <button onClick={confirmarEliminar} className={styles['btn-rojo']}>Eliminar</button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-            {/* Footer removido */}
-        </div >
+        </div>
     );
 };
 

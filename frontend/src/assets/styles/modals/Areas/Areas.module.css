@@ -7,22 +7,14 @@
 
 /* Container principal */
 .container {
-  min-height: 100vh;
-  width: 99vw;
+  height: 100vh; /* Fixed height to trigger scroll inside */
+  width: 100%; /* Changed from 99vw to 100% to fit parent */
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
-}
-
-/* Estilos base reutilizando variables del Dashboard si es posible, o definiendo similares */
-
-.container {
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
   background-color: #F4F6F8;
+  overflow: auto; /* Enable scrollbars when zoomed/content overflows */
   /* Mismo fondo que Dashboard */
 }
 
@@ -82,7 +74,8 @@
 /* Controles (Buscador + Botón Agregar) */
 .controls-section {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 15px;
   width: 100%;
   align-items: center;
   height: 50px;
@@ -128,16 +121,76 @@
 /* ICONOS DE ACCIÓN (en la tabla) */
 .action-btn {
   background: none;
-  border: none;
+  border: 1px solid #94a3b8; /* Borde más notorio (Slate-400) */
   cursor: pointer;
   color: #2E4F6E;
-  font-size: 1.1rem;
-  transition: color 0.2s;
-  padding: 2px 5px; /* Menos padding para no agrandar la fila */
+  padding: 0px 0px 0px 0px;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px; 
+  margin: 0; 
 }
 
 .action-btn:hover {
-  color: #4F6F8F;
+  color: #1e3a8a;
+  background-color: #e2e8f0; 
+  border-color: #64748b;
+}
+
+.action-btn:active {
+  background-color: #cbd5e1;
+  border-color: #475569;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #94a3b8; 
+  transform: scale(0.95); 
+}
+
+.action-btn:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: transparent; 
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* WhatsApp Action Button */
+.btn-whatsapp {
+  background: none;
+  border: 1px solid #25D366;
+  cursor: pointer;
+  color: #25D366;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px; 
+  margin: 0; 
+}
+
+.btn-whatsapp:hover {
+  color: #128C7E;
+  background-color: #dcfce7; 
+  border-color: #128C7E;
+}
+
+.btn-whatsapp:active {
+  transform: scale(0.95);
+  box-shadow: inset 0 0 0 1px #128C7E;
+}
+
+.btn-whatsapp:focus {
+  outline: none;
 }
 
 /* PAGINATION */
@@ -177,104 +230,6 @@
   font-weight: 500;
 }
 
-/* MODAL STYLES (Mantenemos estructura pero mejoramos estética) */
-.modal-fondo {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
-}
-
-.modal-contenido {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  text-align: left;
-}
-
-.modal-contenido h3 {
-  margin-top: 0;
-  color: #1F3A52;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-
-.detalles-usuario {
-  color: #1f2937;
-}
-
-.detalles-usuario p {
-  color: #1f2937;
-  margin: 8px 0;
-}
-
-.modal-contenido input,
-.modal-contenido select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 3px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  background-color: #f9fafb;
-  color: #1f2937;
-}
-
-.modal-contenido input:focus,
-.modal-contenido select:focus {
-  outline: none;
-  border-color: #2E4F6E;
-  background-color: white;
-}
-
-.modal-botones {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.btn-confirmar {
-  background-color: #166534;
-  /* Verde éxito */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-confirmar:hover {
-  background-color: #14532d;
-}
-
-.btn-cancelar {
-  background-color: #ef4444;
-  /* Rojo cancelar */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-cancelar:hover {
-  background-color: #dc2626;
-}
-
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .controls-section {
@@ -290,4 +245,109 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* DELETE ACTION BUTTON */
+.btn-delete-action {
+  background-color: #c50606; 
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0px 0px 0px 0px;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  margin: 0; /* Sin margin */
+  padding: 0; 
+}
+
+.btn-delete-action:hover {
+  background-color: #a80505;
+}
+
+.btn-delete-action:active {
+  transform: scale(0.95);
+  box-shadow: inset 0 0 0 1px #991b1b;
+}
+
+.btn-delete-action:focus {
+  outline: none;
+}
+
+/* CONFIRMATION MODAL */
+.modal-confirmacion-fondo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px); /* Blur effect requested */
+}
+
+.modal-confirmacion-contenido {
+  background: white;
+  padding: 30px;
+  border-radius: 8px; /* Slightly less rounded for "rectangular" feel */
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+.modal-confirmacion-contenido h3 {
+  color: #1F3A52;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+}
+
+.modal-confirmacion-contenido p {
+  color: #4b5563;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+
+.modal-confirmacion-botones {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-rojo {
+  background-color: #ef4444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-rojo:hover {
+  background-color: #dc2626;
+}
+
+.btn-gris-modal {
+  background-color: #9ca3af;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-gris-modal:hover {
+  background-color: #6b7280;
 }

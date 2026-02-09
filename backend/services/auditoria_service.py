@@ -23,8 +23,8 @@ class AuditoriaService:
 
     @staticmethod
     def get_all():
-        # Actualizar estados automáticamente
-        auditorias = Auditoria.query.all()
+        # Actualizar estados automáticamente y filtrar no eliminados
+        auditorias = Auditoria.query.filter(Auditoria.fecha_baja == None).all()
         now = datetime.datetime.now()
         
         updated = False
@@ -32,10 +32,13 @@ class AuditoriaService:
             if aud.estado == "Programado":
                 # Combinar fecha y hora para comparar
                 # aud.fecha es datetime.date, aud.hora es datetime.time
-                aud_dt = datetime.datetime.combine(aud.fecha, aud.hora)
-                if now >= aud_dt:
-                    aud.estado = "En Proceso"
-                    updated = True
+                try:
+                    aud_dt = datetime.datetime.combine(aud.fecha, aud.hora)
+                    if now >= aud_dt:
+                        aud.estado = "En Proceso"
+                        updated = True
+                except Exception as e:
+                    print(f"Error comparing dates for auditoria {aud.id}: {e}")
         
         if updated:
             db.session.commit()
@@ -68,9 +71,34 @@ class AuditoriaService:
         return nueva
 
     @staticmethod
-    def finalizar_auditoria(id, file_obj):
+    def update_auditoria(id, form_data):
         auditoria = Auditoria.query.get(id)
         if not auditoria:
+            raise ValueError("Auditoria no encontrada")
+        
+        if auditoria.fecha_baja:
+             raise ValueError("La auditoria ha sido eliminada")
+
+        # Solo permitir editar si no está terminada (aunque el frontend lo controla, backend también debería)
+        if auditoria.estado == "Terminado":
+             raise ValueError("No se puede editar una auditoría terminada")
+
+        if 'fecha' in form_data:
+            auditoria.fecha = form_data.get('fecha')
+        if 'hora' in form_data:
+            auditoria.hora = form_data.get('hora')
+        if 'lugar' in form_data:
+            auditoria.lugar = form_data.get('lugar')
+        
+        # Re-evaluar estado si se cambia fecha/hora? Por ahora simple update.
+        
+        db.session.commit()
+        return auditoria
+
+    @staticmethod
+    def finalizar_auditoria(id, file_obj):
+        auditoria = Auditoria.query.get(id)
+        if not auditoria or auditoria.fecha_baja:
             raise ValueError("Auditoria no encontrada")
             
         if auditoria.estado != "En Proceso":
@@ -95,21 +123,12 @@ class AuditoriaService:
     @staticmethod
     def delete_auditoria(id):
         auditoria = Auditoria.query.get(id)
-        if not auditoria:
+        if not auditoria or auditoria.fecha_baja:
              raise ValueError("Auditoria no encontrada")
         
-        if auditoria.estado != "Programado":
-            raise ValueError("No se pueden eliminar auditorias en proceso o terminadas")
+        # Permitir eliminar (soft delete) incluso si está programada. 
+        # El user dijo "boton de eliminar debe ser soft delete".
         
-        # Opcional: Eliminar archivo del disco
-        if auditoria.archivo_path:
-             try:
-                 file_path = os.path.join(AuditoriaService.get_upload_folder(), auditoria.archivo_path)
-                 if os.path.exists(file_path):
-                     os.remove(file_path)
-             except Exception as e:
-                 print(f"Error al eliminar archivo: {e}")
-
-        db.session.delete(auditoria)
+        auditoria.fecha_baja = datetime.datetime.now()
         db.session.commit()
         return True

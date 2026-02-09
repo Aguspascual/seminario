@@ -307,9 +307,9 @@ const Maquinarias = ({ user }) => {
                             }
                         },
                         {
-                            header: <div style={{ textAlign: "right", padding: "0 35px" }}>Acciones</div>,
+                            header: <div>Acciones</div>,
                             render: (m) => (
-                                <div style={{ justifyContent: "end" }} className={styles['actions-cell']}>
+                                <div className={styles['actions-cell']}>
                                     <button className={styles['action-btn']} onClick={() => abrirModalDetalles(m)} title="Ver detalles">
                                         <i className="fa-solid fa-eye"></i>
                                     </button>
