@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
@@ -33,7 +33,6 @@ const Proveedores = () => {
     const [proveedorAEliminar, setProveedorAEliminar] = useState(null);
 
     const [busqueda, setBusqueda] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -69,35 +68,39 @@ const Proveedores = () => {
         resolver: yupResolver(proveedorSchema)
     });
 
-    // Debounce Búsqueda
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            if (busqueda.length >= 3 || busqueda.length === 0) {
-                setDebouncedSearch(busqueda);
-                setCurrentPage(1);
-            }
-        }, 300);
-        return () => clearTimeout(handler);
-    }, [busqueda]);
-
     // 1. Fetching Proveedores
-    const { data: dataProveedores, isLoading: loadingProveedores } = useQuery({
-        queryKey: ['proveedores', currentPage, itemsPerPage, debouncedSearch],
+    const { data: proveedoresRaw = [], isLoading: loadingProveedores } = useQuery({
+        queryKey: ['proveedores'],
         queryFn: async () => {
-            let url = `http://localhost:5000/proveedores?page=${currentPage}&limit=${itemsPerPage}`;
-            if (debouncedSearch) {
-                url += `&search=${encodeURIComponent(debouncedSearch)}`;
-            }
-            const response = await fetch(url);
+            const response = await fetch("http://localhost:5000/proveedores");
             if (!response.ok) throw new Error("Error al cargar proveedores");
             return response.json();
         }
     });
 
-    // Support both array response (if backend not updated) and paginated response
-    const proveedores = Array.isArray(dataProveedores) ? dataProveedores : (dataProveedores?.proveedores || []);
-    const totalPages = dataProveedores?.total_pages || 1;
-    const totalItems = dataProveedores?.total_items || 0;
+    // Filtering & Pagination Logic (Client Side)
+    const proveedoresFiltrados = useMemo(() => {
+        // Support potential legacy array vs object response
+        const lista = Array.isArray(proveedoresRaw) ? proveedoresRaw : (proveedoresRaw.proveedores || []);
+        
+        if (!busqueda) return lista;
+
+        const search = busqueda.toLowerCase();
+        return lista.filter(p => 
+            p.Nombre?.toLowerCase().includes(search) ||
+            p.Email?.toLowerCase().includes(search) ||
+            p.Numero?.toLowerCase().includes(search) ||
+            (p.tipo_proveedor && p.tipo_proveedor.toLowerCase().includes(search))
+        );
+    }, [proveedoresRaw, busqueda]);
+
+    const totalItems = proveedoresFiltrados.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return proveedoresFiltrados.slice(startIndex, startIndex + itemsPerPage);
+    }, [proveedoresFiltrados, currentPage, itemsPerPage]);
 
     // 2. Fetching Tipos de Proveedor
     const { data: tiposProveedor = [] } = useQuery({
@@ -250,7 +253,10 @@ const Proveedores = () => {
                         placeholder="Buscar proveedor..."
                         className={styles['search-input']}
                         value={busqueda}
-                        onChange={(e) => setBusqueda(e.target.value)}
+                        onChange={(e) => {
+                            setBusqueda(e.target.value);
+                            setCurrentPage(1);
+                        }}
                     />
                     <button className={styles['btn-add']} onClick={abrirModalCrear}>
                         <i className="fa-solid fa-plus"></i> Nuevo Proveedor
@@ -260,7 +266,7 @@ const Proveedores = () => {
                 {/* Tabla */}
                 <Table
                     isLoading={loadingProveedores}
-                    data={proveedores}
+                    data={paginatedData}
                     columns={[
                         { header: "Empresa", accessor: "Nombre" },
                         { header: "Teléfono", accessor: "Numero" },
@@ -301,10 +307,11 @@ const Proveedores = () => {
                         currentPage: currentPage,
                         totalPages: totalPages,
                         totalItems: totalItems,
-                        minRows: 10,
+                        minRows: itemsPerPage,
                         onNext: () => setCurrentPage(p => Math.min(totalPages, p + 1)),
                         onPrev: () => setCurrentPage(p => Math.max(1, p - 1))
                     }}
+                    emptyMessage="No se encontraron proveedores."
                 />
 
                 {/* Modal Crear */}
