@@ -7,7 +7,7 @@ import * as yup from "yup";
 
 import styles from '../assets/styles/modals/Auditorias/Auditorias.module.css';
 import stylesCrear from '../assets/styles/modals/Auditorias/Auditorias.crear.module.css';
-import stylesEditar from '../assets/styles/modals/Auditorias/Auditorias.editar.module.css'; 
+import stylesEditar from '../assets/styles/modals/Auditorias/Auditorias.editar.module.css';
 
 import Head from '../components/Head';
 import Table from '../components/Table';
@@ -34,7 +34,7 @@ const Auditorias = () => {
     const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
     const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
     const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
-    
+
     const [auditoriaSeleccionada, setAuditoriaSeleccionada] = useState(null);
     const [auditoriaAEliminar, setAuditoriaAEliminar] = useState(null);
 
@@ -42,10 +42,10 @@ const Auditorias = () => {
     const [fechaFiltro, setFechaFiltro] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    
+
     const queryClient = useQueryClient();
     const { showNotification } = useNotification();
-    
+
     // User from localStorage
     const [user] = useState(() => {
         try {
@@ -72,7 +72,7 @@ const Auditorias = () => {
         formState: { errors: errorsFinalizar }
     } = useForm({
         resolver: yupResolver(finalizarSchema)
-    }); 
+    });
 
 
     // 1. Fetching Auditorias
@@ -152,7 +152,7 @@ const Auditorias = () => {
         mutationFn: async (data) => {
             const formData = new FormData();
             // data.archivo is FileList
-            formData.append('archivo', data.archivo[0]); 
+            formData.append('archivo', data.archivo[0]);
 
             const response = await fetch(`http://localhost:5000/auditorias/${auditoriaSeleccionada.id}/finalizar`, {
                 method: "POST",
@@ -196,7 +196,7 @@ const Auditorias = () => {
         if (!auditorias) return [];
         return auditorias.filter((aud) => {
             const matchTexto = (aud.lugar?.toLowerCase().includes(busqueda.toLowerCase())) ||
-                               (aud.estado?.toLowerCase().includes(busqueda.toLowerCase()));
+                (aud.estado?.toLowerCase().includes(busqueda.toLowerCase()));
             const matchFecha = fechaFiltro ? aud.fecha === fechaFiltro : true;
             return matchTexto && matchFecha;
         });
@@ -217,7 +217,7 @@ const Auditorias = () => {
 
     const handleUpdate = (data) => {
         if (auditoriaSeleccionada) {
-             updateMutation.mutate({ id: auditoriaSeleccionada.id, data });
+            updateMutation.mutate({ id: auditoriaSeleccionada.id, data });
         }
     };
 
@@ -246,7 +246,7 @@ const Auditorias = () => {
         // Pre-fill form
         resetCrear({
             fecha: aud.fecha,
-            hora: aud.hora, 
+            hora: aud.hora,
             lugar: aud.lugar
         });
         setMostrarModalEditar(true);
@@ -310,13 +310,13 @@ const Auditorias = () => {
             header: "Acciones",
             render: (aud) => (
                 <div className={styles['actions-cell']}>
-                    
+
                     <button className={styles['action-btn']} onClick={() => abrirModalDetalles(aud)} title="Ver detalles">
                         <i className="fa-solid fa-eye"></i>
                     </button>
 
                     {aud.estado !== 'Terminado' && (
-                         <button className={styles['action-btn']} onClick={() => abrirModalEditar(aud)} title="Editar">
+                        <button className={styles['action-btn']} onClick={() => abrirModalEditar(aud)} title="Editar">
                             <i className="fa-solid fa-pen"></i>
                         </button>
                     )}
@@ -330,7 +330,7 @@ const Auditorias = () => {
                             <i className="fa-solid fa-upload"></i>
                         </button>
                     )}
-                    
+
                     <button
                         className={styles['btn-delete-action']}
                         onClick={() => abrirModalEliminar(aud.id)}
@@ -498,13 +498,13 @@ const Auditorias = () => {
                             <h3>Detalles de Auditoría</h3>
                             <div className={stylesCrear.separator}></div>
                             <div style={{ marginTop: '15px' }}>
-                                <p><strong>ID:</strong> {auditoriaSeleccionada.id}</p>
+
                                 <p><strong>Fecha Programada:</strong> {auditoriaSeleccionada.fecha}</p>
                                 <p><strong>Hora Programada:</strong> {auditoriaSeleccionada.hora}</p>
                                 <p><strong>Lugar (Área):</strong> {auditoriaSeleccionada.lugar}</p>
                                 <p><strong>Estado Actual:</strong> {auditoriaSeleccionada.estado}</p>
                                 <p><strong>Archivo:</strong> {auditoriaSeleccionada.archivo_path ? (
-                                     <a href={`/assets/auditorias/${auditoriaSeleccionada.archivo_path}`} target="_blank" rel="noopener noreferrer" style={{color: '#2E4F6E'}}>Ver PDF</a>
+                                    <a href={`/assets/auditorias/${auditoriaSeleccionada.archivo_path}`} target="_blank" rel="noopener noreferrer" style={{ color: '#2E4F6E' }}>Ver PDF</a>
                                 ) : "No adjunto"}</p>
                             </div>
                             <div className={stylesCrear['modal-botones-derecha']}>
@@ -526,10 +526,10 @@ const Auditorias = () => {
                             <form onSubmit={handleSubmitFinalizar(handleFinalizar)}>
                                 <div className={stylesEditar.formGroup}>
                                     <label className={stylesEditar.formLabel}>Archivo de Informe (PDF)</label>
-                                    <input 
-                                        type="file" 
+                                    <input
+                                        type="file"
                                         accept="application/pdf"
-                                        {...registerFinalizar("archivo", { required: "El archivo es obligatorio" })} 
+                                        {...registerFinalizar("archivo", { required: "El archivo es obligatorio" })}
                                         style={{ padding: '10px' }} // Extra padding for file input
                                     />
                                     {errorsFinalizar.archivo && <p style={{ color: 'red', fontSize: '0.8rem' }}>{errorsFinalizar.archivo.message}</p>}

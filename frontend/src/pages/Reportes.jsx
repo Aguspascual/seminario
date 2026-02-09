@@ -14,9 +14,9 @@ import es from 'date-fns/locale/es';
 const Reportes = ({ user }) => {
     const queryClient = useQueryClient();
     const [isFaultModalOpen, setIsFaultModalOpen] = useState(false);
-    
+
     const { showNotification } = useNotification();
-    
+
     // Details / Edit Modal State
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -25,7 +25,7 @@ const Reportes = ({ user }) => {
     // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteReportId, setDeleteReportId] = useState(null);
-    
+
     const [machineFilter, setMachineFilter] = useState('');
 
     // Fetch Maquinarias for Filter
@@ -44,21 +44,21 @@ const Reportes = ({ user }) => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    
+
     // Fetch Reportes
     const { data: dataReportes, isLoading } = useQuery({
         queryKey: ['reportes', currentPage, itemsPerPage],
         queryFn: async () => {
-             const token = localStorage.getItem('token');
-             const response = await fetch(`http://localhost:5000/api/reportes?page=${currentPage}&limit=${itemsPerPage}`, {
-                 headers: {
-                     'Authorization': `Bearer ${token}`
-                 }
-             });
-             if (!response.ok) {
-                 throw new Error('Error al cargar reportes');
-             }
-             return response.json();
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5000/api/reportes?page=${currentPage}&limit=${itemsPerPage}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Error al cargar reportes');
+            }
+            return response.json();
         },
         keepPreviousData: true
     });
@@ -80,7 +80,7 @@ const Reportes = ({ user }) => {
 
     // Reset page when filter changes? No, filter is just visual on current page in this pattern.
     // If user changes filter, they see filtered results of CURRENT page.
-    
+
     // Mutation: Delete Report
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
@@ -104,8 +104,8 @@ const Reportes = ({ user }) => {
             setDeleteReportId(null);
         },
         onError: (err) => {
-             showNotification('error', err.message);
-             setIsDeleteModalOpen(false);
+            showNotification('error', err.message);
+            setIsDeleteModalOpen(false);
         }
     });
 
@@ -178,7 +178,7 @@ const Reportes = ({ user }) => {
     const handleEditSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        
+
         const updatedData = {
             id: selectedReport.id,
             descripcion_falla: formData.get("descripcion_falla"),
@@ -431,7 +431,7 @@ const Reportes = ({ user }) => {
                                 </h3>
                                 <div className={isEditMode ? stylesEditar.separator : stylesDetalles.separator}></div>
                             </div>
-                            
+
                             {isLoadingDetails ? (
                                 <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Cargando detalles...</div>
                             ) : (
@@ -472,15 +472,7 @@ const Reportes = ({ user }) => {
                                                 <option value="Con restricciones">Con restricciones</option>
                                             </select>
                                         </div>
-                                        <div className={stylesEditar.formGroup} style={{ margin: "0px" }}>
-                                            <label className={stylesEditar.formLabel} style={{ margin: "0px" }}>Estado</label>
-                                            <select name="estado_reporte" defaultValue={reportToDisplay.estado_reporte} style={{ margin: "0px" }}>
-                                                <option value="Pendiente">Pendiente</option>
-                                                <option value="En Progreso">En Progreso</option>
-                                                <option value="Resuelto">Resuelto</option>
-                                                <option value="Finalizado">Finalizado</option>
-                                            </select>
-                                        </div>
+
 
                                         <div className={stylesEditar['modal-botones-derecha']}>
                                             <button type="button" onClick={() => setIsEditMode(false)} className={stylesEditar['btn-gris']}>Cancelar</button>
@@ -495,9 +487,8 @@ const Reportes = ({ user }) => {
                                         <p><strong>Maquinaria:</strong> {reportToDisplay.maquinaria_nombre}</p>
                                         <p><strong>Ubicación Máquina:</strong> {reportToDisplay.maquinaria_ubicacion || '-'}</p>
                                         <p><strong>Reportado Por:</strong> {reportToDisplay.reportador_nombre}</p>
-                                        <p><strong>Descripción:</strong> <br/><span style={{display: 'block', marginTop: '4px', wordBreak: 'break-word'}}>{reportToDisplay.descripcion_falla || <em>Cargando...</em>}</span></p>
-                                        <p><strong>Ubicación Específica:</strong> {reportToDisplay.ubicacion_especifica || '-'}</p>
-                                        <p><strong>Estado:</strong> {getStatusBadge(reportToDisplay.estado_reporte)}</p>
+                                        <p><strong>Descripción:</strong> <span style={{ wordBreak: 'break-word' }}>{reportToDisplay.descripcion_falla || <em>Cargando...</em>}</span></p>
+
                                         <div style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
                                             <p><strong>Criticidad:</strong>
                                                 <span style={{ marginLeft: '5px', color: reportToDisplay.criticidad === 'Alta' ? '#ef4444' : '#374151' }}>
@@ -506,7 +497,7 @@ const Reportes = ({ user }) => {
                                             </p>
                                             <p><strong>¿Puede Operar?:</strong> {reportToDisplay.puede_operar || '-'}</p>
                                         </div>
-                                        
+
                                         <div className={stylesDetalles['modal-botones-derecha']} style={{ marginTop: '20px' }}>
                                             <button onClick={handleCloseDetailsModal} className={stylesDetalles['btn-gris']}>Cerrar</button>
                                             <button

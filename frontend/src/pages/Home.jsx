@@ -117,7 +117,7 @@ const Home = () => {
             title="Reportes"
             icon={AlertCircle}
             value={data.reportes.pendientes}
-            subtext="Reportes sin responder"
+            subtext="Últimos 7 días"
             status={data.reportes.pendientes > 0 ? 'danger' : 'normal'}
             colorClass="red"
             linkTo="/reportes"
