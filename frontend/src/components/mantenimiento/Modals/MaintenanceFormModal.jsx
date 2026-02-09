@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import styles from '../../../assets/styles/modals/Maintenance/MaintenanceForm.module.css';
 
 const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
     const queryClient = useQueryClient();
@@ -15,6 +16,8 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
         estado: 'Pendiente'
     });
     const [error, setError] = useState('');
+
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -94,10 +97,13 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
     };
 
     const handleDelete = () => {
-        if (window.confirm('¿Estás seguro de eliminar este mantenimiento?')) {
-            onDelete(initialData.id);
-            onClose();
-        }
+        setShowConfirmDelete(true);
+    };
+
+    const confirmDelete = () => {
+        onDelete(initialData.id);
+        setShowConfirmDelete(false);
+        onClose();
     };
 
     const handleChange = (e) => {
@@ -106,100 +112,146 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
     };
 
     return (
-        <div className="modal-fondo" onClick={onClose}>
-            <div className="modal-contenido" onClick={e => e.stopPropagation()}>
-                <h3>{initialData ? 'Editar Mantenimiento' : 'Nueva Tarea de Mantenimiento'}</h3>
+        <>
+            <div className={styles['modal-fondo']} onClick={onClose}>
+                <div className={styles['modal-contenido']} onClick={e => e.stopPropagation()}>
+                    <h3>{initialData ? 'Editar Mantenimiento' : 'Nueva Tarea de Mantenimiento'}</h3>
+                    <div className={styles.separator}></div>
 
-                <form onSubmit={handleSubmit}>
-                    <select name="maquinaria_id" value={formData.maquinaria_id} onChange={handleChange} required>
-                        <option value="">Seleccionar Maquinaria</option>
-                        {maquinarias.map(m => (
-                            <option key={m.id_maquinaria} value={m.id_maquinaria}>{m.nombre}</option>
-                        ))}
-                    </select>
+                    <form onSubmit={handleSubmit} style={{ marginTop: '5px', gap: '0px' }}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Maquinaria</label>
+                            <select name="maquinaria_id" value={formData.maquinaria_id} onChange={handleChange} required>
+                                <option value="">Seleccionar Maquinaria</option>
+                                {maquinarias.map(m => (
+                                    <option key={m.id_maquinaria} value={m.id_maquinaria}>{m.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <select name="tipo" value={formData.tipo} onChange={handleChange} required>
-                        <option value="Preventivo">Preventivo</option>
-                        <option value="Correctivo">Correctivo</option>
-                        <option value="Predictivo">Predictivo</option>
-                    </select>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Tipo de Mantenimiento</label>
+                            <select name="tipo" value={formData.tipo} onChange={handleChange} required>
+                                <option value="Preventivo">Preventivo</option>
+                                <option value="Correctivo">Correctivo</option>
+                                <option value="Predictivo">Predictivo</option>
+                            </select>
+                        </div>
 
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <input
-                            type="date"
-                            name="fecha_programada"
-                            value={formData.fecha_programada}
-                            onChange={handleChange}
-                            min={(() => {
-                                const tomorrow = new Date();
-                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                // Format as YYYY-MM-DD using local time
-                                const year = tomorrow.getFullYear();
-                                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-                                const day = String(tomorrow.getDate()).padStart(2, '0');
-                                return `${year}-${month}-${day}`;
-                            })()}
-                            required
-                        />
-                        <input
-                            type="time"
-                            name="hora_programada"
-                            value={formData.hora_programada}
-                            onChange={handleChange}
-                        />
-                    </div>
+                        <div className={styles.formRow}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Fecha Programada</label>
+                                <input
+                                    type="date"
+                                    name="fecha_programada"
+                                    value={formData.fecha_programada}
+                                    onChange={handleChange}
+                                    min={(() => {
+                                        const tomorrow = new Date();
+                                        tomorrow.setDate(tomorrow.getDate() + 1);
+                                        // Format as YYYY-MM-DD using local time
+                                        const year = tomorrow.getFullYear();
+                                        const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                                        const day = String(tomorrow.getDate()).padStart(2, '0');
+                                        return `${year}-${month}-${day}`;
+                                    })()}
+                                    required
+                                />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Hora</label>
+                                <input
+                                    type="time"
+                                    name="hora_programada"
+                                    value={formData.hora_programada}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
 
-                    <select name="prioridad" value={formData.prioridad} onChange={handleChange} required>
-                        <option value="Alta">Prioridad Alta</option>
-                        <option value="Media">Prioridad Media</option>
-                        <option value="Baja">Prioridad Baja</option>
-                    </select>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Prioridad</label>
+                            <select name="prioridad" value={formData.prioridad} onChange={handleChange} required>
+                                <option value="Alta">Prioridad Alta</option>
+                                <option value="Media">Prioridad Media</option>
+                                <option value="Baja">Prioridad Baja</option>
+                            </select>
+                        </div>
 
-                    {/* Status selection removed as per new logic */}
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Responsable</label>
+                            <select name="responsable_id" value={formData.responsable_id} onChange={handleChange}>
+                                <option value="">Asignar Responsable (Opcional)</option>
+                                {usuarios.map(u => (
+                                    <option key={u.id} value={u.legajo || u.id}>{u.nombre} {u.apellido}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <select name="responsable_id" value={formData.responsable_id} onChange={handleChange}>
-                        <option value="">Asignar Responsable (Opcional)</option>
-                        {usuarios.map(u => (
-                            <option key={u.id} value={u.legajo || u.id}>{u.nombre} {u.apellido}</option>
-                        ))}
-                    </select>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Tiempo Estimado (hs)</label>
+                            <input
+                                type="number"
+                                name="tiempo_estimado"
+                                placeholder="Ej: 2.5"
+                                value={formData.tiempo_estimado}
+                                onChange={handleChange}
+                                step="0.5"
+                            />
+                        </div>
 
-                    <input
-                        type="number"
-                        name="tiempo_estimado"
-                        placeholder="Tiempo Estimado (horas)"
-                        value={formData.tiempo_estimado}
-                        onChange={handleChange}
-                        step="0.5"
-                    />
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Descripción</label>
+                            <textarea
+                                name="descripcion"
+                                placeholder="Descripción de la tarea..."
+                                value={formData.descripcion}
+                                style={{
+                                    marginBottom: '0px'
+                                }}
+                                onChange={handleChange}
+                                rows="3"
+                                required
+                            ></textarea>
+                        </div>
 
-                    <textarea
-                        name="descripcion"
-                        placeholder="Descripción de la tarea..."
-                        value={formData.descripcion}
-                        onChange={handleChange}
-                        rows="3"
-                        required
-                    ></textarea>
+                        {error && <p style={{ color: 'red', fontSize: '0.9rem', marginBottom: '10px' }}>{error}</p>}
 
-                    {error && <p style={{ color: 'red', fontSize: '0.9rem' }}>{error}</p>}
+                        <div className={styles['modal-botones-derecha']} style={{ justifyContent: initialData ? 'space-between' : 'flex-end', margin: '20px 0 0 0' }}>
+                            {initialData && (
+                                <button type="button" className={styles['btn-rojo']} onClick={handleDelete} style={{ width: 'auto' }}>
+                                    Eliminar
+                                </button>
+                            )}
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="button" className={styles['btn-gris']} onClick={onClose}>Cancelar</button>
+                                <button type="submit" className={styles['btn-confirmar']} disabled={mutation.isPending}>
+                                    <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>
+                                    {mutation.isPending ? 'Guardando...' : 'Guardar'}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-                    <div className="modal-botones" style={{ justifyContent: 'space-between' }}>
-                        {initialData && (
-                            <button type="button" className="btn-cancelar" style={{ backgroundColor: '#dc2626' }} onClick={handleDelete}>
-                                Eliminar
-                            </button>
-                        )}
-                        <div style={{ display: 'flex', gap: '12px', marginLeft: 'auto' }}>
-                            <button type="button" className="btn-cancelar" onClick={onClose}>Cancelar</button>
-                            <button type="submit" className="btn-confirmar" disabled={mutation.isPending}>
-                                {mutation.isPending ? 'Guardando...' : 'Guardar'}
-                            </button>
+            {/* Modal Confirmación Eliminar */}
+            {showConfirmDelete && (
+                <div className={styles['modal-confirmacion-fondo']} onClick={() => setShowConfirmDelete(false)}>
+                    <div className={styles['modal-confirmacion-contenido']} onClick={e => e.stopPropagation()}>
+                        <div style={{ marginBottom: "15px", color: "#ef4444", fontSize: "3rem" }}>
+                            <i className="fa-solid fa-circle-exclamation"></i>
+                        </div>
+                        <h3>¿Estás seguro?</h3>
+                        <p>¿Deseas eliminar este mantenimiento? Esta acción no se puede deshacer.</p>
+                        <div className={styles['modal-confirmacion-botones']}>
+                            <button onClick={() => setShowConfirmDelete(false)} className={styles['btn-gris-modal']}>Cancelar</button>
+                            <button onClick={confirmDelete} className={styles['btn-rojo-confirm']}>Eliminar</button>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
+                </div>
+            )}
+        </>
     );
 };
 

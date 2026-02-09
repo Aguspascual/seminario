@@ -1,4 +1,5 @@
-
+.agents/
+.agent/
 .vite/
 frontend/.vite/
 node_modules
