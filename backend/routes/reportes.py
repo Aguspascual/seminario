@@ -15,14 +15,19 @@ def get_reporte_summary():
         description: Resumen de reportes
     """
     try:
-        from models.reporte import Reporte
-        # Asumimos que "pendiente" es cuando no tiene respuesta
-        # O podría haber un estado. Revisemos el modelo...
-        # Si no hay campo estado, usamos respuesta is None
-        pendientes = Reporte.query.filter(Reporte.respuesta == None).count()
+        from models.mantenimiento import ReporteFalla
+        from datetime import datetime, timedelta
+        
+        # Calcular inicio de la semana actual (Lunes)
+        today = datetime.now()
+        # Contar reportes de fallas creados en los últimos 7 días
+        seven_days_ago = today - timedelta(days=7)
+        seven_days_ago = seven_days_ago.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        reportes_semana = ReporteFalla.query.filter(ReporteFalla.fecha_reporte >= seven_days_ago).count()
         
         return jsonify({
-            "pendientes": pendientes
+            "pendientes": reportes_semana
         }), 200
     except Exception as e:
         return jsonify({"error": f"Error summary: {str(e)}"}), 500
