@@ -205,7 +205,7 @@
 }
 
 .btn-cancelar {
-    background-color: #ef4444;
+    background-color: #6B7280;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -215,7 +215,7 @@
 }
 
 .btn-cancelar:hover {
-    background-color: #dc2626;
+    background-color: #585d68;
 }
 
 /* Header Buttons */
