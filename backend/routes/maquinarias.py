@@ -4,6 +4,7 @@ Rutas (Blueprint) para Maquinaria
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
+from models.maquinaria import Maquinaria  # Import at top level
 from services.maquinaria_service import (
     get_maquinaria_by_id,
     search_maquinarias,
@@ -15,6 +16,36 @@ from services.maquinaria_service import (
 from schemas.maquinaria_schema import validate_maquinaria_create, validate_maquinaria_update
 
 maquinarias_bp = Blueprint('maquinarias', __name__, url_prefix='/maquinarias')
+
+
+@maquinarias_bp.route('/summary', methods=['GET'])
+def get_dashboard_summary():
+    """
+    Obtener resumen de maquinarias para dashboard
+    ---
+    tags:
+      - Maquinarias
+    responses:
+      200:
+        description: Resumen de maquinarias
+    """
+    try:
+        total = Maquinaria.query.count()
+        operativas = Maquinaria.query.filter_by(estado=1).count()
+        en_reparacion = Maquinaria.query.filter_by(estado=2).count()
+        # Inactivas (0) = total - operativas - en_reparacion
+        
+        print(f"DEBUG MAQUINARIAS: Total={total}, Ops={operativas}, Rep={en_reparacion}")
+
+        return jsonify({
+            "total": total,
+            "operativas": operativas,
+            "en_reparacion": en_reparacion,
+            "inactivas": total - operativas - en_reparacion
+        }), 200
+    except Exception as e:
+        print(f"ERROR MAQUINARIAS SUMMARY: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 
 @maquinarias_bp.route('/', methods=['GET'])

@@ -3,6 +3,30 @@ from services.reporte_service import ReporteService
 
 reportes_bp = Blueprint("reportes", __name__)
 
+@reportes_bp.route("/reportes/summary", methods=["GET"])
+def get_reporte_summary():
+    """
+    Obtener resumen de reportes para dashboard
+    ---
+    tags:
+      - Reportes
+    responses:
+      200:
+        description: Resumen de reportes
+    """
+    try:
+        from models.reporte import Reporte
+        # Asumimos que "pendiente" es cuando no tiene respuesta
+        # O podría haber un estado. Revisemos el modelo...
+        # Si no hay campo estado, usamos respuesta is None
+        pendientes = Reporte.query.filter(Reporte.respuesta == None).count()
+        
+        return jsonify({
+            "pendientes": pendientes
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Error summary: {str(e)}"}), 500
+
 @reportes_bp.route("/reportes", methods=["GET"])
 def get_reportes():
     """

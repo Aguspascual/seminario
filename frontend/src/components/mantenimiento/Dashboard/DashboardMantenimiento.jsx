@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import KPICards from './KPICards';
 import CalendarMantenimiento from './CalendarioMantenimiento';
 import ProximosMantenimientos from './ProximosMantenimientos';
@@ -9,54 +10,54 @@ import MaintenanceDetailModal from '../Modals/MaintenanceDetailModal';
 import { Plus, AlertTriangle } from 'lucide-react';
 
 const DashboardMantenimiento = () => {
-    const [dashboardData, setDashboardData] = useState(null);
-    const [calendarEvents, setCalendarEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
+    // const [dashboardData, setDashboardData] = useState(null); // Replaced by useQuery
+    // const [calendarEvents, setCalendarEvents] = useState([]); // Replaced by useQuery
+    // const [loading, setLoading] = useState(true); // Replaced by useQuery
     const [currentDate, setCurrentDate] = useState(new Date());
 
-        // Modal States
+    // Modal States
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showFaultModal, setShowFaultModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [selectedDetailEvent, setSelectedDetailEvent] = useState(null);
 
-    useEffect(() => {
-        fetchDashboardData();
-        fetchCalendarEvents(currentDate.getMonth() + 1, currentDate.getFullYear());
-    }, [currentDate]); // Refetch on date change to ensure sync
-
-    const fetchDashboardData = async () => {
-        try {
+    const { data: dashboardData, isLoading: loading, refetch: fetchDashboardData } = useQuery({
+        queryKey: ['dashboard_data'],
+        queryFn: async () => {
             const response = await fetch('http://localhost:5000/api/mantenimientos/dashboard');
-            if (response.ok) {
-                const data = await response.json();
-                setDashboardData(data);
+            if (!response.ok) {
+                throw new Error('Error fetching dashboard data');
             }
-        } catch (error) {
-            console.error('Error fetching dashboard data:', error);
-        } finally {
-            setLoading(false);
+            return response.json();
         }
-    };
+    });
 
     const fetchCalendarEvents = async (month, year) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/mantenimientos/calendario?mes=${month}&anio=${year}`);
-            if (response.ok) {
-                const data = await response.json();
-                // Convert string dates to Date objects for React Big Calendar
-                const events = data.eventos.map(e => ({
-                    ...e,
-                    start: new Date(e.start), // Ensure proper date parsing
-                    end: new Date(e.start)  // Calendar needs end date even for single day
-                }));
-                setCalendarEvents(events);
-            }
-        } catch (error) {
-            console.error('Error fetching calendar events:', error);
+        const response = await fetch(`http://localhost:5000/api/mantenimientos/calendario?mes=${month}&anio=${year}`);
+        if (!response.ok) {
+            throw new Error('Error fetching calendar events');
         }
+        const data = await response.json();
+        // Convert string dates to Date objects for React Big Calendar
+        return data.eventos.map(e => {
+            // Parse date manually to avoid UTC offset issues
+            const parts = e.start.split('T')[0].split('-');
+            const localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            return {
+                ...e,
+                start: localDate,
+                end: localDate  // Calendar needs end date even for single day
+            };
+        });
     };
+
+    const { data: calendarEvents = [] } = useQuery({
+        queryKey: ['calendar_events', currentDate.getMonth() + 1, currentDate.getFullYear()],
+        queryFn: () => fetchCalendarEvents(currentDate.getMonth() + 1, currentDate.getFullYear()),
+        keepPreviousData: true
+    });
 
     const handleNavigate = (date) => {
         setCurrentDate(date);
@@ -86,7 +87,7 @@ const DashboardMantenimiento = () => {
         setShowMaintenanceModal(false);
         setSelectedMaintenance(null);
         fetchDashboardData();
-        fetchCalendarEvents(currentDate.getMonth() + 1, currentDate.getFullYear());
+        queryClient.invalidateQueries(['calendar_events']);
     };
 
     const handleCloseFaultModal = () => {
@@ -106,7 +107,7 @@ const DashboardMantenimiento = () => {
 
             if (response.ok) {
                 fetchDashboardData();
-                fetchCalendarEvents(currentDate.getMonth() + 1, currentDate.getFullYear());
+                queryClient.invalidateQueries(['calendar_events']);
             } else {
                 alert('Error al eliminar mantenimiento');
             }

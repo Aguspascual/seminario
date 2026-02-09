@@ -18,13 +18,17 @@ from routes.recuperar_contrasena import bp_recuperar
 from routes.home import home_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from utils.extensions import mail
 from flasgger import Swagger
 import os
 
 # Carga variables de entorno desde .env
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Force reload of .env file to ensure changes are picked up
+    # override=True ensures .env values take precedence over system env vars
+    load_dotenv(override=True)
+    print(f"Loaded .env from: {os.getcwd()}")
 except ImportError:
     pass
 
@@ -43,6 +47,28 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key") #
 # Inicializa la base de datos
 db.init_app(app)
 jwt = JWTManager(app)
+
+# Configuración de Flask-Mail (MUST be before mail.init_app!)
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
+
+print("--- DEBUG MAIL CONFIG ---")
+print(f"Server: {app.config['MAIL_SERVER']}")
+print(f"Port: {app.config['MAIL_PORT']}")
+print(f"Username: {app.config['MAIL_USERNAME']}")
+print(f"Password set: {'Yes' if app.config['MAIL_PASSWORD'] else 'No'}")
+print(f"SSL: {app.config['MAIL_USE_SSL']}")
+print(f"TLS: {app.config['MAIL_USE_TLS']}")
+print("-------------------------")
+
+# NOW initialize Flask-Mail with the correct config
+mail.init_app(app)
+
 swagger = Swagger(app)
 
 # Force reload for blueprint registration
