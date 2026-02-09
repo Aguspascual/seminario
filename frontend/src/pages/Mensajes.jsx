@@ -188,7 +188,7 @@ const Mensajes = () => {
                                         <div className={styles.avatar}>{u.nombre.charAt(0)}</div>
                                         <div className={styles.info}>
                                             <span className={styles.nombre}>{u.nombre}</span>
-                                            <span className={styles.rol}>{u.rol}</span>
+
                                         </div>
                                     </li>
                                 ))}
