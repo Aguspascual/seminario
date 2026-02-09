@@ -1,13 +1,14 @@
 import React from 'react';
+import styles from '../../../assets/styles/modals/Maintenance/Maintenance.detalles.module.css';
 
 const MaintenanceDetailModal = ({ onClose, maintenance, onEdit }) => {
     if (!maintenance) return null;
 
     return (
-        <div className="modal-fondo" onClick={onClose}>
-            <div className="modal-contenido" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ margin: 0 }}>Detalle de Mantenimiento</h3>
+        <div className={styles['modal-fondo']} onClick={onClose}>
+            <div className={styles['modal-contenido']} onClick={e => e.stopPropagation()}>
+                <div className={styles['header-container']}>
+                    <h3>Detalle de Mantenimiento</h3>
                     <span
                         style={{
                             backgroundColor: maintenance.estado === 'Completado' ? '#10b981' :
@@ -22,26 +23,27 @@ const MaintenanceDetailModal = ({ onClose, maintenance, onEdit }) => {
                         {maintenance.estado}
                     </span>
                 </div>
+                <div className={styles.separator}></div>
 
-                <div className="detalle-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div className={styles['detalle-grid']}>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Maquinaria:</strong>
-                        <span>{maintenance.maquinaria_nombre || 'Desconocida'}</span>
+                        <strong className={styles.label}>Maquinaria:</strong>
+                        <span className={styles.value}>{maintenance.maquinaria_nombre || 'Desconocida'}</span>
                     </div>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Tipo:</strong>
-                        <span>{maintenance.tipo}</span>
+                        <strong className={styles.label}>Tipo:</strong>
+                        <span className={styles.value}>{maintenance.tipo}</span>
                     </div>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Fecha:</strong>
-                        <span>{new Date(maintenance.fecha_programada).toLocaleDateString()}</span>
+                        <strong className={styles.label}>Fecha:</strong>
+                        <span className={styles.value}>{new Date(maintenance.fecha_programada).toLocaleDateString()}</span>
                     </div>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Hora:</strong>
-                        <span>{maintenance.hora_programada || 'N/A'}</span>
+                        <strong className={styles.label}>Hora:</strong>
+                        <span className={styles.value}>{maintenance.hora_programada || 'N/A'}</span>
                     </div>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Prioridad:</strong>
+                        <strong className={styles.label}>Prioridad:</strong>
                         <span style={{
                             color: maintenance.prioridad === 'Alta' ? '#dc2626' :
                                 maintenance.prioridad === 'Media' ? '#f59e0b' : '#10b981',
@@ -51,27 +53,27 @@ const MaintenanceDetailModal = ({ onClose, maintenance, onEdit }) => {
                         </span>
                     </div>
                     <div>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Responsable:</strong>
-                        <span>{maintenance.responsable_nombre || 'Sin asignar'}</span>
+                        <strong className={styles.label}>Responsable:</strong>
+                        <span className={styles.value}>{maintenance.responsable_nombre || 'Sin asignar'}</span>
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
-                        <strong style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>Descripción:</strong>
-                        <p style={{ margin: '5px 0', backgroundColor: '#f9fafb', padding: '10px', borderRadius: '5px' }}>
+                        <strong className={styles.label}>Descripción:</strong>
+                        <p className={styles['description-box']}>
                             {maintenance.descripcion}
                         </p>
                     </div>
                 </div>
 
-                <div className="modal-botones" style={{ justifyContent: 'flex-end', gap: '10px' }}>
-                    <button type="button" className="btn-cancelar" onClick={onClose}>
+                <div className={styles['modal-botones-derecha']}>
+                    <button type="button" className={styles['btn-gris']} onClick={onClose}>
                         Cerrar
                     </button>
                     <button
                         type="button"
-                        className="btn-confirmar"
+                        className={styles['btn-editar']}
                         onClick={() => onEdit(maintenance)}
-                        style={{ backgroundColor: '#2563eb' }}
                     >
+                        <i className="fa-solid fa-pen-to-square" style={{ marginRight: '8px' }}></i>
                         Editar
                     </button>
                 </div>
