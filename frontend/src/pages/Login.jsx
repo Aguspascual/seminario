@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import '../assets/styles/Login.css';
 import logo from '../assets/avg/LogoEcopolo.ico';
 import fondo from '../assets/images/Fondo.jpeg';
@@ -8,6 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const { login } = useAuth();
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,10 +41,9 @@ const Login = () => {
       if (response.ok) {
         // Login exitoso
         console.log('Login exitoso:', data);
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('usuario', JSON.stringify(data.user));
-        // Usamos window.location para recargar la app y que App.jsx lea el usuario
-        window.location.href = '/home';
+        login(data.user, data.access_token);
+        // Usamos navigate en lugar de window.location para SPA feel, aunque AuthContext maneja el estado
+        navigate('/home');
       } else {
         // Error en el login
         setError(data.error || 'Credencial incorrecta');

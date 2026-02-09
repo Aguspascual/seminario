@@ -130,6 +130,15 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
                             name="fecha_programada"
                             value={formData.fecha_programada}
                             onChange={handleChange}
+                            min={(() => {
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                // Format as YYYY-MM-DD using local time
+                                const year = tomorrow.getFullYear();
+                                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                                const day = String(tomorrow.getDate()).padStart(2, '0');
+                                return `${year}-${month}-${day}`;
+                            })()}
                             required
                         />
                         <input
@@ -146,12 +155,7 @@ const MaintenanceFormModal = ({ onClose, initialData = null, onDelete }) => {
                         <option value="Baja">Prioridad Baja</option>
                     </select>
 
-                    <select name="estado" value={formData.estado} onChange={handleChange} required>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Vencido">Vencido</option>
-                    </select>
+                    {/* Status selection removed as per new logic */}
 
                     <select name="responsable_id" value={formData.responsable_id} onChange={handleChange}>
                         <option value="">Asignar Responsable (Opcional)</option>

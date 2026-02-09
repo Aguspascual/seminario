@@ -11,7 +11,35 @@ class MantenimientoService:
         return [m.to_dict() for m in mantenimientos]
 
     @staticmethod
+    def update_daily_statuses():
+        today = date.today()
+        # Find 'Pendiente' tasks scheduled for today or earlier (that haven't been updated)
+        # We also want to auto-move 'Pendiente' tasks from past to 'Vencido'? 
+        # The user requirement was: "Cuando la tarea este en el dia actual, pase a estado 'En Proceso'"
+        # And "si se marca que 'no', pase a estado 'Vencido'".
+        # For now, let's strictly follow: Date = Today -> En Proceso.
+        # If Date < Today and still Pendiente/En Proceso? 
+        # The user didn't explicitly say auto-expire to Vencido, but "si se marca que 'no', pase a estado 'Vencido'".
+        # I will assume for now only Today's tasks become En Proceso.
+        
+        tasks_to_process = Mantenimiento.query.filter(
+            Mantenimiento.estado == 'Pendiente',
+            Mantenimiento.fecha_programada <= today
+        ).all()
+        
+        count = 0
+        for task in tasks_to_process:
+            task.estado = 'En Proceso'
+            count += 1
+            
+        if count > 0:
+            db.session.commit()
+
+    @staticmethod
     def get_dashboard_kpis():
+        # Update statuses first
+        MantenimientoService.update_daily_statuses()
+
         today = date.today()
         first_day_of_month = today.replace(day=1)
         
@@ -20,11 +48,10 @@ class MantenimientoService:
         # For now, let's assume a job updates the status, or we count manually.
         # Let's count 'Pendiente' with date < today as Vencido too if not updated.
         real_vencidos = Mantenimiento.query.filter(
-            ((Mantenimiento.estado == 'Vencido') | 
-             ((Mantenimiento.estado == 'Pendiente') & (Mantenimiento.fecha_programada < today)))
+            ((Mantenimiento.estado == 'Vencido'))
         ).count()
         
-        pendientes = Mantenimiento.query.filter(Mantenimiento.estado == 'Pendiente', Mantenimiento.fecha_programada >= today).count()
+        pendientes = Mantenimiento.query.filter(Mantenimiento.estado == 'Pendiente', Mantenimiento.fecha_programada > today).count()
         en_proceso = Mantenimiento.query.filter(Mantenimiento.estado == 'En Proceso').count()
         completados = Mantenimiento.query.filter(
             Mantenimiento.estado == 'Completado'
@@ -46,12 +73,14 @@ class MantenimientoService:
         
         # Upcoming 7 days
         next_week = today + timedelta(days=7)
+        # Modified filter to include 'En Proceso' which should be today's tasks
         proximos = Mantenimiento.query.filter(
             Mantenimiento.fecha_programada >= today,
             Mantenimiento.fecha_programada <= next_week,
             Mantenimiento.estado != 'Completado',
-            Mantenimiento.estado != 'Cancelado'
-        ).order_by(Mantenimiento.fecha_programada.asc()).limit(5).all()
+            Mantenimiento.estado != 'Cancelado',
+            Mantenimiento.estado != 'Vencido'
+        ).order_by(Mantenimiento.fecha_programada.asc()).limit(10).all()
         
         # Get recent faults
         fallas_recientes = MantenimientoService.get_recent_faults()
@@ -126,15 +155,20 @@ class MantenimientoService:
 
     @staticmethod
     def create_mantenimiento(data):
+        fecha_prog = datetime.strptime(data['fecha_programada'], '%Y-%m-%d').date()
+        if fecha_prog <= date.today():
+             raise ValueError("La fecha programada debe ser a partir de mañana.")
+
         new_mant = Mantenimiento(
             maquinaria_id=data['maquinaria_id'],
             tipo=data['tipo'],
-            fecha_programada=datetime.strptime(data['fecha_programada'], '%Y-%m-%d').date(),
-            hora_programada=datetime.strptime(data['hora_programada'], '%H:%M').time() if 'hora_programada' in data else None,
+            fecha_programada=fecha_prog,
+            hora_programada=datetime.strptime(data['hora_programada'], '%H:%M').time() if 'hora_programada' in data and data['hora_programada'] else None,
             responsable_id=data.get('responsable_id'),
             prioridad=data.get('prioridad', 'Media'),
             tiempo_estimado=data.get('tiempo_estimado'),
             descripcion=data['descripcion'],
+            estado='Pendiente', # Enforce default status
             es_recurrente=data.get('es_recurrente', False),
             frecuencia_dias=data.get('frecuencia_dias'),
             creado_por=data.get('creado_por')

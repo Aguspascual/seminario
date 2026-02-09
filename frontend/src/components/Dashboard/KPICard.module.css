@@ -1,0 +1,147 @@
+/* KPICard - Professional Clean Design with Animations */
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    /* Elevated shadow on hover */
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.iconContainer {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+}
+
+/* Color variations - Modern Pastels */
+.blue .iconContainer {
+    background-color: #eff6ff;
+    color: #3b82f6;
+}
+
+.green .iconContainer {
+    background-color: #f0fdf4;
+    color: #22c55e;
+}
+
+.yellow .iconContainer {
+    background-color: #fefce8;
+    color: #eab308;
+}
+
+.red .iconContainer {
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+
+.purple .iconContainer {
+    background-color: #faf5ff;
+    color: #a855f7;
+}
+
+.cardTitle {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4b5563;
+    /* Gray-600 */
+    margin: 0;
+}
+
+.cardBody {
+    flex-grow: 1;
+    margin-bottom: 0.5rem;
+}
+
+.valueContainer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    /* Gray-900 */
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+}
+
+.subtext {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.cardFooter {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.linkBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: #6b7280;
+    transition: color 0.15s ease;
+}
+
+.linkBtn:hover {
+    color: #2563eb;
+}
+
+/* Arrow animation */
+.arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.linkBtn:hover .arrow {
+    transform: translateX(4px);
+}
+
+/* Status indicators (Left Border) */
+/* Status indicators (Left Border) - Removed as per user request */
+.warning {
+    border-left: 4px solid transparent;
+}
+
+.danger {
+    border-left: 4px solid transparent;
+}
+
+.success {
+    border-left: 4px solid transparent;
+}
+
+.normal {
+    border-left: 4px solid transparent;
+}
+
+/* Consistent spacing even without status */
